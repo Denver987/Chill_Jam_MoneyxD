@@ -24,12 +24,14 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     private Vector3 cachedSeparation = Vector3.zero;
     private float separationTimer = 0f;
 
+    private Enemy enemy;
     private bool isKnockedBack = false;
     private float knockbackTimer = 0f;
     private void Awake()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody>();
+        enemy = GetComponent<Enemy>();
 
         navMeshAgent.updatePosition = false;
         navMeshAgent.updateRotation = false;
@@ -64,7 +66,25 @@ public class EnnemyMovement : MonoBehaviour,IHitable
         FollowTarget();
     }
 
+    private void OnCollisionEnter(Collision collision)
+    {
+        EnnemyMovement otherEnemy = collision.gameObject.GetComponent<EnnemyMovement>();
+        if(otherEnemy != null)
+        {
+            if (isKnockedBack)
+            {
+                Die();
+                otherEnemy.Die();
+            }
+        }
+    }
 
+
+    public void Die()
+    {
+        spawner.RemoveEnemy(enemy);
+        gameObject.SetActive(false);
+    }
     private void FollowTarget()
     {
         if (target == null) return;

@@ -5,7 +5,7 @@ public class ObjectPool
 {
     private PoolableObject Prefab;
     private int Size;
-    private List<PoolableObject> AvailableObjectsPool;
+    public List<PoolableObject> AvailableObjectsPool;
 
     private ObjectPool(PoolableObject Prefab, int Size)
     {
@@ -37,6 +37,7 @@ public class ObjectPool
         }
     }
 
+   
     public PoolableObject GetObject()
     {
         PoolableObject instance = AvailableObjectsPool[0];
@@ -50,6 +51,8 @@ public class ObjectPool
 
     public void ReturnObjectToPool(PoolableObject Object)
     {
+        Debug.Log($"Returning {Object.name} to pool {this.Prefab.name}");
         AvailableObjectsPool.Add(Object);
+        Debug.Log($"Available objects in pool: {AvailableObjectsPool.Count}");
     }
 }

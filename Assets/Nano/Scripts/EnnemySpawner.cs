@@ -11,10 +11,14 @@ public class EnemySpawner : MonoBehaviour
     public List<Enemy> EnemyPrefabs = new List<Enemy>();
     public SpawnMethod EnemySpawnMethod = SpawnMethod.RoundRobin;
 
+
+    public bool infiniteSpawn = false; // if true, will spawn enemies infinitely until stopped
+
     private NavMeshTriangulation Triangulation;
     public Dictionary<int, ObjectPool> EnemyObjectPools = new Dictionary<int, ObjectPool>();
 
     public List<Enemy> ActiveEnemies = new List<Enemy>();
+    public int activeEnemiesCount => ActiveEnemies.Count;
     private void Awake()
     {
         for (int i = 0; i < EnemyPrefabs.Count; i++)
@@ -27,7 +31,33 @@ public class EnemySpawner : MonoBehaviour
     {
         Triangulation = NavMesh.CalculateTriangulation();
 
-        StartCoroutine(SpawnEnemies());
+        if(infiniteSpawn)
+            StartCoroutine(SpawnInfinitEnnemies());
+        else
+            StartCoroutine(SpawnEnemies());
+    }
+
+    private IEnumerator SpawnInfinitEnnemies()
+    {
+        WaitForSeconds Wait = new WaitForSeconds(SpawnDelay);
+
+        while (true) // infinite loop
+        {
+            // only spawn if below max active enemies
+            if (ActiveEnemies.Count < NumberOfEnemiesToSpawn)
+            {
+                if (EnemySpawnMethod == SpawnMethod.RoundRobin)
+                {
+                    SpawnRoundRobinEnemy(ActiveEnemies.Count);
+                }
+                else if (EnemySpawnMethod == SpawnMethod.Random)
+                {
+                    SpawnRandomEnemy();
+                }
+            }
+
+            yield return Wait;
+        }
     }
 
     private IEnumerator SpawnEnemies()
@@ -68,7 +98,8 @@ public class EnemySpawner : MonoBehaviour
     private void DoSpawnEnemy(int SpawnIndex)
     {
         PoolableObject poolableObject = EnemyObjectPools[SpawnIndex].GetObject();
-
+        Debug.Log($"Spawning enemy of type {SpawnIndex} from pool {poolableObject.name}");
+        Debug.Log($"Available objects in pool: {EnemyObjectPools[SpawnIndex].AvailableObjectsPool.Count}");
         if (poolableObject != null)
         {
             Enemy enemy = poolableObject.GetComponent<Enemy>();
@@ -78,11 +109,7 @@ public class EnemySpawner : MonoBehaviour
             NavMeshHit Hit;
             if (NavMesh.SamplePosition(Triangulation.vertices[VertexIndex], out Hit, 2f, -1))
             {
-                enemy.Agent.Warp(Hit.position + Vector3.up);
-                // enemy needs to get enabled and start chasing now.
-                enemy.Movement.target = target;
-                 
-                enemy.Agent.enabled = true;
+                enemy.ResetEnemy(Hit.position + Vector3.up, target);
 
                 if (!ActiveEnemies.Contains(enemy))
                     ActiveEnemies.Add(enemy);
