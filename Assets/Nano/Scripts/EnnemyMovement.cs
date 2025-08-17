@@ -3,13 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class EnnemyMovement : MonoBehaviour
+public class EnnemyMovement : MonoBehaviour,IHitable
 {
+
+    [Header("Settings")]    
     public float moveSpeed = 1.0f;
     public float spreadRadius = 1.5f; // how much the enemies spread out
     public float separationRadius = 2.0f; // distance to keep from other enemies
     public float avoidanceForce = 2.0f;
-    public float separationUpdateRate = 0.2f; // recalc separation every 0.2s// how strong separation pushes them
+    public float separationUpdateRate = 0.2f;
+    public float knockbackRecoveryTime = 0.5f; // how long it takes to recover from knockback
+    // recalc separation every 0.2s// how strong separation pushes them
 
     private NavMeshAgent navMeshAgent;
     private Rigidbody rb;
@@ -19,6 +23,9 @@ public class EnnemyMovement : MonoBehaviour
 
     private Vector3 cachedSeparation = Vector3.zero;
     private float separationTimer = 0f;
+
+    private bool isKnockedBack = false;
+    private float knockbackTimer = 0f;
     private void Awake()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
@@ -44,8 +51,19 @@ public class EnnemyMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (isKnockedBack)
+        {
+            knockbackTimer -= Time.fixedDeltaTime;
+            if (knockbackTimer <= 0f)
+            {
+                RecoverFromKnockback();
+            }
+            return; // Skip AI movement while knocked back
+        }
+
         FollowTarget();
     }
+
 
     private void FollowTarget()
     {
@@ -90,7 +108,29 @@ public class EnnemyMovement : MonoBehaviour
 
         navMeshAgent.nextPosition = rb.position;
     }
+    public void Execute(Transform executionSource, float knockbackStrength)
+    {
+        KnockBackEntity(executionSource, knockbackStrength);
+    }
 
+    private void KnockBackEntity(Transform executionSource, float knockbackStrength)
+    {
+        if (executionSource == null || rb == null) return;
+
+        Vector3 direction = (transform.position - executionSource.position).normalized;
+        rb.AddForce(direction * knockbackStrength, ForceMode.Impulse);
+
+        // Enter knockback state
+        isKnockedBack = true;
+        knockbackTimer = knockbackRecoveryTime;
+    }
+
+    private void RecoverFromKnockback()
+    {
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        isKnockedBack = false;
+    }
     // --- Steering Behavior: Separation ---
     private Vector3 ComputeSeparation()
     {
