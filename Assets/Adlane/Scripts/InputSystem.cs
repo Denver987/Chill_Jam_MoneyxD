@@ -3,7 +3,7 @@ using UnityEngine.InputSystem;
 
 public class InputSystem : MonoBehaviour
 {
-    private Rigidbody rb;
+    public Rigidbody rb;
     [SerializeField] private float jumpForce = 5f;
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float acceleration = 50f; 
