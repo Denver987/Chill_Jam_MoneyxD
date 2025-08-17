@@ -14,11 +14,14 @@ public class ObjectPool
         AvailableObjectsPool = new List<PoolableObject>(Size);
     }
 
-    public static ObjectPool CreateInstance(PoolableObject Prefab, int Size)
+    public static ObjectPool CreateInstance(PoolableObject Prefab, int Size,Transform parent = null)
     {
         ObjectPool pool = new ObjectPool(Prefab, Size);
 
         GameObject poolGameObject = new GameObject(Prefab + " Pool");
+
+        if (parent != null)
+            poolGameObject.transform.SetParent(parent, false);
         pool.CreateObjects(poolGameObject);
 
         return pool;

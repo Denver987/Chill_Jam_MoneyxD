@@ -12,13 +12,14 @@ public class EnemySpawner : MonoBehaviour
     public SpawnMethod EnemySpawnMethod = SpawnMethod.RoundRobin;
 
     private NavMeshTriangulation Triangulation;
-    private Dictionary<int, ObjectPool> EnemyObjectPools = new Dictionary<int, ObjectPool>();
+    public Dictionary<int, ObjectPool> EnemyObjectPools = new Dictionary<int, ObjectPool>();
 
+    public List<Enemy> ActiveEnemies = new List<Enemy>();
     private void Awake()
     {
         for (int i = 0; i < EnemyPrefabs.Count; i++)
         {
-            EnemyObjectPools.Add(i, ObjectPool.CreateInstance(EnemyPrefabs[i], NumberOfEnemiesToSpawn));
+            EnemyObjectPools.Add(i, ObjectPool.CreateInstance(EnemyPrefabs[i], NumberOfEnemiesToSpawn,this.transform));
         }
     }
 
@@ -82,6 +83,9 @@ public class EnemySpawner : MonoBehaviour
                 enemy.Movement.target = target;
                  
                 enemy.Agent.enabled = true;
+
+                if (!ActiveEnemies.Contains(enemy))
+                    ActiveEnemies.Add(enemy);
             }
             else
             {
@@ -93,7 +97,11 @@ public class EnemySpawner : MonoBehaviour
             Debug.LogError($"Unable to fetch enemy of type {SpawnIndex} from object pool. Out of objects?");
         }
     }
-
+    public void RemoveEnemy(Enemy enemy)
+    {
+        if (ActiveEnemies.Contains(enemy))
+            ActiveEnemies.Remove(enemy);
+    }
 
     public enum SpawnMethod
     {
