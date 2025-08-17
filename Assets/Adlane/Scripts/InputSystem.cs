@@ -45,10 +45,7 @@ public class InputSystem : MonoBehaviour
         if (rb == null) return;
         if (grounded)
         {
-            if (context.performed)
-            {
-                rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            }
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);          
         }
     }
 
