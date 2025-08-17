@@ -4,5 +4,5 @@ using UnityEngine;
 
 public interface IHitable
 {
-    public void Execute(Transform executionSource);
+    public void Execute(Transform executionSource, float knockbackStrength);
 }

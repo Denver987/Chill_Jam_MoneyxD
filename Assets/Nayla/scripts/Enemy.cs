@@ -5,18 +5,18 @@ using UnityEngine;
 public class Enemy : MonoBehaviour, IHitable
 {
     private Rigidbody rb;
-    float knockbackStrength = 10f; 
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
     }
 
-    public void Execute(Transform executionSource)
+    public void Execute(Transform executionSource, float knockbackStrength)
     {
-        KnockBackEntity(executionSource);
+        KnockBackEntity(executionSource, knockbackStrength);
     }
 
-    private void KnockBackEntity(Transform executionSource)
+    private void KnockBackEntity(Transform executionSource, float knockbackStrength)
     {
 
         if (executionSource == null)
