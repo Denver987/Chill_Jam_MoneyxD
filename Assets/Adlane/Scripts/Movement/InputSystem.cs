@@ -4,12 +4,19 @@ using UnityEngine.InputSystem;
 public class InputSystem : MonoBehaviour
 {
     private Rigidbody rb;
+    [Header("Movement Settings")]
     [SerializeField] private float jumpForce = 5f;
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float acceleration = 50f; 
+    [SerializeField] private float SpeedMultiplier = 2f;
+    [Header("Air Movement")]
+    [SerializeField] private float airAcceleration = 10f;  // much lower than ground acceleration
+    [SerializeField] private float airSpeedLimit = 8f;     // max air speed to prevent infinite acceleration
+    [Header("Look Settings")]
     [SerializeField] private float lookSpeed = 2f;
     [SerializeField] float minPitch = -80f;
     [SerializeField] float maxPitch = 80f;
+
 
     [Header("Ground Check")]
     [SerializeField] private LayerMask groundMask = ~0;
@@ -21,6 +28,7 @@ public class InputSystem : MonoBehaviour
     private Transform pitchTarget; // camera only
     private Vector2 moveInput = Vector2.zero;
     private Vector2 lookInput = Vector2.zero;
+    private Knockback knockback;
 
     private float yaw;
     private float pitch;
@@ -28,14 +36,15 @@ public class InputSystem : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        pitchTarget = Camera.main.transform;
+        pitchTarget = Camera.main.transform.parent;
 
         Cursor.lockState = CursorLockMode.Locked;
+        knockback = GetComponent<Knockback>();
 
         if (rb != null)
         {
             rb.interpolation = RigidbodyInterpolation.Interpolate;
-            rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+            rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ | RigidbodyConstraints.FreezeRotationY;
         }
     }
 
@@ -61,6 +70,17 @@ public class InputSystem : MonoBehaviour
     {
         lookInput = ctx.ReadValue<Vector2>();
     }
+    public void Sprint(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            moveSpeed *= SpeedMultiplier; 
+        }
+        else if (context.canceled)
+        {
+            moveSpeed /= SpeedMultiplier;
+        }
+    }
 
     private bool CheckGrounded()
     {
@@ -80,18 +100,48 @@ public class InputSystem : MonoBehaviour
     {
         if (rb == null) return;
 
-        // update grounded state each physics step
+        
         grounded = CheckGrounded();
-
-        Vector3 targetVelocity = transform.TransformDirection(new Vector3(moveInput.x, 0f, moveInput.y)) * moveSpeed;
-        Vector3 currentVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-
-        Vector3 velocityDiff = targetVelocity - currentVelocity;
-        Vector3 accelerationForce = Vector3.ClampMagnitude(velocityDiff, acceleration * Time.fixedDeltaTime);
-
-        rb.AddForce(accelerationForce, ForceMode.VelocityChange);
+        if (grounded)
+        {
+            Movement();
+        }
+        else if (!grounded)
+        {
+            MovementInAir();
+        }
     }
-    
+
+    private void Movement()
+    {
+        Vector3 currentVelocity = rb.linearVelocity;
+        Vector3 targetVelocity = new Vector3(moveInput.x, 0f, moveInput.y) * moveSpeed;
+
+        targetVelocity = transform.TransformDirection(targetVelocity);
+        Vector3 velocityChange = targetVelocity - currentVelocity;
+        velocityChange.y = 0f; 
+        Vector3.ClampMagnitude(velocityChange, acceleration);
+
+        rb.AddForce(velocityChange, ForceMode.VelocityChange);
+    }
+    private void MovementInAir()
+    {
+        if (moveInput.sqrMagnitude >= 0.01f)
+        {
+            Vector3 inputDir = transform.TransformDirection(new Vector3(moveInput.x, 0f, moveInput.y)).normalized;
+            Vector3 airForce = inputDir * airAcceleration * Time.fixedDeltaTime;
+            rb.AddForce(airForce, ForceMode.VelocityChange);
+        }
+        Vector3 vel = rb.linearVelocity;
+        Vector3 horiz = new Vector3(vel.x, 0f, vel.z);
+        float max = Mathf.Max(0.001f, airSpeedLimit);
+        if (horiz.sqrMagnitude > max * max)
+        {
+            Vector3 clamped = horiz.normalized * max;
+            rb.linearVelocity = new Vector3(clamped.x, vel.y, clamped.z);
+        }
+        
+    }
 
 
     private void LateUpdate()
