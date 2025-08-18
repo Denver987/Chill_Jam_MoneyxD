@@ -11,7 +11,6 @@ public class Knockback : MonoBehaviour
     [SerializeField] private float maxKnockbackStrength = 20f;
     [SerializeField] private float groundMultiplier = 2f;
     [SerializeField] private AnimationCurve chargeCurve;
-    public float jumpForceKnock = 5f; // force applied when jumping
 
     public float maxDistance = 100f; // maximum distance to hit something   
     public float upwardForce = 0.5f;
@@ -42,7 +41,7 @@ public class Knockback : MonoBehaviour
             float held = Mathf.Clamp01((Time.time - chargeStartTime) / Mathf.Max(0.0001f, maxChargeTime));
             float t = chargeCurve.Evaluate(held);
             float finalKnockbackStrengthEnemy = Mathf.Lerp(initialKnockbackStrength, maxKnockbackStrength, t);
-            float finalKnockbackStrengthPlayer = jumpForceKnock * groundMultiplier;
+            float finalKnockbackStrengthPlayer = finalKnockbackStrengthEnemy * groundMultiplier;
 
             Ray ray = cam.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit,maxDistance))

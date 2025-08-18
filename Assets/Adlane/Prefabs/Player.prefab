@@ -824,7 +824,19 @@ MonoBehaviour:
         m_CallState: 2
       - m_Target: {fileID: 9219682085311476795}
         m_TargetAssemblyTypeName: MagneticPull, Assembly-CSharp
-        m_MethodName: Pull
+        m_MethodName: Telekinesis
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 9219682085311476795}
+        m_TargetAssemblyTypeName: MagneticPull, Assembly-CSharp
+        m_MethodName: Throw
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -949,7 +961,19 @@ MonoBehaviour:
     m_ActionId: 28915004-f7b2-42ce-b64c-dcceeef29588
     m_ActionName: 'Player/Magneticpull[/Keyboard/2]'
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 9219682085311476795}
+        m_TargetAssemblyTypeName: MagneticPull, Assembly-CSharp
+        m_MethodName: Pull
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 7b08823d-542a-435c-8554-08761464e4a2
     m_ActionName: 'Player/Attack2[/Mouse/rightButton]'
   m_NeverAutoSwitchControlSchemes: 0
@@ -971,10 +995,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   jumpForce: 15
   moveSpeed: 8
-  acceleration: 50
-  SpeedMultiplier: 2
+  groundAcceleration: 50
+  groundDeceleration: 70
   airAcceleration: 10
-  airSpeedLimit: 8
+  SprintMultiplier: 2
   lookSpeed: 20
   minPitch: -75
   maxPitch: 75
@@ -984,6 +1008,8 @@ MonoBehaviour:
   groundCheckRadius: 0.35
   groundCheckDistance: 0.88
   maxGroundAngle: 45
+  fallMultiplier: 2.5
+  riseGravityMultiplier: 1.5
 --- !u!114 &9219682085311476795
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -996,10 +1022,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a7f61002cb429b4d9a2fdd3b4ce58aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pullStrength: 10
-  pullRange: 5
-  SnapPoint: {fileID: 8543919057895296789}
-  snapSpeed: 5
+  pullStrength: 20
+  pullRange: 25
+  snapSpeed: 100
+  aimTolerance: 5
+  floatingPosition: 5
+  rotationSpeed: 35
+  throwStrength: 40
+  pullCooldown: 0.5
+  rotationAxis: {x: 1, y: 1, z: 1}
+  telekinesisDuration: 3
+  telekinesisHeight: 2
+  telekinesisUpForce: 6
+  telekinesisCD: 5
 --- !u!114 &6253070513824495409
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1013,15 +1048,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitCooldown: 0.5
-  rayRange: 4
   initialKnockbackStrength: 35
   maxChargeTime: 2
   maxKnockbackStrength: 60
-  explosionRadius: 4
-  upwardModifier: 1
-  affectedLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
+  groundMultiplier: 2
   chargeCurve:
     serializedVersion: 2
     m_Curve:
@@ -1046,6 +1076,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  jumpForceKnock: 5
+  maxDistance: 100
+  upwardForce: 0.5
 --- !u!114 &3241734132245352550
 MonoBehaviour:
   m_ObjectHideFlags: 0

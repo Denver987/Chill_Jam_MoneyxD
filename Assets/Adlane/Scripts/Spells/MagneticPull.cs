@@ -13,15 +13,21 @@ public class MagneticPull : MonoBehaviour
     [SerializeField] private float floatingPosition = 3f;
     [SerializeField] private float rotationSpeed = 180f;
     [SerializeField] private float throwStrength = 10f;
+    [SerializeField] private float pullCooldown = 0.5f;
+
     [SerializeField] private Vector3 rotationAxis = new Vector3(1, 1, 1);
+    private Rigidbody heldItem;
+    private bool isHolding;
+    private bool isThrowing = false;
+    private float pullCooldownTimer = 0f;
+
+
     [Header("Telekinesis")]
     [SerializeField] private float telekinesisDuration = 2f;
     [SerializeField] private float telekinesisHeight = 2f;
     [SerializeField] private float telekinesisUpForce = 12f;
     [SerializeField] private float telekinesisCD = 3f;
     private float telekinesisTimer = 0f;
-    private bool isHolding;
-    private Rigidbody heldItem;
     private float telekinesisStartY = 0f; 
     private Rigidbody telekinesisTarget;
     private float cdTimer;
@@ -45,7 +51,6 @@ public class MagneticPull : MonoBehaviour
                 if (!hit.collider.CompareTag("Pullable")) return;
                 telekinesisTarget = hit.rigidbody;
                 telekinesisStartY = telekinesisTarget.position.y;
-
                 telekinesisTarget.useGravity = false;
                 telekinesisTimer = telekinesisDuration;
                 cdTimer = telekinesisCD;
@@ -58,6 +63,7 @@ public class MagneticPull : MonoBehaviour
     public void Pull(InputAction.CallbackContext context)
     {
         if (gameObject.GetComponent<SpellSelector>().currentSpell != SpellSelector.SpellType.MagneticPull) return;
+        if (pullCooldownTimer > 0f) return;
         if (context.performed)
         {
             isHolding = true;
@@ -73,15 +79,18 @@ public class MagneticPull : MonoBehaviour
         if (gameObject.GetComponent<SpellSelector>().currentSpell != SpellSelector.SpellType.MagneticPull) return;
         if (heldItem == null) return;
         if (!isHolding) return;
+        if (pullCooldownTimer > 0f) return;
         if (context.performed)
         {
             isHolding = false;
-            heldItem.AddForce(cam.transform.forward * throwStrength, ForceMode.Impulse);
+            isThrowing = true;
         }
     }
     private void FixedUpdate()
     {
         if (cdTimer > 0f) cdTimer -= Time.fixedDeltaTime;
+        if (pullCooldownTimer > 0f) pullCooldownTimer -= Time.fixedDeltaTime;
+
         if (telekinesisTimer > 0f && telekinesisTarget != null)
         {
             float currentHeight = telekinesisTarget.position.y;
@@ -121,13 +130,14 @@ public class MagneticPull : MonoBehaviour
                 telekinesisTarget = null;
             }
         }
-        
-        if (isHolding && cam != null)
+
+        if (isHolding && cam != null && !isThrowing)
         {
+            if (pullCooldownTimer > 0f) return;
             Ray ray = cam.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit, pullRange))
             {
-               if (hit.rigidbody != null && hit.collider.CompareTag("Pullable"))
+                if (hit.rigidbody != null && hit.collider.CompareTag("Pullable"))
                 {
                     heldItem = hit.rigidbody;
                     Vector3 targetPosition = cam.transform.position + cam.transform.forward * floatingPosition;
@@ -140,14 +150,28 @@ public class MagneticPull : MonoBehaviour
                     }
                     else
                     {
-                        heldItem.linearVelocity = Vector3.Lerp(heldItem.linearVelocity, Vector3.zero, snapSpeed * Time.fixedDeltaTime);
-                        heldItem.MovePosition(Vector3.Lerp(heldItem.position, targetPosition, snapSpeed * Time.fixedDeltaTime * 0.1f));
+                        // instead of direct MovePosition, use physics-based approach
+                        Vector3 toTarget = targetPosition - heldItem.position;
                         
+                        // apply gentle force toward target instead of teleporting
+                        heldItem.AddForce(toTarget * snapSpeed * Time.fixedDeltaTime, ForceMode.VelocityChange);
+                        
+                        heldItem.linearVelocity *= 0.85f;    
+                                            
                         Quaternion deltaRotation = Quaternion.AngleAxis(rotationSpeed * Time.fixedDeltaTime, rotationAxis);
                         hit.rigidbody.MoveRotation(hit.rigidbody.rotation * deltaRotation);
                     }
                 }
             }
+        }
+
+        if (isThrowing && cam != null && heldItem != null)
+        {
+            isThrowing = false;
+            heldItem.AddForce(cam.transform.forward * throwStrength, ForceMode.Impulse);
+            pullCooldownTimer = pullCooldown;
+            heldItem.useGravity = true;
+            heldItem = null;
         }
     }
 
