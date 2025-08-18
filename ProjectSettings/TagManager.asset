@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Obstacle
   - Ground
+  - Undefined
+  - Pullable
   layers:
   - Default
   - TransparentFX

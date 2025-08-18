@@ -2881,7 +2881,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8477196129360747718, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 2.984
       objectReference: {fileID: 0}
     - target: {fileID: 8477196129360747718, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2910,18 +2910,6 @@ PrefabInstance:
     - target: {fileID: 8477196129360747718, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9219682085311476795, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
-      propertyPath: pullRange
-      value: 25
-      objectReference: {fileID: 0}
-    - target: {fileID: 9219682085311476795, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
-      propertyPath: holdDistance
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 9219682085311476795, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
-      propertyPath: useParenting
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

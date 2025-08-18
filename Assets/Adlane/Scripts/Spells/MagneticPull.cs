@@ -156,8 +156,8 @@ public class MagneticPull : MonoBehaviour
                         // apply gentle force toward target instead of teleporting
                         heldItem.AddForce(toTarget * snapSpeed * Time.fixedDeltaTime, ForceMode.VelocityChange);
                         
-                        heldItem.linearVelocity *= 0.85f;    
-                                            
+                        heldItem.linearVelocity *= 0.75f;    
+
                         Quaternion deltaRotation = Quaternion.AngleAxis(rotationSpeed * Time.fixedDeltaTime, rotationAxis);
                         hit.rigidbody.MoveRotation(hit.rigidbody.rotation * deltaRotation);
                     }
