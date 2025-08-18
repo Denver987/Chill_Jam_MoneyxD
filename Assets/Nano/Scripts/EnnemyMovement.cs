@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -15,6 +15,8 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     public float separationUpdateRate = 0.2f;
     public float knockbackRecoveryTime = 0.5f; // how long it takes to recover from knockback
     // recalc separation every 0.2s// how strong separation pushes them
+
+    private SkinnedMeshRenderer[] meshRenderers;
 
 
     [Header("Attack Settings")]
@@ -35,6 +37,9 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     private Vector3 cachedSeparation = Vector3.zero;
     private float separationTimer = 0f;
 
+    private const string isMoving = "IsMoving";
+
+    private Animator animator;
     private Enemy enemy;
     private bool isKnockedBack = false;
     private float knockbackTimer = 0f;
@@ -43,9 +48,10 @@ public class EnnemyMovement : MonoBehaviour,IHitable
         navMeshAgent = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody>();
         enemy = GetComponent<Enemy>();
+        animator = GetComponent<Animator>();
+        meshRenderers = GetComponentsInChildren<SkinnedMeshRenderer>();
 
         navMeshAgent.updatePosition = false;
-        navMeshAgent.updateRotation = false;
 
         // give each enemy a random offset around the player
         personalOffset = Random.insideUnitSphere * spreadRadius;
@@ -75,6 +81,7 @@ public class EnnemyMovement : MonoBehaviour,IHitable
         }
 
         FollowTarget();
+       
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -106,7 +113,7 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     {
       
         this.transform.GetChild(0).gameObject.SetActive(true); // show the dust explosion
-        this.gameObject.GetComponent<MeshRenderer>().enabled = false; // hide the enemy mesh
+        this.transform.GetChild(1).gameObject.SetActive(false); // hide the enemy model
         StartCoroutine(DieAfterDelay());
         
     }
@@ -122,6 +129,11 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     private void FollowTarget()
     {
         if (target == null) return;
+        if (isKnockedBack)
+        {
+            animator.SetBool(isMoving, false);
+            return;
+        }
 
         // Desired position (player + some offset)
         Vector3 destination = target.position + personalOffset;
@@ -162,10 +174,14 @@ public class EnnemyMovement : MonoBehaviour,IHitable
         // Apply movement
         if (direction.magnitude > 0.1f)
         {
+            animator.SetBool(isMoving, true);
             rb.MovePosition(rb.position + direction.normalized * moveSpeed * Time.fixedDeltaTime);
 
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
-            rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, Time.fixedDeltaTime * 5f));
+            //Quaternion targetRotation = Quaternion.LookRotation(direction);
+            //rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, Time.fixedDeltaTime * 5f));
+        }else
+        {
+            animator.SetBool(isMoving, false);
         }
 
         navMeshAgent.nextPosition = rb.position;
@@ -195,6 +211,94 @@ public class EnnemyMovement : MonoBehaviour,IHitable
            
         }
     }
+    IEnumerator LockInHitFrame(Animator animator, string stateName, float normalizedTime, float duration)
+    {
+        animator.Play(stateName, 0, normalizedTime);
+        animator.Update(0f);   // force immediate pose update
+        animator.speed = 0f;   // freeze here
+
+        yield return new WaitForSeconds(duration);
+
+        animator.speed = 1f;   // resume
+    }
+
+    IEnumerator FlashColor(SkinnedMeshRenderer[] renderers, Color flashColor, float duration)
+    {
+        if (renderers == null || renderers.Length == 0) yield break;
+
+        // Save original colors
+        List<Color> originalColors = new List<Color>();
+        foreach (var r in renderers)
+        {
+            if (r != null)
+                originalColors.Add(r.material.color);
+        }
+
+        // Apply flash color
+        foreach (var r in renderers)
+        {
+            if (r != null)
+                r.material.color = flashColor;
+        }
+
+        yield return new WaitForSeconds(duration);
+
+        // Restore original colors
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            if (renderers[i] != null)
+                renderers[i].material.color = originalColors[i];
+        }
+    }
+
+    IEnumerator FlashColorLerp(SkinnedMeshRenderer[] renderers, Color startColor, Color endColor, float duration)
+    {
+        if (renderers == null || renderers.Length == 0) yield break;
+
+        // Store original colors so we can restore at the end
+        Color[] originalColors = new Color[renderers.Length];
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            if (renderers[i] != null)
+                originalColors[i] = renderers[i].material.color;
+        }
+
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            float t = elapsed / duration;
+            // Ping-pong for back-and-forth flash (0 → 1 → 0)
+            float lerpT = Mathf.PingPong(t * 2f, 1f);
+
+            // Lerp between start and end colors
+            Color currentColor = Color.Lerp(startColor, endColor, lerpT);
+
+            foreach (var r in renderers)
+            {
+                if (r != null)
+                    r.material.color = currentColor;
+            }
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // Restore original colors
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            if (renderers[i] != null)
+                renderers[i].material.color = originalColors[i];
+        }
+    }
+
+    IEnumerator HitPause(float duration)
+    {
+        float originalTimeScale = Time.timeScale;
+        Time.timeScale = 0f;
+        yield return new WaitForSecondsRealtime(duration);
+        Time.timeScale = originalTimeScale;
+    }
     public void ExecuteWithUpwardBias(Transform executionSource, float knockbackStrength, float upwardBias = 0.5F)
     {
         KnockBackEntityUpward(executionSource, knockbackStrength, upwardBias);
@@ -203,7 +307,23 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     {
         KnockBackEntity(executionSource, knockbackStrength);
     }
+    IEnumerator SmoothKnockback(Rigidbody rb, Vector3 direction, float distance, float duration)
+    {
+        Vector3 startPos = rb.position;
+        Vector3 targetPos = startPos + direction.normalized * distance;
 
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            float t = elapsed / duration;
+            float easedT = 1 - Mathf.Pow(1 - t, 3); // cubic ease-out
+
+            rb.MovePosition(Vector3.Lerp(startPos, targetPos, easedT));
+
+            elapsed += Time.fixedDeltaTime;
+            yield return new WaitForFixedUpdate();
+        }
+    }
     private void KnockBackEntity(Transform executionSource, float knockbackStrength)
     {
         if (executionSource == null || rb == null) return;
@@ -218,6 +338,9 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     private void KnockBackEntityUpward(Transform executionSource, float knockbackStrength, float upwardBias = 0.5f)
     {
         if (executionSource == null || rb == null) return;
+        StartCoroutine(FlashColorLerp(meshRenderers, Color.red, Color.white, 0.3f));
+        StartCoroutine(LockInHitFrame(animator, "Hit", 0.4f, 0.2f));
+        StartCoroutine(HitPause(0.2f));
         Vector3 direction = (transform.position - executionSource.position).normalized;
         Vector3 upwardForce = Vector3.up * upwardBias * knockbackStrength;
         rb.AddForce(direction * knockbackStrength + upwardForce, ForceMode.Impulse);
