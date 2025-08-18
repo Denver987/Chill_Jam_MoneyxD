@@ -4,13 +4,15 @@ using UnityEngine.InputSystem;
 public class InputSystem : MonoBehaviour
 {
     private Rigidbody rb;
+    [Header("Jumping")]
     [SerializeField] private float jumpForce = 7f;
-    [SerializeField] private float moveSpeed = 7f;
 
-    [Header("Acceleration")]
+    [Header("Movement Settings")]
+    [SerializeField] private float moveSpeed = 7f;
     [SerializeField] private float groundAcceleration = 50f;
     [SerializeField] private float groundDeceleration = 70f;
     [SerializeField] private float airAcceleration = 20f;
+    [SerializeField] private float SprintMultiplier = 2f;
 
     [Header("Look")]
     [SerializeField] private float lookSpeed = 2f;
@@ -65,17 +67,26 @@ public class InputSystem : MonoBehaviour
 
     public void Move(InputAction.CallbackContext context)
     {
-        if (context.performed || context.started)
-            moveInput = context.ReadValue<Vector2>().normalized;
-        else if (context.canceled)
-            moveInput = Vector2.zero;
+        if (context.performed || context.started) moveInput = context.ReadValue<Vector2>().normalized;
+        else if (context.canceled) moveInput = Vector2.zero;
     }
 
     public void Look(InputAction.CallbackContext ctx)
     {
         lookInput = ctx.ReadValue<Vector2>();
     }
-
+    
+    public void Sprint(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            moveSpeed *= SprintMultiplier; // Increase speed when sprinting
+        }
+        else if (context.canceled)
+        {
+            moveSpeed /= SprintMultiplier; // Reset speed when not sprinting
+        }
+    }
     // --------------------
     // GROUND CHECK
     // --------------------
