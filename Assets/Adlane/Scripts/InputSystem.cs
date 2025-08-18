@@ -1,12 +1,18 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class InputSystem : MonoBehaviour
 {
     private Rigidbody rb;
-    [SerializeField] private float jumpForce = 5f;
-    [SerializeField] private float moveSpeed = 5f;
-    [SerializeField] private float acceleration = 50f; 
+    [SerializeField] private float jumpForce = 7f;
+    [SerializeField] private float moveSpeed = 7f;
+
+    [Header("Acceleration")]
+    [SerializeField] private float groundAcceleration = 50f;
+    [SerializeField] private float groundDeceleration = 70f;
+    [SerializeField] private float airAcceleration = 20f;
+
+    [Header("Look")]
     [SerializeField] private float lookSpeed = 2f;
     [SerializeField] float minPitch = -80f;
     [SerializeField] float maxPitch = 80f;
@@ -14,14 +20,15 @@ public class InputSystem : MonoBehaviour
     [Header("Ground Check")]
     [SerializeField] private LayerMask groundMask = ~0;
     [SerializeField] private float groundCheckRadius = 0.35f;
-    [SerializeField] private float groundCheckDistance = 0.15f; // how far below pivot to check
-    [SerializeField] private float maxGroundAngle = 45f; // slope limit
+    [SerializeField] private float groundCheckDistance = 0.15f;
+    [SerializeField] private float maxGroundAngle = 45f;
     private bool grounded;
 
-    [SerializeField] private float fallMultiplier = 2.5f;   // stronger gravity when falling
-    [SerializeField] private float riseGravityMultiplier = 1f;
+    [Header("Gravity Tweaks")]
+    [SerializeField] private float fallMultiplier = 2.5f;
+    [SerializeField] private float riseGravityMultiplier = 1.5f;
 
-    private Transform pitchTarget; // camera only
+    private Transform pitchTarget;
     private Vector2 moveInput = Vector2.zero;
     private Vector2 lookInput = Vector2.zero;
 
@@ -42,13 +49,17 @@ public class InputSystem : MonoBehaviour
         }
     }
 
-    // Input callbacks
+    // --------------------
+    // INPUTS
+    // --------------------
     public void Jump(InputAction.CallbackContext context)
     {
         if (rb == null) return;
-        if (grounded)
+        if (context.performed && grounded)
         {
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);          
+            // reset vertical velocity for consistent jump feel
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
         }
     }
 
@@ -60,65 +71,80 @@ public class InputSystem : MonoBehaviour
             moveInput = Vector2.zero;
     }
 
-    public void Look(InputAction.CallbackContext ctx) 
+    public void Look(InputAction.CallbackContext ctx)
     {
         lookInput = ctx.ReadValue<Vector2>();
     }
 
+    // --------------------
+    // GROUND CHECK
+    // --------------------
     private bool CheckGrounded()
     {
-        // origin slightly above pivot to avoid starting inside geometry
         Vector3 origin = transform.position + Vector3.up * 0.1f;
         float castDist = groundCheckDistance + groundCheckRadius;
         if (Physics.SphereCast(origin, groundCheckRadius, Vector3.down, out RaycastHit hit, castDist, groundMask, QueryTriggerInteraction.Ignore))
         {
-            // check slope angle
             return Vector3.Angle(hit.normal, Vector3.up) <= maxGroundAngle;
         }
         return false;
     }
 
-    // Physics movement
+    // --------------------
+    // MOVEMENT
+    // --------------------
     private void FixedUpdate()
     {
         if (rb == null) return;
 
-        // update grounded state each physics step
         grounded = CheckGrounded();
 
         Vector3 targetVelocity = transform.TransformDirection(new Vector3(moveInput.x, 0f, moveInput.y)) * moveSpeed;
         Vector3 currentVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
 
         Vector3 velocityDiff = targetVelocity - currentVelocity;
-        Vector3 accelerationForce = Vector3.ClampMagnitude(velocityDiff, acceleration * Time.fixedDeltaTime);
 
+        float accelRate;
+        if (grounded)
+        {
+            // If moving input exists → accelerate, otherwise decelerate quickly
+            accelRate = (moveInput.sqrMagnitude > 0.01f) ? groundAcceleration : groundDeceleration;
+        }
+        else
+        {
+            accelRate = airAcceleration;
+        }
+
+        Vector3 accelerationForce = Vector3.ClampMagnitude(velocityDiff, accelRate * Time.fixedDeltaTime);
         rb.AddForce(accelerationForce, ForceMode.VelocityChange);
 
+        // Apply custom gravity when airborne
         if (!grounded)
         {
-            if (rb.linearVelocity.y < 0) // falling down
+            if (rb.linearVelocity.y < 0) // falling
             {
                 rb.AddForce(Vector3.down * (Mathf.Abs(Physics.gravity.y) * (fallMultiplier - 1) * Time.fixedDeltaTime), ForceMode.VelocityChange);
             }
-            else if (rb.linearVelocity.y > 0) // going up
+            else if (rb.linearVelocity.y > 0) // rising
             {
                 rb.AddForce(Vector3.down * (Mathf.Abs(Physics.gravity.y) * (riseGravityMultiplier - 1) * Time.fixedDeltaTime), ForceMode.VelocityChange);
             }
         }
     }
-    
 
-
+    // --------------------
+    // CAMERA ROTATION
+    // --------------------
     private void LateUpdate()
     {
         pitch = Mathf.Clamp(pitch - lookInput.y * lookSpeed * Time.deltaTime, minPitch, maxPitch);
         pitchTarget.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+
         yaw += lookInput.x * lookSpeed * Time.deltaTime;
         Quaternion targetRotation = Quaternion.Euler(0f, yaw, 0f);
         rb.MoveRotation(targetRotation);
     }
 
-    // optional: debug visualization in editor
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = grounded ? Color.green : Color.red;

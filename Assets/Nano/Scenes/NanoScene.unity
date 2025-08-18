@@ -485,16 +485,20 @@ PrefabInstance:
       value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 7915135044198545159, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
+      propertyPath: jumpForce
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 7915135044198545159, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
       propertyPath: lookSpeed
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 7915135044198545159, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
       propertyPath: fallMultiplier
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 7915135044198545159, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
       propertyPath: riseGravityMultiplier
-      value: 2.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8170750077524841425, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
       propertyPath: m_Name
