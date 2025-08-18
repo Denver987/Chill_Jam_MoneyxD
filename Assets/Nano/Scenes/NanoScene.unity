@@ -464,9 +464,41 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 6253070513824495409, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
+      propertyPath: hitCooldown
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6253070513824495409, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
+      propertyPath: maxDistance
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6253070513824495409, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
+      propertyPath: upwardForce
+      value: 0.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 6253070513824495409, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
+      propertyPath: upwardModifier
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6253070513824495409, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
+      propertyPath: initialKnockbackStrength
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 7915135044198545159, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
+      propertyPath: jumpForce
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 7915135044198545159, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
       propertyPath: lookSpeed
       value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 7915135044198545159, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
+      propertyPath: fallMultiplier
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7915135044198545159, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
+      propertyPath: riseGravityMultiplier
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8170750077524841425, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
       propertyPath: m_Name
@@ -817,7 +849,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 1863737964}
-  NumberOfEnemiesToSpawn: 5
+  NumberOfEnemiesToSpawn: 1
   SpawnDelay: 1
   EnemyPrefabs:
   - {fileID: 1952512228867637924, guid: 51945f346139eb74891ea69397e0668c, type: 3}

@@ -1,4 +1,6 @@
-
+using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,39 +9,35 @@ public class Knockback : MonoBehaviour
     private Camera cam;
 
     [SerializeField] private float hitCooldown = 0.5f;
-    [SerializeField] private float rayRange = 5f;
     [SerializeField] private float initialKnockbackStrength = 10f;
     [SerializeField] private float maxChargeTime = 2f;
     [SerializeField] private float maxKnockbackStrength = 20f;
-    [SerializeField] private float explosionRadius = 5f;
-    [SerializeField] private float upwardModifier = 1f; 
-    [SerializeField] private LayerMask affectedLayers = 0; 
-    
+    [SerializeField] private float groundMultiplier = 2f;
+    [SerializeField, Range(0f, 1f)] private float upwardBias = 0.6f;
     [SerializeField] private AnimationCurve chargeCurve;
-    private float nextAllowedHitTime = 0f;
+    public float jumpForceKnock = 5f; // force applied when jumping
 
+    public float maxDistance = 100f; // maximum distance to hit something   
+    public float upwardForce = 0.5f; // how much upward force to apply when hitting the ground
+    private float nextAllowedHitTime = 0f;
     private float chargeStartTime = -1f;
     private bool isCharging = false;
-
+    private Rigidbody rb;
 
     private void Awake()
     {
         cam = Camera.main;
-
+        rb = GetComponent<Rigidbody>();
     }
 
     public void knockback(InputAction.CallbackContext context)
     {
-        if (gameObject.GetComponent<SpellSelector>().currentSpell != SpellSelector.SpellType.Shockwave) return;
         if (Time.time < nextAllowedHitTime) return;
-        if (context.phase == InputActionPhase.Started)
-        {
-            chargeStartTime = Time.time;
-        }
 
         if (context.phase == InputActionPhase.Started || context.phase == InputActionPhase.Performed)
         {
             isCharging = true;
+            chargeStartTime = Time.time;
             return;
         }
 
@@ -47,37 +45,33 @@ public class Knockback : MonoBehaviour
         {
             float held = Mathf.Clamp01((Time.time - chargeStartTime) / Mathf.Max(0.0001f, maxChargeTime));
             float t = chargeCurve.Evaluate(held);
-            float finalKnockbackStrength = Mathf.Lerp(initialKnockbackStrength, maxKnockbackStrength, t);
+            float finalKnockbackStrengthEnemy = Mathf.Lerp(initialKnockbackStrength, maxKnockbackStrength, t);
+            float finalKnockbackStrengthPlayer = jumpForceKnock * groundMultiplier;
 
             Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit, rayRange))
+            if (Physics.Raycast(ray, out RaycastHit hit,maxDistance))
             {
-                CreateExplosion(hit.point, finalKnockbackStrength);
-                nextAllowedHitTime = Time.time + hitCooldown;
+                IHitable hitable = hit.transform.GetComponent<IHitable>();
+                if (hitable != null)
+                {
+                    hitable.ExecuteWithUpwardBias(transform, finalKnockbackStrengthEnemy, upwardForce);
+                    nextAllowedHitTime = Time.time + hitCooldown;
+                }
+                else
+                {
+                    // Ground check: surface normal is basically "up"
+                    if (hit.normal.y >= 0.95f) // ~perfectly flat ground
+                    {
+                        if (rb != null)
+                        {
+                            // Always go straight up
+                            rb.AddForce(Vector3.up * finalKnockbackStrengthPlayer, ForceMode.VelocityChange);
+                            nextAllowedHitTime = Time.time + hitCooldown;
+                        }
+                    }
+                }
             }
         }
-    }
-    private void CreateExplosion(Vector3 explosionPoint, float strength)
-    {
-        Collider[] colliders = Physics.OverlapSphere(explosionPoint, explosionRadius, affectedLayers);
-        foreach (Collider col in colliders)
-        {
-            Rigidbody targetRb = col.GetComponent<Rigidbody>();
-            if (targetRb != null)
-            {
-                
-                targetRb.AddExplosionForce(strength, explosionPoint, explosionRadius, upwardModifier, ForceMode.VelocityChange);
-            }
-        }
-    }
-    private void OnDrawGizmosSelected()
-    {
-        if (gameObject.GetComponent<SpellSelector>().currentSpell != SpellSelector.SpellType.Shockwave) return;
-        if (cam != null)
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawRay(cam.transform.position, cam.transform.forward * rayRange);
-        }
-        
     }
 }
+
