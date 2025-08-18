@@ -125,23 +125,31 @@ public class InputSystem : MonoBehaviour
         rb.AddForce(velocityChange, ForceMode.VelocityChange);
     }
     private void MovementInAir()
-    {
-        if (moveInput.sqrMagnitude >= 0.01f)
-        {
-            Vector3 inputDir = transform.TransformDirection(new Vector3(moveInput.x, 0f, moveInput.y)).normalized;
-            Vector3 airForce = inputDir * airAcceleration * Time.fixedDeltaTime;
-            rb.AddForce(airForce, ForceMode.VelocityChange);
-        }
-        Vector3 vel = rb.linearVelocity;
-        Vector3 horiz = new Vector3(vel.x, 0f, vel.z);
-        float max = Mathf.Max(0.001f, airSpeedLimit);
-        if (horiz.sqrMagnitude > max * max)
-        {
-            Vector3 clamped = horiz.normalized * max;
-            rb.linearVelocity = new Vector3(clamped.x, vel.y, clamped.z);
-        }
-        
-    }
+{
+    if (moveInput.sqrMagnitude < 0.01f) return;
+
+    // Input direction relative to player
+    Vector3 inputDir = transform.TransformDirection(new Vector3(moveInput.x, 0f, moveInput.y)).normalized;
+
+    // Current horizontal velocity
+    Vector3 vel = rb.linearVelocity;
+    Vector3 horizVel = new Vector3(vel.x, 0f, vel.z);
+
+    float currentSpeed = Vector3.Dot(horizVel, inputDir); // how much velocity in input direction
+
+    // Max speed limit in air
+    float addSpeed = airSpeedLimit - currentSpeed;
+    if (addSpeed <= 0) return;
+
+    // Acceleration to apply this frame
+    float accel = airAcceleration * Time.fixedDeltaTime;
+    if (accel > addSpeed) accel = addSpeed;
+
+    // Apply force in input direction
+    Vector3 airForce = inputDir * accel;
+    rb.AddForce(airForce, ForceMode.VelocityChange); // VelocityChange = frame-consistent push
+}
+
 
 
     private void LateUpdate()

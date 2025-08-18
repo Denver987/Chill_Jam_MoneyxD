@@ -655,9 +655,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ebcbcb030b9e0247bf816d72e0871aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  jumpForce: 250
+  jumpForce: 15
   moveSpeed: 8
   acceleration: 50
+  SpeedMultiplier: 2
+  airAcceleration: 10
+  airSpeedLimit: 8
   lookSpeed: 20
   minPitch: -75
   maxPitch: 75
@@ -681,9 +684,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hitCooldown: 0.5
   rayRange: 4
-  initialKnockbackStrength: 10
+  initialKnockbackStrength: 35
   maxChargeTime: 2
-  maxKnockbackStrength: 25
+  maxKnockbackStrength: 60
   explosionRadius: 4
   upwardModifier: 1
   affectedLayers:
