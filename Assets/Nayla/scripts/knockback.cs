@@ -30,6 +30,7 @@ public class Knockback : MonoBehaviour
 
     public void knockback(InputAction.CallbackContext context)
     {
+        if (gameObject.GetComponent<SpellSelector>().currentSpell != SpellSelector.SpellType.Shockwave) return;
         if (Time.time < nextAllowedHitTime) return;
         if (context.phase == InputActionPhase.Started)
         {
