@@ -72,6 +72,7 @@ public class Knockback : MonoBehaviour
     }
     private void OnDrawGizmosSelected()
     {
+        if (gameObject.GetComponent<SpellSelector>().currentSpell != SpellSelector.SpellType.Shockwave) return;
         if (cam != null)
         {
             Gizmos.color = Color.red;

@@ -15,6 +15,7 @@ public class SpellSelector : MonoBehaviour
     {
         if (context.performed)
         {
+            Debug.Log("Shockwave spell selected");
             currentSpell = SpellType.Shockwave;
         }
     }
@@ -22,6 +23,7 @@ public class SpellSelector : MonoBehaviour
     {
         if (context.performed)
         {
+            Debug.Log("Magnetic Pull spell selected");
             currentSpell = SpellType.MagneticPull;
         }
     }
