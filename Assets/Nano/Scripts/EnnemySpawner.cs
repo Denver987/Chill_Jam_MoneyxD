@@ -39,6 +39,9 @@ public class EnemySpawner : MonoBehaviour
 
     private IEnumerator SpawnInfinitEnnemies()
     {
+        if (EnemyObjectPools.Count == 0)
+            yield return null; // wait until there are no active enemies
+
         WaitForSeconds Wait = new WaitForSeconds(SpawnDelay);
 
         while (true) // infinite loop
