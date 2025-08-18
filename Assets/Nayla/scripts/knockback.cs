@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -14,6 +15,10 @@ public class Knockback : MonoBehaviour
     [SerializeField] private float groundMultiplier = 2f;
     [SerializeField, Range(0f, 1f)] private float upwardBias = 0.6f;
     [SerializeField] private AnimationCurve chargeCurve;
+    public float jumpForceKnock = 5f; // force applied when jumping
+
+    public float maxDistance = 100f; // maximum distance to hit something   
+    public float upwardForce = 0.5f; // how much upward force to apply when hitting the ground
     private float nextAllowedHitTime = 0f;
     private float chargeStartTime = -1f;
     private bool isCharging = false;
@@ -41,38 +46,27 @@ public class Knockback : MonoBehaviour
             float held = Mathf.Clamp01((Time.time - chargeStartTime) / Mathf.Max(0.0001f, maxChargeTime));
             float t = chargeCurve.Evaluate(held);
             float finalKnockbackStrengthEnemy = Mathf.Lerp(initialKnockbackStrength, maxKnockbackStrength, t);
-            float finalKnockbackStrengthPlayer = finalKnockbackStrengthEnemy * groundMultiplier;
+            float finalKnockbackStrengthPlayer = jumpForceKnock * groundMultiplier;
 
             Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit))
+            if (Physics.Raycast(ray, out RaycastHit hit,maxDistance))
             {
                 IHitable hitable = hit.transform.GetComponent<IHitable>();
                 if (hitable != null)
                 {
-                    hitable.Execute(transform, finalKnockbackStrengthEnemy);
+                    hitable.ExecuteWithUpwardBias(transform, finalKnockbackStrengthEnemy, upwardForce);
                     nextAllowedHitTime = Time.time + hitCooldown;
                 }
                 else
                 {
-                    if (hit.normal.y >= 0.7f)
+                    // Ground check: surface normal is basically "up"
+                    if (hit.normal.y >= 0.95f) // ~perfectly flat ground
                     {
-                        
                         if (rb != null)
                         {
-                            
-                                // horizontal "away" direction from hit point (remove vertical)
-                                Vector3 away = rb.position - hit.point;
-                               Vector3 awayHoriz = Vector3.ProjectOnPlane(away, Vector3.up);
-                                // fallback: if hit point is basically under/at player, use camera ray horizontal
-                               if (awayHoriz.sqrMagnitude < 1e-6f)
-                                 awayHoriz = Vector3.ProjectOnPlane(-ray.direction, Vector3.up);
-
-                               awayHoriz.Normalize();
-                                float b = Mathf.Clamp01(upwardBias);
-                               Vector3 combined = (awayHoriz * (1f - b) + hit.normal.normalized * b).normalized;
-                              // use VelocityChange so mass doesn't make small pushes feel tiny.
-                              rb.AddForce(combined * finalKnockbackStrengthPlayer, ForceMode.VelocityChange);
-                                 nextAllowedHitTime = Time.time + hitCooldown;
+                            // Always go straight up
+                            rb.AddForce(Vector3.up * finalKnockbackStrengthPlayer, ForceMode.VelocityChange);
+                            nextAllowedHitTime = Time.time + hitCooldown;
                         }
                     }
                 }
@@ -80,3 +74,4 @@ public class Knockback : MonoBehaviour
         }
     }
 }
+

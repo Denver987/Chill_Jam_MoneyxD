@@ -18,6 +18,9 @@ public class InputSystem : MonoBehaviour
     [SerializeField] private float maxGroundAngle = 45f; // slope limit
     private bool grounded;
 
+    [SerializeField] private float fallMultiplier = 2.5f;   // stronger gravity when falling
+    [SerializeField] private float riseGravityMultiplier = 1f;
+
     private Transform pitchTarget; // camera only
     private Vector2 moveInput = Vector2.zero;
     private Vector2 lookInput = Vector2.zero;
@@ -90,6 +93,18 @@ public class InputSystem : MonoBehaviour
         Vector3 accelerationForce = Vector3.ClampMagnitude(velocityDiff, acceleration * Time.fixedDeltaTime);
 
         rb.AddForce(accelerationForce, ForceMode.VelocityChange);
+
+        if (!grounded)
+        {
+            if (rb.linearVelocity.y < 0) // falling down
+            {
+                rb.AddForce(Vector3.down * (Mathf.Abs(Physics.gravity.y) * (fallMultiplier - 1) * Time.fixedDeltaTime), ForceMode.VelocityChange);
+            }
+            else if (rb.linearVelocity.y > 0) // going up
+            {
+                rb.AddForce(Vector3.down * (Mathf.Abs(Physics.gravity.y) * (riseGravityMultiplier - 1) * Time.fixedDeltaTime), ForceMode.VelocityChange);
+            }
+        }
     }
     
 
