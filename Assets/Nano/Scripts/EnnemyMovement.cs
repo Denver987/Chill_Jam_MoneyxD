@@ -195,7 +195,10 @@ public class EnnemyMovement : MonoBehaviour,IHitable
            
         }
     }
-
+    public void ExecuteWithUpwardBias(Transform executionSource, float knockbackStrength, float upwardBias = 0.5F)
+    {
+        KnockBackEntityUpward(executionSource, knockbackStrength, upwardBias);
+    }
     public void Execute(Transform executionSource, float knockbackStrength)
     {
         KnockBackEntity(executionSource, knockbackStrength);
@@ -208,6 +211,16 @@ public class EnnemyMovement : MonoBehaviour,IHitable
         Vector3 direction = (transform.position - executionSource.position).normalized;
         rb.AddForce(direction * knockbackStrength, ForceMode.Impulse);
 
+        // Enter knockback state
+        isKnockedBack = true;
+        knockbackTimer = knockbackRecoveryTime;
+    }
+    private void KnockBackEntityUpward(Transform executionSource, float knockbackStrength, float upwardBias = 0.5f)
+    {
+        if (executionSource == null || rb == null) return;
+        Vector3 direction = (transform.position - executionSource.position).normalized;
+        Vector3 upwardForce = Vector3.up * upwardBias * knockbackStrength;
+        rb.AddForce(direction * knockbackStrength + upwardForce, ForceMode.Impulse);
         // Enter knockback state
         isKnockedBack = true;
         knockbackTimer = knockbackRecoveryTime;
@@ -247,4 +260,6 @@ public class EnnemyMovement : MonoBehaviour,IHitable
 
         return separationForce;
     }
+
+    
 }
