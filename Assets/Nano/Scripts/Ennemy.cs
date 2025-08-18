@@ -15,7 +15,7 @@ public class Enemy : PoolableObject
     public void ResetEnemy(Vector3 position, Transform target)
     {
        
-
+        this.GetComponent<MeshRenderer>().enabled = true; // Reactivate the enemy mesh
         // Reactivate navmesh agent
         Agent.enabled = true;
         Agent.Warp(position);

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -15,12 +16,22 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     public float knockbackRecoveryTime = 0.5f; // how long it takes to recover from knockback
     // recalc separation every 0.2s// how strong separation pushes them
 
+
+    [Header("Attack Settings")]
+    public float attackRange = 1.5f;
+    public float attackCooldown = 1.0f;
+    public float attackKnockbackForce = 5f;
+    public int attackDamage = 10;
+
+    private float lastAttackTime = 0f;
     private NavMeshAgent navMeshAgent;
     private Rigidbody rb;
     public EnemySpawner spawner; // reference to the spawner for accessing all enemies
     public Transform target;
     private Vector3 personalOffset;
 
+
+    public GameObject dustExplosion; // reference to the dust explosion prefab
     private Vector3 cachedSeparation = Vector3.zero;
     private float separationTimer = 0f;
 
@@ -74,16 +85,39 @@ public class EnnemyMovement : MonoBehaviour,IHitable
             if (isKnockedBack)
             {
                 Die();
-                otherEnemy.Die();
+                otherEnemy.Die(); // if knocked back, both die
             }
-        }
+        }else if(collision.gameObject.CompareTag("Obstacle"))
+        {
+            if (isKnockedBack)
+            {
+                Die();
+            }
+        }   
     }
 
-
-    public void Die()
+    public void Attack()
     {
-        spawner.RemoveEnemy(enemy);
+        
+       //handle attacking 
+    }
+
+    public  void Die()
+    {
+      
+        this.transform.GetChild(0).gameObject.SetActive(true); // show the dust explosion
+        this.gameObject.GetComponent<MeshRenderer>().enabled = false; // hide the enemy mesh
+        StartCoroutine(DieAfterDelay());
+        
+    }
+    public IEnumerator DieAfterDelay()
+    {
+       
+        yield return new WaitForSeconds(1f);
+
+        this.transform.GetChild(0).gameObject.SetActive(false); // hide the dust explosion
         gameObject.SetActive(false);
+        spawner.RemoveEnemy(enemy);
     }
     private void FollowTarget()
     {
@@ -110,6 +144,14 @@ public class EnnemyMovement : MonoBehaviour,IHitable
 
         // Stop if very close to player
         float distance = Vector3.Distance(rb.position, target.position);
+        if (distance <= attackRange)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+
+            TryAttack();
+            return;
+        }
         if (distance <= navMeshAgent.stoppingDistance + 0.5f)
         {
             rb.linearVelocity = Vector3.zero;
@@ -128,6 +170,32 @@ public class EnnemyMovement : MonoBehaviour,IHitable
 
         navMeshAgent.nextPosition = rb.position;
     }
+
+    private void TryAttack()
+    {
+        if (Time.time >= lastAttackTime + attackCooldown)
+        {
+            lastAttackTime = Time.time;
+
+            // Apply knockback to player if they have Rigidbody
+            Rigidbody playerRb = target.GetComponent<Rigidbody>();
+            if (playerRb != null)
+            {
+                Vector3 knockDir = (target.position - transform.position).normalized;
+                playerRb.AddForce(knockDir * attackKnockbackForce, ForceMode.Impulse);
+                Debug.Log($"{gameObject.name} attacked player!");
+            }
+            else
+            {
+                Debug.LogWarning("Target does not have a Rigidbody for knockback!");
+            }
+
+            
+
+           
+        }
+    }
+
     public void Execute(Transform executionSource, float knockbackStrength)
     {
         KnockBackEntity(executionSource, knockbackStrength);
