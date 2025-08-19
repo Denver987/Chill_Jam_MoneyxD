@@ -1,3 +1,4 @@
+using SmallHedge.SoundManager;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -54,6 +55,7 @@ public class Knockback : MonoBehaviour
                 IHitable hitable = hit.transform.GetComponent<IHitable>();
                 if (hitable != null)
                 {
+                    SoundManager.PlaySound(SoundType.spell1, this.GetComponent<AudioSource>(), 0.5f); // Play knockback sound with volume 0.5
                     hitable.ExecuteWithUpwardBias(transform, finalKnockbackStrengthEnemy, upwardForce);
                     nextAllowedHitTime = Time.time + hitCooldown;
                 }

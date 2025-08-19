@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using SmallHedge.SoundManager;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -93,6 +94,7 @@ public class EnnemyMovement : MonoBehaviour,IHitable
         {
             if (isKnockedBack)
             {
+
                 Die();
                 otherEnemy.Die(); // if knocked back, both die
             }
@@ -108,11 +110,14 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     {
         canattack = false;
         //CameraSettings.Instance.StartZoom(55f, 1f);
-        
+        SoundManager.PlaySound(SoundType.enemyDeath, GetComponent<AudioSource>(), 0.5f); // Play death sound with volume 0.5
+
         CameraSettings.Instance.StartShake(0.2f, 0.05f);
         CameraSettings.Instance.StartSlowMotion(0.5f, 0.5f);
         this.transform.GetChild(0).gameObject.SetActive(true); // show the dust explosion
-        this.transform.GetChild(1).gameObject.SetActive(false); // hide the enemy model
+        this.transform.GetChild(1).gameObject.SetActive(false);
+       
+        // hide the enemy model
         StartCoroutine(DieAfterDelay());
         
     }
@@ -307,6 +312,7 @@ public class EnnemyMovement : MonoBehaviour,IHitable
 
         // Hit pause
         StartCoroutine(HitPause(0.08f));
+        SoundManager.PlaySound(SoundType.ennemyDamage, GetComponent<AudioSource>(), 0.5f); // Play hit sound with volume 0.5
     }
 
 

@@ -1,3 +1,4 @@
+using SmallHedge.SoundManager;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -48,7 +49,7 @@ public class Player : MonoBehaviour
         if (health < 0) health = 0;
 
         StartCoroutine(TakeKnockback(hitDirection, knockbackForce, 0.5f)); // Adjust knockback duration as needed
-     
+        SoundManager.PlaySound(SoundType.PlayerDamage,this.GetComponent<AudioSource>(),0.5f); // Play damage sound with volume 0.5
 
         if (health <= 0)
         {
