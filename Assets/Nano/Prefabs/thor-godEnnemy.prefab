@@ -1234,7 +1234,7 @@ MonoBehaviour:
   knockbackRecoveryTime: 0.5
   attackRange: 2.5
   attackCooldown: 2
-  attackKnockbackForce: 50
+  attackKnockbackForce: 15
   attackDamage: 10
   spawner: {fileID: 0}
   target: {fileID: 0}

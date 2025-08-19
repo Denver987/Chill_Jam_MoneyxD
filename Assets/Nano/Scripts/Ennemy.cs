@@ -15,6 +15,7 @@ public class Enemy : PoolableObject
     public void ResetEnemy(Vector3 position, Transform target)
     {
        
+        Movement.canattack = true; // Reset attack state
         this.transform.GetChild(1).gameObject.SetActive(true); // hide the dust explosion  
         // Reactivate navmesh agent
         Agent.enabled = true;

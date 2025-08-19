@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class InputSystem : MonoBehaviour
@@ -131,6 +132,36 @@ public class InputSystem : MonoBehaviour
             }
         }
     }
+
+    public void TakeKnockback(Vector3 direction, float strength, float upwardBias = 0.5f, float recoveryTime = 0.2f)
+    {
+        if (rb == null) return;
+
+        StopAllCoroutines(); // cancel previous knockbacks
+        StartCoroutine(KnockbackRoutine(direction, strength, upwardBias, recoveryTime));
+    }
+
+    private IEnumerator KnockbackRoutine(Vector3 direction, float strength, float upwardBias, float recoveryTime)
+    {
+        // Save original drag
+        float originalDrag = rb.linearDamping;
+
+        // Reduce drag for smooth flight
+        rb.linearDamping = 0f;
+
+        // Calculate knockback velocity
+        Vector3 knockDir = direction.normalized * strength;
+        knockDir.y += upwardBias * strength * 0.3f; // upward punch (tweak multiplier)
+
+        // Apply directly as velocity override
+        rb.linearVelocity = knockDir;
+
+        // Wait before restoring drag
+        yield return new WaitForSeconds(recoveryTime);
+
+        rb.linearDamping = originalDrag;
+    }
+
 
     // --------------------
     // CAMERA ROTATION

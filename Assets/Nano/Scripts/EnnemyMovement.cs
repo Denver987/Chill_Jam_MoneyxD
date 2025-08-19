@@ -42,6 +42,8 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     private Animator animator;
     private Enemy enemy;
     private bool isKnockedBack = false;
+    private bool isAttacking = false;
+    public bool canattack = true; // can attack after cooldown
     private float knockbackTimer = 0f;
     private void Awake()
     {
@@ -63,7 +65,7 @@ public class EnnemyMovement : MonoBehaviour,IHitable
        spawner = GetComponentInParent<EnemySpawner>();
         if(spawner == null)
         {
-            Debug.LogError("EnemySpawner not found in parent hierarchy!");
+           
             return;
         }
     }
@@ -102,16 +104,10 @@ public class EnnemyMovement : MonoBehaviour,IHitable
             }
         }   
     }
-
-    public void Attack()
-    {
-        
-       //handle attacking 
-    }
- 
     public  void Die()
     {
-        CameraSettings.Instance.StartZoom(55f, 1f);
+        canattack = false;
+        //CameraSettings.Instance.StartZoom(55f, 1f);
         
         CameraSettings.Instance.StartShake(0.2f, 0.05f);
         CameraSettings.Instance.StartSlowMotion(0.5f, 0.5f);
@@ -132,7 +128,7 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     private void FollowTarget()
     {
         if (target == null) return;
-        if (isKnockedBack)
+        if (isKnockedBack || isAttacking)
         {
             animator.SetBool(isMoving, false);
             return;
@@ -192,30 +188,41 @@ public class EnnemyMovement : MonoBehaviour,IHitable
 
     private void TryAttack()
     {
+        
+        if(isKnockedBack || isAttacking|| !canattack)
+            return;
+      
+        isAttacking = true;
+
+        // Don't attack while knocked back
         if (Time.time >= lastAttackTime + attackCooldown)
         {
             lastAttackTime = Time.time;
 
-            // Apply knockback to player if they have Rigidbody
-            Rigidbody playerRb = target.GetComponent<Rigidbody>();
-            if (playerRb != null)
+            if (target != null)
             {
-                Vector3 knockDir = (target.position - transform.position).normalized;
-                playerRb.AddForce(knockDir * attackKnockbackForce, ForceMode.Impulse);
-                Debug.Log($"{gameObject.name} attacked player!");
-            }
-            else
-            {
-                Debug.LogWarning("Target does not have a Rigidbody for knockback!");
-            }
+                
+                Vector3 attackDirection = (target.position - transform.position).normalized;
 
-            
+                // Apply knockback and damage if player has the Player script
+                Player player = target.GetComponent<Player>();
+                if (player != null)
+                {
+                    player.TakeDamage(attackDamage, attackDirection, attackKnockbackForce );
+                    Debug.Log($"{gameObject.name} attacked player for {attackDamage} damage!");
+                }
 
-           
+                animator.SetTrigger("Attack");
+            }
         }
+        StartCoroutine(AttackCooldown());
     }
-   
 
+    IEnumerator AttackCooldown()
+    {
+        yield return new WaitForSeconds(attackCooldown/2);
+        isAttacking = false;
+    }
     IEnumerator FlashColor(SkinnedMeshRenderer[] renderers, Color flashColor, float duration)
     {
         if (renderers == null || renderers.Length == 0) yield break;
