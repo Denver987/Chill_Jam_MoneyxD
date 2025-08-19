@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
+using UnityEngine.VFX;
 
 public class MagneticPull : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class MagneticPull : MonoBehaviour
     [SerializeField] private float rotationSpeed = 180f;
     [SerializeField] private float throwStrength = 10f;
     [SerializeField] private float pullCooldown = 0.5f;
+    [SerializeField] private GameObject lineVFX;
+    [SerializeField] private Transform StartPos;
 
     [SerializeField] private Vector3 rotationAxis = new Vector3(1, 1, 1);
     private Rigidbody heldItem;
@@ -35,6 +38,7 @@ public class MagneticPull : MonoBehaviour
     void Start()
     {
         cam = Camera.main;
+        if (lineVFX == null) lineVFX = GameObject.Find("MagneticGrip");
     }
     public void Telekinesis(InputAction.CallbackContext context)
     {
@@ -67,10 +71,13 @@ public class MagneticPull : MonoBehaviour
         if (context.performed)
         {
             isHolding = true;
+            lineVFX.SetActive(true);
+            lineVFX.GetComponent<VisualEffect>().SetVector3("StartingPos", StartPos.position);
         }
         if (isHolding && context.canceled)
         {
             isHolding = false;
+            lineVFX.SetActive(false);
         }
     }
 
@@ -143,6 +150,8 @@ public class MagneticPull : MonoBehaviour
                     Vector3 targetPosition = cam.transform.position + cam.transform.forward * floatingPosition;
                     Vector3 direction = targetPosition - heldItem.position;
                     float distance = direction.magnitude;
+                    lineVFX.GetComponent<VisualEffect>().SetVector3("heldItem", heldItem.position);
+
 
                     if (distance > aimTolerance)
                     {
@@ -152,11 +161,11 @@ public class MagneticPull : MonoBehaviour
                     {
                         // instead of direct MovePosition, use physics-based approach
                         Vector3 toTarget = targetPosition - heldItem.position;
-                        
+
                         // apply gentle force toward target instead of teleporting
                         heldItem.AddForce(toTarget * snapSpeed * Time.fixedDeltaTime, ForceMode.VelocityChange);
-                        
-                        heldItem.linearVelocity *= 0.75f;    
+
+                        heldItem.linearVelocity *= 0.75f;
 
                         Quaternion deltaRotation = Quaternion.AngleAxis(rotationSpeed * Time.fixedDeltaTime, rotationAxis);
                         hit.rigidbody.MoveRotation(hit.rigidbody.rotation * deltaRotation);
