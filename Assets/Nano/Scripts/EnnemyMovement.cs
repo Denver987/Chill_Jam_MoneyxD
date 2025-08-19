@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using DG.Tweening;
+using SmallHedge.SoundManager;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -93,6 +94,7 @@ public class EnnemyMovement : MonoBehaviour,IHitable
         {
             if (isKnockedBack)
             {
+
                 Die();
                 otherEnemy.Die(); // if knocked back, both die
             }
@@ -108,11 +110,14 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     {
         canattack = false;
         //CameraSettings.Instance.StartZoom(55f, 1f);
-        
+        SoundManager.PlaySound(SoundType.enemyDeath, GetComponent<AudioSource>(), 0.5f); // Play death sound with volume 0.5
+
         CameraSettings.Instance.StartShake(0.2f, 0.05f);
         CameraSettings.Instance.StartSlowMotion(0.5f, 0.5f);
         this.transform.GetChild(0).gameObject.SetActive(true); // show the dust explosion
-        this.transform.GetChild(1).gameObject.SetActive(false); // hide the enemy model
+        this.transform.GetChild(1).gameObject.SetActive(false);
+       
+        // hide the enemy model
         StartCoroutine(DieAfterDelay());
         
     }
@@ -188,70 +193,58 @@ public class EnnemyMovement : MonoBehaviour,IHitable
 
     private void TryAttack()
     {
-        
-        if(isKnockedBack || isAttacking|| !canattack)
-            return;
-      
+        if (isKnockedBack || isAttacking || !canattack) return;
+
+        // Check if player is still in range before starting
+        float distance = Vector3.Distance(transform.position, target.position);
+        if (distance > attackRange) return;
+
+        // Start attack
+        StartCoroutine(AttackRoutine());
+    }
+
+    private IEnumerator AttackRoutine()
+    {
         isAttacking = true;
+        animator.SetTrigger("Attack");
 
-        // Don't attack while knocked back
-        if (Time.time >= lastAttackTime + attackCooldown)
+        // Wait half of the attack animation before applying damage (adjust to match your animation)
+        float animationDelay = 0.3f;
+        float elapsed = 0f;
+
+        while (elapsed < animationDelay)
         {
-            lastAttackTime = Time.time;
-
-            if (target != null)
+            // If player moves out of range, cancel attack
+            if (Vector3.Distance(transform.position, target.position) > attackRange)
             {
-                
-                Vector3 attackDirection = (target.position - transform.position).normalized;
+                isAttacking = false;
+                animator.ResetTrigger("Attack"); // stop attack animation
+                yield break; // cancel coroutine
+            }
 
-                // Apply knockback and damage if player has the Player script
-                Player player = target.GetComponent<Player>();
-                if (player != null)
-                {
-                    player.TakeDamage(attackDamage, attackDirection, attackKnockbackForce );
-                    Debug.Log($"{gameObject.name} attacked player for {attackDamage} damage!");
-                }
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
 
-                animator.SetTrigger("Attack");
+        // Apply damage if still in range
+        if (Vector3.Distance(transform.position, target.position) <= attackRange)
+        {
+            Vector3 attackDirection = (target.position - transform.position).normalized;
+            Player player = target.GetComponent<Player>();
+            if (player != null)
+            {
+                player.TakeDamage(attackDamage, attackDirection, attackKnockbackForce);
+                Debug.Log($"{gameObject.name} attacked player for {attackDamage} damage!");
             }
         }
-        StartCoroutine(AttackCooldown());
-    }
 
-    IEnumerator AttackCooldown()
-    {
-        yield return new WaitForSeconds(attackCooldown/2);
+        // Cooldown
+        yield return new WaitForSeconds(attackCooldown / 2f);
         isAttacking = false;
     }
-    IEnumerator FlashColor(SkinnedMeshRenderer[] renderers, Color flashColor, float duration)
-    {
-        if (renderers == null || renderers.Length == 0) yield break;
 
-        // Save original colors
-        List<Color> originalColors = new List<Color>();
-        foreach (var r in renderers)
-        {
-            if (r != null)
-                originalColors.Add(r.material.color);
-        }
 
-        // Apply flash color
-        foreach (var r in renderers)
-        {
-            if (r != null)
-                r.material.color = flashColor;
-        }
-
-        yield return new WaitForSeconds(duration);
-
-        // Restore original colors
-        for (int i = 0; i < renderers.Length; i++)
-        {
-            if (renderers[i] != null)
-                renderers[i].material.color = originalColors[i];
-        }
-    }
-
+ 
     private bool isHitPaused = false;
     IEnumerator HitPause(float duration)
     {
@@ -275,23 +268,6 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     {
         KnockBackEntity(executionSource, knockbackStrength);
     }
-    IEnumerator SmoothKnockback(Rigidbody rb, Vector3 direction, float distance, float duration)
-    {
-        Vector3 startPos = rb.position;
-        Vector3 targetPos = startPos + direction.normalized * distance;
-
-        float elapsed = 0f;
-        while (elapsed < duration)
-        {
-            float t = elapsed / duration;
-            float easedT = 1 - Mathf.Pow(1 - t, 3); // cubic ease-out
-
-            rb.MovePosition(Vector3.Lerp(startPos, targetPos, easedT));
-
-            elapsed += Time.fixedDeltaTime;
-            yield return new WaitForFixedUpdate();
-        }
-    }
     private void KnockBackEntity(Transform executionSource, float knockbackStrength)
     {
         if (executionSource == null || rb == null) return;
@@ -303,22 +279,42 @@ public class EnnemyMovement : MonoBehaviour,IHitable
         isKnockedBack = true;
         knockbackTimer = knockbackRecoveryTime;
     }
+    
+
+
     private void KnockBackEntityUpward(Transform executionSource, float knockbackStrength, float upwardBias = 0.5f)
     {
-        
         if (executionSource == null || rb == null) return;
-        isKnockedBack = true;
-        CameraSettings.Instance.StartShake(0.2f, 0.05f);
-        StartCoroutine(FlashColor(meshRenderers,Color.red,0.5f));
-        animator.SetTrigger("Hit"); // Trigger hit animation
-        StartCoroutine(HitPause(0.1f));
-        Vector3 direction = (transform.position - executionSource.position).normalized;
-        Vector3 upwardForce = Vector3.up * upwardBias * knockbackStrength;
-        rb.AddForce(direction * knockbackStrength + upwardForce, ForceMode.Impulse);
-        // Enter knockback state
+
         
-        knockbackTimer = knockbackRecoveryTime;
+        Vector3 direction = (transform.position - executionSource.position).normalized;
+        Vector3 knockDir = direction + Vector3.up * upwardBias;
+
+        // Enter knockback state
+        isKnockedBack = true;
+        knockbackTimer = knockbackRecoveryTime; // <-- keep your recovery timer
+
+        // Rigidbody impulse
+        rb.AddForce(knockDir * knockbackStrength, ForceMode.Impulse);
+
+        // DOTween knockback for smooth visual movement
+        Vector3 targetPos = transform.position + knockDir * (knockbackStrength * 0.1f);
+        transform.DOMove(targetPos, 0.2f).SetEase(Ease.OutQuad);
+
+        // Visual feedback
+        transform.DOPunchScale(Vector3.one * 0.1f, 0.2f, 1, 0.5f);
+        foreach (var r in meshRenderers)
+            r.material.DOColor(Color.red, 0.1f).SetLoops(2, LoopType.Yoyo);
+        animator.SetTrigger("Hit");
+
+        // Camera shake
+        CameraSettings.Instance?.StartShake(0.15f, 0.05f);
+
+        // Hit pause
+        StartCoroutine(HitPause(0.08f));
+        SoundManager.PlaySound(SoundType.ennemyDamage, GetComponent<AudioSource>(), 0.5f); // Play hit sound with volume 0.5
     }
+
 
     private void RecoverFromKnockback()
     {

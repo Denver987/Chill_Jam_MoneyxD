@@ -1,3 +1,7 @@
+using SmallHedge.SoundManager;
+using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,10 +14,12 @@ public class Knockback : MonoBehaviour
     [SerializeField] private float maxChargeTime = 2f;
     [SerializeField] private float maxKnockbackStrength = 20f;
     [SerializeField] private float groundMultiplier = 2f;
+    [SerializeField, Range(0f, 1f)] private float upwardBias = 0.6f;
     [SerializeField] private AnimationCurve chargeCurve;
+    public float jumpForceKnock = 5f; // force applied when jumping
 
     public float maxDistance = 100f; // maximum distance to hit something   
-    public float upwardForce = 0.5f;
+    public float upwardForce = 0.5f; // how much upward force to apply when hitting the ground
     private float nextAllowedHitTime = 0f;
     private float chargeStartTime = -1f;
     private bool isCharging = false;
@@ -27,8 +33,8 @@ public class Knockback : MonoBehaviour
 
     public void knockback(InputAction.CallbackContext context)
     {
-        if (gameObject.GetComponent<SpellSelector>().currentSpell != SpellSelector.SpellType.Shockwave) return;
         if (Time.time < nextAllowedHitTime) return;
+
         if (context.phase == InputActionPhase.Started || context.phase == InputActionPhase.Performed)
         {
             isCharging = true;
@@ -41,7 +47,7 @@ public class Knockback : MonoBehaviour
             float held = Mathf.Clamp01((Time.time - chargeStartTime) / Mathf.Max(0.0001f, maxChargeTime));
             float t = chargeCurve.Evaluate(held);
             float finalKnockbackStrengthEnemy = Mathf.Lerp(initialKnockbackStrength, maxKnockbackStrength, t);
-            float finalKnockbackStrengthPlayer = finalKnockbackStrengthEnemy * groundMultiplier;
+            float finalKnockbackStrengthPlayer = jumpForceKnock * groundMultiplier;
 
             Ray ray = cam.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit,maxDistance))
@@ -49,6 +55,7 @@ public class Knockback : MonoBehaviour
                 IHitable hitable = hit.transform.GetComponent<IHitable>();
                 if (hitable != null)
                 {
+                    SoundManager.PlaySound(SoundType.spell1, this.GetComponent<AudioSource>(), 0.5f); // Play knockback sound with volume 0.5
                     hitable.ExecuteWithUpwardBias(transform, finalKnockbackStrengthEnemy, upwardForce);
                     nextAllowedHitTime = Time.time + hitCooldown;
                 }

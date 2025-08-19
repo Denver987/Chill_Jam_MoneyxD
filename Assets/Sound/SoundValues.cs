@@ -8,11 +8,11 @@ namespace SmallHedge.SoundManager
         
         Music,
         Menu,
-        Door,
-        shooting,
-        dying,
-        power_on,
-        error,
+        PlayerDamage,
+        ennemyDamage,
+        enemyDeath,
+        spell1,
+
 
        
     }

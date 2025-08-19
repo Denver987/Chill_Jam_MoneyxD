@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -17,6 +18,8 @@ public class EnemySpawner : MonoBehaviour
     private NavMeshTriangulation Triangulation;
     public Dictionary<int, ObjectPool> EnemyObjectPools = new Dictionary<int, ObjectPool>();
 
+    public List<Transform> spawnzones = new List<Transform>();
+
     public List<Enemy> ActiveEnemies = new List<Enemy>();
     public int activeEnemiesCount => ActiveEnemies.Count;
     private void Awake()
@@ -25,6 +28,7 @@ public class EnemySpawner : MonoBehaviour
         {
             EnemyObjectPools.Add(i, ObjectPool.CreateInstance(EnemyPrefabs[i], NumberOfEnemiesToSpawn,this.transform));
         }
+        spawnzones= GetComponentsInChildren<Transform>().ToList();
     }
 
     private void Start()
@@ -101,30 +105,21 @@ public class EnemySpawner : MonoBehaviour
     private void DoSpawnEnemy(int SpawnIndex)
     {
         PoolableObject poolableObject = EnemyObjectPools[SpawnIndex].GetObject();
-        Debug.Log($"Spawning enemy of type {SpawnIndex} from pool {poolableObject.name}");
-        Debug.Log($"Available objects in pool: {EnemyObjectPools[SpawnIndex].AvailableObjectsPool.Count}");
         if (poolableObject != null)
         {
             Enemy enemy = poolableObject.GetComponent<Enemy>();
 
-            int VertexIndex = Random.Range(0, Triangulation.vertices.Length);
+            // Pick one spawn point
+            Transform spawnPoint = spawnzones[Random.Range(0, spawnzones.Count)];
 
-            NavMeshHit Hit;
-            if (NavMesh.SamplePosition(Triangulation.vertices[VertexIndex], out Hit, 2f, -1))
+            NavMeshHit hit;
+            if (NavMesh.SamplePosition(spawnPoint.position, out hit, 2f, NavMesh.AllAreas))
             {
-                enemy.ResetEnemy(Hit.position , target);
+                enemy.ResetEnemy(hit.position, target);
 
                 if (!ActiveEnemies.Contains(enemy))
                     ActiveEnemies.Add(enemy);
             }
-            else
-            {
-                Debug.LogError($"Unable to place NavMeshAgent on NavMesh. Tried to use {Triangulation.vertices[VertexIndex]}");
-            }
-        }
-        else
-        {
-            Debug.LogError($"Unable to fetch enemy of type {SpawnIndex} from object pool. Out of objects?");
         }
     }
     public void RemoveEnemy(Enemy enemy)

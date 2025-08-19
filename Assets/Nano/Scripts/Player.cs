@@ -1,3 +1,4 @@
+using SmallHedge.SoundManager;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -48,7 +49,7 @@ public class Player : MonoBehaviour
         if (health < 0) health = 0;
 
         StartCoroutine(TakeKnockback(hitDirection, knockbackForce, 0.5f)); // Adjust knockback duration as needed
-     
+        SoundManager.PlaySound(SoundType.PlayerDamage,this.GetComponent<AudioSource>(),0.5f); // Play damage sound with volume 0.5
 
         if (health <= 0)
         {
@@ -58,8 +59,8 @@ public class Player : MonoBehaviour
 
     private IEnumerator TakeKnockback(Vector3 direction, float force, float duration)
     {
-        yield return new WaitForSeconds(duration);
-        inputSystem.TakeKnockback(direction, force, duration);
+        yield return new WaitForSeconds(duration /2);
+        inputSystem.TakeKnockback(direction, force, 0.05f);
         CameraSettings.Instance.StartShake(0.2f, 0.1f); // Adjust shake duration and intensity as needed
         invulnerable = true;
 
