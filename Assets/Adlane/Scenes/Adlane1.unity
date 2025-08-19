@@ -1134,6 +1134,7 @@ MonoBehaviour:
   spawner: {fileID: 0}
   target: {fileID: 987193874}
   dustExplosion: {fileID: 0}
+  canattack: 1
 --- !u!54 &689454287
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1327,6 +1328,7 @@ MonoBehaviour:
   spawner: {fileID: 0}
   target: {fileID: 987193874}
   dustExplosion: {fileID: 0}
+  canattack: 1
 --- !u!54 &806532691
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3083,7 +3085,7 @@ PrefabInstance:
     - target: {fileID: 9219682085311476795, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
       propertyPath: lineVFX
       value: 
-      objectReference: {fileID: 755003967}
+      objectReference: {fileID: 507044716}
     - target: {fileID: 9219682085311476795, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
       propertyPath: StartPos
       value: 
