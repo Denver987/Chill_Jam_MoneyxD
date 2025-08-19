@@ -108,10 +108,13 @@ public class EnnemyMovement : MonoBehaviour,IHitable
         
        //handle attacking 
     }
-
+ 
     public  void Die()
     {
-      
+        CameraSettings.Instance.StartZoom(55f, 1f);
+        
+        CameraSettings.Instance.StartShake(0.2f, 0.05f);
+        CameraSettings.Instance.StartSlowMotion(0.5f, 0.5f);
         this.transform.GetChild(0).gameObject.SetActive(true); // show the dust explosion
         this.transform.GetChild(1).gameObject.SetActive(false); // hide the enemy model
         StartCoroutine(DieAfterDelay());
@@ -211,16 +214,7 @@ public class EnnemyMovement : MonoBehaviour,IHitable
            
         }
     }
-    IEnumerator LockInHitFrame(Animator animator, string stateName, float normalizedTime, float duration)
-    {
-        animator.Play(stateName, 0, normalizedTime);
-        animator.Update(0f);   // force immediate pose update
-        animator.speed = 0f;   // freeze here
-
-        yield return new WaitForSeconds(duration);
-
-        animator.speed = 1f;   // resume
-    }
+   
 
     IEnumerator FlashColor(SkinnedMeshRenderer[] renderers, Color flashColor, float duration)
     {
@@ -251,54 +245,21 @@ public class EnnemyMovement : MonoBehaviour,IHitable
         }
     }
 
-    IEnumerator FlashColorLerp(SkinnedMeshRenderer[] renderers, Color startColor, Color endColor, float duration)
-    {
-        if (renderers == null || renderers.Length == 0) yield break;
-
-        // Store original colors so we can restore at the end
-        Color[] originalColors = new Color[renderers.Length];
-        for (int i = 0; i < renderers.Length; i++)
-        {
-            if (renderers[i] != null)
-                originalColors[i] = renderers[i].material.color;
-        }
-
-        float elapsed = 0f;
-
-        while (elapsed < duration)
-        {
-            float t = elapsed / duration;
-            // Ping-pong for back-and-forth flash (0 → 1 → 0)
-            float lerpT = Mathf.PingPong(t * 2f, 1f);
-
-            // Lerp between start and end colors
-            Color currentColor = Color.Lerp(startColor, endColor, lerpT);
-
-            foreach (var r in renderers)
-            {
-                if (r != null)
-                    r.material.color = currentColor;
-            }
-
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-
-        // Restore original colors
-        for (int i = 0; i < renderers.Length; i++)
-        {
-            if (renderers[i] != null)
-                renderers[i].material.color = originalColors[i];
-        }
-    }
-
+    private bool isHitPaused = false;
     IEnumerator HitPause(float duration)
     {
+        if (isHitPaused) yield break; 
+
+        isHitPaused = true;
+
         float originalTimeScale = Time.timeScale;
         Time.timeScale = 0f;
         yield return new WaitForSecondsRealtime(duration);
         Time.timeScale = originalTimeScale;
+
+        isHitPaused = false;
     }
+
     public void ExecuteWithUpwardBias(Transform executionSource, float knockbackStrength, float upwardBias = 0.5F)
     {
         KnockBackEntityUpward(executionSource, knockbackStrength, upwardBias);
@@ -337,15 +298,18 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     }
     private void KnockBackEntityUpward(Transform executionSource, float knockbackStrength, float upwardBias = 0.5f)
     {
+        
         if (executionSource == null || rb == null) return;
-        StartCoroutine(FlashColorLerp(meshRenderers, Color.red, Color.white, 0.3f));
-        StartCoroutine(LockInHitFrame(animator, "Hit", 0.4f, 0.2f));
-        StartCoroutine(HitPause(0.2f));
+        isKnockedBack = true;
+        CameraSettings.Instance.StartShake(0.2f, 0.05f);
+        StartCoroutine(FlashColor(meshRenderers,Color.red,0.5f));
+        animator.SetTrigger("Hit"); // Trigger hit animation
+        StartCoroutine(HitPause(0.1f));
         Vector3 direction = (transform.position - executionSource.position).normalized;
         Vector3 upwardForce = Vector3.up * upwardBias * knockbackStrength;
         rb.AddForce(direction * knockbackStrength + upwardForce, ForceMode.Impulse);
         // Enter knockback state
-        isKnockedBack = true;
+        
         knockbackTimer = knockbackRecoveryTime;
     }
 
