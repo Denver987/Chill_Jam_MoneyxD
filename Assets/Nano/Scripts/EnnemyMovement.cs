@@ -1,5 +1,6 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -15,24 +16,44 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     public float knockbackRecoveryTime = 0.5f; // how long it takes to recover from knockback
     // recalc separation every 0.2s// how strong separation pushes them
 
+    private SkinnedMeshRenderer[] meshRenderers;
+
+
+    [Header("Attack Settings")]
+    public float attackRange = 1.5f;
+    public float attackCooldown = 1.0f;
+    public float attackKnockbackForce = 5f;
+    public int attackDamage = 10;
+
+    private float lastAttackTime = 0f;
     private NavMeshAgent navMeshAgent;
     private Rigidbody rb;
     public EnemySpawner spawner; // reference to the spawner for accessing all enemies
     public Transform target;
     private Vector3 personalOffset;
 
+
+    public GameObject dustExplosion; // reference to the dust explosion prefab
     private Vector3 cachedSeparation = Vector3.zero;
     private float separationTimer = 0f;
 
+    private const string isMoving = "IsMoving";
+
+    private Animator animator;
+    private Enemy enemy;
     private bool isKnockedBack = false;
+    private bool isAttacking = false;
+    public bool canattack = true; // can attack after cooldown
     private float knockbackTimer = 0f;
     private void Awake()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody>();
+        enemy = GetComponent<Enemy>();
+        animator = GetComponent<Animator>();
+        meshRenderers = GetComponentsInChildren<SkinnedMeshRenderer>();
 
         navMeshAgent.updatePosition = false;
-        navMeshAgent.updateRotation = false;
 
         // give each enemy a random offset around the player
         personalOffset = Random.insideUnitSphere * spreadRadius;
@@ -44,7 +65,7 @@ public class EnnemyMovement : MonoBehaviour,IHitable
        spawner = GetComponentInParent<EnemySpawner>();
         if(spawner == null)
         {
-            Debug.LogError("EnemySpawner not found in parent hierarchy!");
+           
             return;
         }
     }
@@ -62,12 +83,56 @@ public class EnnemyMovement : MonoBehaviour,IHitable
         }
 
         FollowTarget();
+       
     }
 
+    private void OnCollisionEnter(Collision collision)
+    {
+        EnnemyMovement otherEnemy = collision.gameObject.GetComponent<EnnemyMovement>();
+        if(otherEnemy != null)
+        {
+            if (isKnockedBack)
+            {
+                Die();
+                otherEnemy.Die(); // if knocked back, both die
+            }
+        }else if(collision.gameObject.CompareTag("Obstacle"))
+        {
+            if (isKnockedBack)
+            {
+                Die();
+            }
+        }   
+    }
+    public  void Die()
+    {
+        canattack = false;
+        //CameraSettings.Instance.StartZoom(55f, 1f);
+        
+        CameraSettings.Instance.StartShake(0.2f, 0.05f);
+        CameraSettings.Instance.StartSlowMotion(0.5f, 0.5f);
+        this.transform.GetChild(0).gameObject.SetActive(true); // show the dust explosion
+        this.transform.GetChild(1).gameObject.SetActive(false); // hide the enemy model
+        StartCoroutine(DieAfterDelay());
+        
+    }
+    public IEnumerator DieAfterDelay()
+    {
+       
+        yield return new WaitForSeconds(1f);
 
+        this.transform.GetChild(0).gameObject.SetActive(false); // hide the dust explosion
+        gameObject.SetActive(false);
+        spawner.RemoveEnemy(enemy);
+    }
     private void FollowTarget()
     {
         if (target == null) return;
+        if (isKnockedBack || isAttacking)
+        {
+            animator.SetBool(isMoving, false);
+            return;
+        }
 
         // Desired position (player + some offset)
         Vector3 destination = target.position + personalOffset;
@@ -90,6 +155,14 @@ public class EnnemyMovement : MonoBehaviour,IHitable
 
         // Stop if very close to player
         float distance = Vector3.Distance(rb.position, target.position);
+        if (distance <= attackRange)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+
+            TryAttack();
+            return;
+        }
         if (distance <= navMeshAgent.stoppingDistance + 0.5f)
         {
             rb.linearVelocity = Vector3.zero;
@@ -100,19 +173,125 @@ public class EnnemyMovement : MonoBehaviour,IHitable
         // Apply movement
         if (direction.magnitude > 0.1f)
         {
+            animator.SetBool(isMoving, true);
             rb.MovePosition(rb.position + direction.normalized * moveSpeed * Time.fixedDeltaTime);
 
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
-            rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, Time.fixedDeltaTime * 5f));
+            //Quaternion targetRotation = Quaternion.LookRotation(direction);
+            //rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, Time.fixedDeltaTime * 5f));
+        }else
+        {
+            animator.SetBool(isMoving, false);
         }
 
         navMeshAgent.nextPosition = rb.position;
+    }
+
+    private void TryAttack()
+    {
+        
+        if(isKnockedBack || isAttacking|| !canattack)
+            return;
+      
+        isAttacking = true;
+
+        // Don't attack while knocked back
+        if (Time.time >= lastAttackTime + attackCooldown)
+        {
+            lastAttackTime = Time.time;
+
+            if (target != null)
+            {
+                
+                Vector3 attackDirection = (target.position - transform.position).normalized;
+
+                // Apply knockback and damage if player has the Player script
+                Player player = target.GetComponent<Player>();
+                if (player != null)
+                {
+                    player.TakeDamage(attackDamage, attackDirection, attackKnockbackForce );
+                    Debug.Log($"{gameObject.name} attacked player for {attackDamage} damage!");
+                }
+
+                animator.SetTrigger("Attack");
+            }
+        }
+        StartCoroutine(AttackCooldown());
+    }
+
+    IEnumerator AttackCooldown()
+    {
+        yield return new WaitForSeconds(attackCooldown/2);
+        isAttacking = false;
+    }
+    IEnumerator FlashColor(SkinnedMeshRenderer[] renderers, Color flashColor, float duration)
+    {
+        if (renderers == null || renderers.Length == 0) yield break;
+
+        // Save original colors
+        List<Color> originalColors = new List<Color>();
+        foreach (var r in renderers)
+        {
+            if (r != null)
+                originalColors.Add(r.material.color);
+        }
+
+        // Apply flash color
+        foreach (var r in renderers)
+        {
+            if (r != null)
+                r.material.color = flashColor;
+        }
+
+        yield return new WaitForSeconds(duration);
+
+        // Restore original colors
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            if (renderers[i] != null)
+                renderers[i].material.color = originalColors[i];
+        }
+    }
+
+    private bool isHitPaused = false;
+    IEnumerator HitPause(float duration)
+    {
+        if (isHitPaused) yield break; 
+
+        isHitPaused = true;
+
+        float originalTimeScale = Time.timeScale;
+        Time.timeScale = 0f;
+        yield return new WaitForSecondsRealtime(duration);
+        Time.timeScale = originalTimeScale;
+
+        isHitPaused = false;
+    }
+
+    public void ExecuteWithUpwardBias(Transform executionSource, float knockbackStrength, float upwardBias = 0.5F)
+    {
+        KnockBackEntityUpward(executionSource, knockbackStrength, upwardBias);
     }
     public void Execute(Transform executionSource, float knockbackStrength)
     {
         KnockBackEntity(executionSource, knockbackStrength);
     }
+    IEnumerator SmoothKnockback(Rigidbody rb, Vector3 direction, float distance, float duration)
+    {
+        Vector3 startPos = rb.position;
+        Vector3 targetPos = startPos + direction.normalized * distance;
 
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            float t = elapsed / duration;
+            float easedT = 1 - Mathf.Pow(1 - t, 3); // cubic ease-out
+
+            rb.MovePosition(Vector3.Lerp(startPos, targetPos, easedT));
+
+            elapsed += Time.fixedDeltaTime;
+            yield return new WaitForFixedUpdate();
+        }
+    }
     private void KnockBackEntity(Transform executionSource, float knockbackStrength)
     {
         if (executionSource == null || rb == null) return;
@@ -122,6 +301,22 @@ public class EnnemyMovement : MonoBehaviour,IHitable
 
         // Enter knockback state
         isKnockedBack = true;
+        knockbackTimer = knockbackRecoveryTime;
+    }
+    private void KnockBackEntityUpward(Transform executionSource, float knockbackStrength, float upwardBias = 0.5f)
+    {
+        
+        if (executionSource == null || rb == null) return;
+        isKnockedBack = true;
+        CameraSettings.Instance.StartShake(0.2f, 0.05f);
+        StartCoroutine(FlashColor(meshRenderers,Color.red,0.5f));
+        animator.SetTrigger("Hit"); // Trigger hit animation
+        StartCoroutine(HitPause(0.1f));
+        Vector3 direction = (transform.position - executionSource.position).normalized;
+        Vector3 upwardForce = Vector3.up * upwardBias * knockbackStrength;
+        rb.AddForce(direction * knockbackStrength + upwardForce, ForceMode.Impulse);
+        // Enter knockback state
+        
         knockbackTimer = knockbackRecoveryTime;
     }
 
@@ -159,4 +354,6 @@ public class EnnemyMovement : MonoBehaviour,IHitable
 
         return separationForce;
     }
+
+    
 }

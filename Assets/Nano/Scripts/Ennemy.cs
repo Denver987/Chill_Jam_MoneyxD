@@ -5,12 +5,31 @@ public class Enemy : PoolableObject
 {
     public EnnemyMovement Movement;
     public NavMeshAgent Agent;
-    public int Health = 100;
 
     public override void OnDisable()
     {
         base.OnDisable();
 
         Agent.enabled = false;
+    }
+    public void ResetEnemy(Vector3 position, Transform target)
+    {
+       
+        Movement.canattack = true; // Reset attack state
+        this.transform.GetChild(1).gameObject.SetActive(true); // hide the dust explosion  
+        // Reactivate navmesh agent
+        Agent.enabled = true;
+        Agent.Warp(position);
+
+        // Reset movement target
+        Movement.target = target;
+
+        // Reset knockback / physics
+        Rigidbody rb = GetComponent<Rigidbody>();
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+
+        // Reactivate the object
+        gameObject.SetActive(true);
     }
 }

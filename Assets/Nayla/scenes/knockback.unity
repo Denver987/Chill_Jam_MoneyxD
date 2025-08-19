@@ -1227,7 +1227,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   jumpForce: 500
   moveSpeed: 8
-  acceleration: 50
+  groundAcceleration: 50
+  groundDeceleration: 70
+  airAcceleration: 20
   lookSpeed: 20
   minPitch: -65
   maxPitch: 65
@@ -1237,6 +1239,8 @@ MonoBehaviour:
   groundCheckRadius: 0.35
   groundCheckDistance: 0.88
   maxGroundAngle: 45
+  fallMultiplier: 2.5
+  riseGravityMultiplier: 1.5
 --- !u!1 &8170750076923963596
 GameObject:
   m_ObjectHideFlags: 0
@@ -1319,6 +1323,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a829fb9c7fface842afdbb0d86b304f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitCooldown: 0.5
+  initialKnockbackStrength: 10
+  maxChargeTime: 2
+  maxKnockbackStrength: 20
+  groundMultiplier: 2
+  upwardBias: 0.6
+  chargeCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  jumpForceKnock: 5
+  maxDistance: 100
+  upwardForce: 0.5
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
