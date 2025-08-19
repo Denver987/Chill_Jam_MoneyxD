@@ -1234,11 +1234,12 @@ MonoBehaviour:
   knockbackRecoveryTime: 0.5
   attackRange: 2.5
   attackCooldown: 2
-  attackKnockbackForce: 15
+  attackKnockbackForce: 25
   attackDamage: 10
   spawner: {fileID: 0}
   target: {fileID: 0}
   dustExplosion: {fileID: 7561391340482851201, guid: 452e8552857fcc140bf6ab1400680afe, type: 3}
+  canattack: 1
 --- !u!114 &3458931458032606731
 MonoBehaviour:
   m_ObjectHideFlags: 0

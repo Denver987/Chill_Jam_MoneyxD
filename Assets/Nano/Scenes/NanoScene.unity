@@ -474,6 +474,10 @@ PrefabInstance:
       value: 60
       objectReference: {fileID: 0}
     - target: {fileID: 6253070513824495409, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
+      propertyPath: upwardBias
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6253070513824495409, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
       propertyPath: hitCooldown
       value: 0.5
       objectReference: {fileID: 0}
@@ -483,7 +487,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6253070513824495409, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
       propertyPath: upwardForce
-      value: 0.5
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 6253070513824495409, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
       propertyPath: jumpForceKnock
@@ -885,7 +889,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 1863737964}
-  NumberOfEnemiesToSpawn: 1
+  NumberOfEnemiesToSpawn: 2
   SpawnDelay: 1
   EnemyPrefabs:
   - {fileID: 3458931458032606731, guid: da0e8a923698e8c4cac103f09bf8fb6b, type: 3}

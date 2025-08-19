@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -151,8 +152,8 @@ public class InputSystem : MonoBehaviour
 
         // Calculate knockback velocity
         Vector3 knockDir = direction.normalized * strength;
-        knockDir.y += upwardBias * strength * 0.3f; // upward punch (tweak multiplier)
-
+        knockDir.y += upwardBias * strength/5 * 0.1f; // upward punch (tweak multiplier)
+        knockDir.y = 0.5f;
         // Apply directly as velocity override
         rb.linearVelocity = knockDir;
 

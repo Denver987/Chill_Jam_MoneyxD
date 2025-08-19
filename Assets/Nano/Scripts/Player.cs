@@ -58,8 +58,8 @@ public class Player : MonoBehaviour
 
     private IEnumerator TakeKnockback(Vector3 direction, float force, float duration)
     {
-        yield return new WaitForSeconds(duration);
-        inputSystem.TakeKnockback(direction, force, duration);
+        yield return new WaitForSeconds(duration /2);
+        inputSystem.TakeKnockback(direction, force, 0.05f);
         CameraSettings.Instance.StartShake(0.2f, 0.1f); // Adjust shake duration and intensity as needed
         invulnerable = true;
 
