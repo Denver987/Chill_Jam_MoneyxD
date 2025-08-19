@@ -966,11 +966,6 @@ Mesh:
     offset: 0
     size: 0
     path: 
---- !u!4 &505786567 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8543919057895296789, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
-  m_PrefabInstance: {fileID: 6242411731253065259}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &507044716
 GameObject:
   m_ObjectHideFlags: 0
@@ -2980,33 +2975,6 @@ MonoBehaviour:
   m_SelectedFaces: 
   m_SelectedEdges: []
   m_SelectedVertices: 
---- !u!1 &1984260953 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2900702126975030106, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
-  m_PrefabInstance: {fileID: 6242411731253065259}
-  m_PrefabAsset: {fileID: 0}
---- !u!95 &1984260957
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1984260953}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: d1fc3a4c7c7f0254e8c825166fbae103, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &2050701461
 GameObject:
   m_ObjectHideFlags: 0
@@ -3049,46 +3017,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 3201677247092420879, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
-      propertyPath: m_Type
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3201677247092420879, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 21300000, guid: 1519ed040a465b240b9c21280cefd181, type: 3}
-    - target: {fileID: 3201677247092420879, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
-      propertyPath: m_Maskable
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3201677247092420879, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
-      propertyPath: m_RaycastTarget
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3201677247092420879, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
-      propertyPath: m_UseSpriteMesh
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3290791154854240444, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 1080
-      objectReference: {fileID: 0}
-    - target: {fileID: 3826695545454896472, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
-      propertyPath: m_RenderPostProcessing
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6253070513824495409, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
-      propertyPath: maxKnockbackStrength
-      value: 25
-      objectReference: {fileID: 0}
-    - target: {fileID: 6253070513824495409, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
-      propertyPath: initialKnockbackStrength
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 7915135044198545159, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 8170750077524841425, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
       propertyPath: m_Name
       value: Player
@@ -3137,19 +3065,10 @@ PrefabInstance:
       propertyPath: lineVFX
       value: 
       objectReference: {fileID: 507044716}
-    - target: {fileID: 9219682085311476795, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
-      propertyPath: StartPos
-      value: 
-      objectReference: {fileID: 505786567}
     m_RemovedComponents: []
-    m_RemovedGameObjects:
-    - {fileID: 6167691505728067069, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
-    - {fileID: 4564952659081474732, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
+    m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 2900702126975030106, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1984260957}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
