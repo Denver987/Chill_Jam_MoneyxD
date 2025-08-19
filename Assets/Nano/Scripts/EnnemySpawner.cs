@@ -112,7 +112,7 @@ public class EnemySpawner : MonoBehaviour
             NavMeshHit Hit;
             if (NavMesh.SamplePosition(Triangulation.vertices[VertexIndex], out Hit, 2f, -1))
             {
-                enemy.ResetEnemy(Hit.position + Vector3.up, target);
+                enemy.ResetEnemy(Hit.position , target);
 
                 if (!ActiveEnemies.Contains(enemy))
                     ActiveEnemies.Add(enemy);
