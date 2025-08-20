@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 public class Player : MonoBehaviour
 {
     [Header("Health")]
+    public int maxHealth = 100;
     public int health = 100;
 
     [Header("Invulnerability")]
