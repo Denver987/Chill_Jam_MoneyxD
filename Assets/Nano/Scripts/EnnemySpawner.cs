@@ -28,7 +28,7 @@ public class EnemySpawner : MonoBehaviour
         {
             EnemyObjectPools.Add(i, ObjectPool.CreateInstance(EnemyPrefabs[i], NumberOfEnemiesToSpawn,this.transform));
         }
-        spawnzones= GetComponentsInChildren<Transform>().ToList();
+      
     }
 
     private void Start()

@@ -297,6 +297,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
+--- !u!4 &898478425 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1515375525086741702, guid: eb9172f8565c5c048921eb5ed6704f41, type: 3}
+  m_PrefabInstance: {fileID: 7211877751708906619}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1863737964 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8477196129360747718, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
@@ -428,6 +433,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2337381348494493177, guid: 4edf7282de71d1b43aa624213005113b, type: 3}
+      propertyPath: m_NavMeshData
+      value: 
+      objectReference: {fileID: 23800000, guid: a9446a6ec2c0266438e14a02360168bc, type: 2}
     - target: {fileID: 7111064153399365510, guid: 4edf7282de71d1b43aa624213005113b, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -529,6 +538,14 @@ PrefabInstance:
       propertyPath: target
       value: 
       objectReference: {fileID: 1863737964}
+    - target: {fileID: 5290896114703299069, guid: eb9172f8565c5c048921eb5ed6704f41, type: 3}
+      propertyPath: spawnzones.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5290896114703299069, guid: eb9172f8565c5c048921eb5ed6704f41, type: 3}
+      propertyPath: 'spawnzones.Array.data[0]'
+      value: 
+      objectReference: {fileID: 898478425}
     - target: {fileID: 6011298400978928488, guid: eb9172f8565c5c048921eb5ed6704f41, type: 3}
       propertyPath: m_Name
       value: EnnemyManager

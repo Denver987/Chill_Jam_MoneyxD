@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class ObjectPool
@@ -14,18 +14,24 @@ public class ObjectPool
         AvailableObjectsPool = new List<PoolableObject>(Size);
     }
 
-    public static ObjectPool CreateInstance(PoolableObject Prefab, int Size,Transform parent = null)
+    public static ObjectPool CreateInstance(PoolableObject Prefab, int Size, Transform parent = null)
     {
         ObjectPool pool = new ObjectPool(Prefab, Size);
 
-        GameObject poolGameObject = new GameObject(Prefab + " Pool");
+        GameObject poolGameObject = new GameObject(Prefab.name + " Pool");
 
         if (parent != null)
+        {
             poolGameObject.transform.SetParent(parent, false);
+            poolGameObject.transform.position = parent.position;   // ✅ match parent position
+            poolGameObject.transform.rotation = parent.rotation;   // ✅ optional: match parent rotation
+        }
+
         pool.CreateObjects(poolGameObject);
 
         return pool;
     }
+
 
     private void CreateObjects(GameObject parent)
     {
