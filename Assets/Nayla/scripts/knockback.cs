@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 
 public class Knockback : MonoBehaviour
 {
-    private Camera cam;
+    public Camera cam;
 
     [SerializeField] private float hitCooldown = 0.5f;
     [SerializeField] private float initialKnockbackStrength = 10f;
@@ -30,7 +30,7 @@ public class Knockback : MonoBehaviour
 
     private void Awake()
     {
-        cam = Camera.main;
+       
         rb = GetComponent<Rigidbody>();
         animator = GetComponentInChildren<Animator>();
 

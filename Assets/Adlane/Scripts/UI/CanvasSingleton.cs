@@ -27,6 +27,7 @@ public class CanvasSingleton : MonoBehaviour
         }
         if (playerKnockback == null) playerKnockback = FindFirstObjectByType<Knockback>();
         if (chargeSlider == null) chargeSlider = GameObject.Find("ChargeSlider").GetComponent<Slider>();
+
         if (spellSelector == null) spellSelector = FindFirstObjectByType<SpellSelector>();
         if (player == null) player = FindFirstObjectByType<Player>();
         if (healthBarRect == null) healthBarRect = GameObject.Find("HealthBar").GetComponent<RectTransform>();

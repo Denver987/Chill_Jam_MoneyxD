@@ -17,6 +17,7 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     public float knockbackRecoveryTime = 0.5f; // how long it takes to recover from knockback
     // recalc separation every 0.2s// how strong separation pushes them
 
+
     private SkinnedMeshRenderer[] meshRenderers;
 
 
@@ -139,57 +140,66 @@ public class EnnemyMovement : MonoBehaviour,IHitable
             return;
         }
 
-        // Desired position (player + some offset)
+        // Desired position (player + offset)
         Vector3 destination = target.position + personalOffset;
         navMeshAgent.SetDestination(destination);
 
-        // Base direction from NavMeshAgent
         Vector3 direction = navMeshAgent.desiredVelocity;
 
-        // Add separation from nearby enemies
+        // Add separation force
         separationTimer -= Time.fixedDeltaTime;
         if (separationTimer <= 0f)
         {
             cachedSeparation = ComputeSeparation();
             separationTimer = separationUpdateRate;
         }
-
-        // Add cached separation force
         direction += cachedSeparation * avoidanceForce;
 
-
-        // Stop if very close to player
         float distance = Vector3.Distance(rb.position, target.position);
         if (distance <= attackRange)
         {
             rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-
             TryAttack();
             return;
         }
-        if (distance <= navMeshAgent.stoppingDistance + 0.5f)
-        {
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-            return;
-        }
 
-        // Apply movement
         if (direction.magnitude > 0.1f)
         {
             animator.SetBool(isMoving, true);
-            rb.MovePosition(rb.position + direction.normalized * moveSpeed * Time.fixedDeltaTime);
 
-            //Quaternion targetRotation = Quaternion.LookRotation(direction);
-            //rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, Time.fixedDeltaTime * 5f));
-        }else
+            // --- Slope handling ---
+            if (Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out RaycastHit hit, 2f))
+            {
+                Vector3 slopeNormal = hit.normal;
+
+                // Align movement to slope
+                Vector3 slopeDir = Vector3.ProjectOnPlane(direction, slopeNormal).normalized;
+
+                // Apply velocity instead of MovePosition
+                Vector3 move = slopeDir * moveSpeed;
+                rb.linearVelocity = new Vector3(move.x, rb.linearVelocity.y, move.z);
+
+                // Add a "stick to ground" force so they don’t hover
+                rb.AddForce(Vector3.down * 30f, ForceMode.Acceleration);
+
+                // Face direction of movement
+                if (slopeDir.sqrMagnitude > 0.01f)
+                {
+                    Quaternion targetRot = Quaternion.LookRotation(slopeDir);
+                    rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRot, 10f * Time.fixedDeltaTime));
+                }
+            }
+        }
+        else
         {
             animator.SetBool(isMoving, false);
+            rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0); // keep gravity
         }
 
         navMeshAgent.nextPosition = rb.position;
     }
+
+
 
     private void TryAttack()
     {
@@ -288,6 +298,7 @@ public class EnnemyMovement : MonoBehaviour,IHitable
 
         
         Vector3 direction = (transform.position - executionSource.position).normalized;
+        direction.y = 0f;
         Vector3 knockDir = direction + Vector3.up * upwardBias;
 
         // Enter knockback state

@@ -5,7 +5,13 @@ public class Enemy : PoolableObject
 {
     public EnnemyMovement Movement;
     public NavMeshAgent Agent;
+    public EnemyScriptableObject Config;
 
+
+    public virtual void OnEnable()
+    {
+        SetupAgentFromConfiguration();
+    }
     public override void OnDisable()
     {
         base.OnDisable();
@@ -31,5 +37,29 @@ public class Enemy : PoolableObject
 
         // Reactivate the object
         gameObject.SetActive(true);
+    }
+
+    public virtual void SetupAgentFromConfiguration()
+    {
+        Movement.moveSpeed = Config.moveSpeed;
+        Movement.spreadRadius = Config.spreadRadius; // how much the enemies spread out
+        Movement.separationRadius = Config.separationRadius; // distance to keep from other enemies
+        Movement.avoidanceForce = Config.avoidanceForce;
+        Movement.separationUpdateRate = Config.separationUpdateRate;
+        Movement.knockbackRecoveryTime = Config.knockbackRecoveryTime; // how long it takes to recover from knockback
+
+        Movement.attackCooldown = Config.attackCooldown;
+        Movement.attackRange = Config.attackRange;
+        Movement.attackKnockbackForce = Config.attackKnockbackForce;
+        Movement.attackDamage = Config.attackDamage;
+
+        Agent.avoidancePriority = Config.AvoidancePriority;
+        Agent.baseOffset = Config.BaseOffset;
+        Agent.height = Config.Height;
+        Agent.obstacleAvoidanceType = Config.ObstacleAvoidanceType;
+        Agent.radius = Config.Radius;
+        Agent.stoppingDistance = Config.StoppingDistance;
+
+
     }
 }
