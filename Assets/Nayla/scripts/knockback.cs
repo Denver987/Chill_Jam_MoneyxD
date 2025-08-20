@@ -14,9 +14,7 @@ public class Knockback : MonoBehaviour
     [SerializeField] private float maxChargeTime = 2f;
     [SerializeField] private float maxKnockbackStrength = 20f;
     [SerializeField] private float groundMultiplier = 2f;
-    [SerializeField, Range(0f, 1f)] private float upwardBias = 0.6f;
     [SerializeField] private AnimationCurve chargeCurve;
-    public float jumpForceKnock = 5f; // force applied when jumping
 
     public float maxDistance = 100f; // maximum distance to hit something   
     public float upwardForce = 0.5f; // how much upward force to apply when hitting the ground
@@ -24,6 +22,8 @@ public class Knockback : MonoBehaviour
     private float chargeStartTime = -1f;
     private bool isCharging = false;
     private Rigidbody rb;
+    
+    public float ChargeNormalized { get; private set; } = 0f;
 
     private void Awake()
     {
@@ -31,9 +31,18 @@ public class Knockback : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
+    void Update()
+    {
+        if (isCharging)
+        {
+            ChargeNormalized = Mathf.Clamp01((Time.time - chargeStartTime) / Mathf.Max(0.0001f, maxChargeTime));
+        }
+    }
+
     public void knockback(InputAction.CallbackContext context)
     {
         if (Time.time < nextAllowedHitTime) return;
+        if (gameObject.GetComponent<SpellSelector>().currentSpell != SpellSelector.SpellType.Shockwave) return;
 
         if (context.phase == InputActionPhase.Started || context.phase == InputActionPhase.Performed)
         {
@@ -44,13 +53,15 @@ public class Knockback : MonoBehaviour
 
         if (context.phase == InputActionPhase.Canceled && isCharging)
         {
+            isCharging = false; // Add this line - you forgot to set isCharging to false
+            
             float held = Mathf.Clamp01((Time.time - chargeStartTime) / Mathf.Max(0.0001f, maxChargeTime));
             float t = chargeCurve.Evaluate(held);
             float finalKnockbackStrengthEnemy = Mathf.Lerp(initialKnockbackStrength, maxKnockbackStrength, t);
-            float finalKnockbackStrengthPlayer = jumpForceKnock * groundMultiplier;
+            float finalKnockbackStrengthPlayer = finalKnockbackStrengthEnemy * groundMultiplier;
 
             Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit,maxDistance))
+            if (Physics.Raycast(ray, out RaycastHit hit, maxDistance))
             {
                 IHitable hitable = hit.transform.GetComponent<IHitable>();
                 if (hitable != null)
@@ -73,6 +84,7 @@ public class Knockback : MonoBehaviour
                     }
                 }
             }
+            ChargeNormalized = 0f;
         }
     }
 }
