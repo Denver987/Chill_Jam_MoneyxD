@@ -41,6 +41,7 @@ public class EnnemyMovement : MonoBehaviour,IHitable
 
     private const string isMoving = "IsMoving";
 
+    private bool isDead;
     private Animator animator;
     private Enemy enemy;
     private bool isKnockedBack = false;
@@ -109,14 +110,17 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     }
     public  void Die()
     {
+        isDead = true;
         canattack = false;
+        this.transform.GetChild(0).gameObject.SetActive(true); // show the dust explosion
+        this.transform.GetChild(1).gameObject.SetActive(false);
+        
         //CameraSettings.Instance.StartZoom(55f, 1f);
         SoundManager.PlaySound(SoundType.enemyDeath, GetComponent<AudioSource>(), 0.5f); // Play death sound with volume 0.5
 
         CameraSettings.Instance.StartShake(0.2f, 0.05f);
         CameraSettings.Instance.StartSlowMotion(0.5f, 0.5f);
-        this.transform.GetChild(0).gameObject.SetActive(true); // show the dust explosion
-        this.transform.GetChild(1).gameObject.SetActive(false);
+       
        
         // hide the enemy model
         StartCoroutine(DieAfterDelay());
@@ -134,7 +138,7 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     private void FollowTarget()
     {
         if (target == null) return;
-        if (isKnockedBack || isAttacking)
+        if (isKnockedBack || isAttacking ||isDead)
         {
             animator.SetBool(isMoving, false);
             return;
