@@ -38,6 +38,7 @@ public class InputSystem : MonoBehaviour
 
     private float yaw;
     private float pitch;
+    private bool paused = false;
 
     private void Awake()
     {
@@ -64,6 +65,24 @@ public class InputSystem : MonoBehaviour
             // reset vertical velocity for consistent jump feel
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
             rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+        }
+    }
+    public void Pause(InputAction.CallbackContext context)
+    {
+        if (!context.performed) return;
+
+        if (!paused){
+            // Pause the game
+            Time.timeScale = 0f;
+            paused = true;
+            gameObject.GetComponent<PlayerInput>().SwitchCurrentActionMap("UI");
+        }
+        else
+        {
+            // Resume the game
+            Time.timeScale = 1f;
+            paused = false;
+            gameObject.GetComponent<PlayerInput>().SwitchCurrentActionMap("Player");
         }
     }
 
@@ -173,7 +192,6 @@ public class InputSystem : MonoBehaviour
 
         rb.linearDamping = originalDrag;
     }
-
 
     // --------------------
     // CAMERA ROTATION

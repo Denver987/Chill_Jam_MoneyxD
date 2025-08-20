@@ -3110,7 +3110,7 @@ MonoBehaviour:
   particlePerStripCount: 100
   needsComputeBounds: 0
   boundsMode: 1
-  m_Space: 0
+  m_Space: 1
 --- !u!114 &8926484042661615595
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12034,8 +12034,7 @@ MonoBehaviour:
       m_SerializableType: UnityEditor.VFX.Position, Unity.VisualEffectGraph.Editor,
         Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   m_Direction: 0
-  m_LinkedSlots:
-  - {fileID: 8926484042661617561}
+  m_LinkedSlots: []
 --- !u!114 &8926484042661617523
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12244,9 +12243,7 @@ MonoBehaviour:
   m_Tooltip: 
   m_Nodes:
   - m_Id: 0
-    linkedSlots:
-    - outputSlot: {fileID: 8926484042661617561}
-      inputSlot: {fileID: 8926484042661617522}
+    linkedSlots: []
     position: {x: 2004, y: 1896}
     expandedSlots: []
     expanded: 1
@@ -12287,8 +12284,7 @@ MonoBehaviour:
       m_SerializableType: UnityEngine.Vector3, UnityEngine.CoreModule, Version=0.0.0.0,
         Culture=neutral, PublicKeyToken=null
   m_Direction: 1
-  m_LinkedSlots:
-  - {fileID: 8926484042661617522}
+  m_LinkedSlots: []
 --- !u!114 &8926484042661617562
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12676,7 +12672,7 @@ MonoBehaviour:
         m_SerializableType: UnityEditor.VFX.Vector, Unity.VisualEffectGraph.Editor,
           Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
       m_SerializableObject: '{"vector":{"x":0.0,"y":0.0,"z":1.0}}'
-    m_Space: 0
+    m_Space: 1
   m_Property:
     name: _Direction
     m_serializedType:
