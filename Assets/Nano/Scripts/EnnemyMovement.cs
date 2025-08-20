@@ -17,6 +17,7 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     public float knockbackRecoveryTime = 0.5f; // how long it takes to recover from knockback
     // recalc separation every 0.2s// how strong separation pushes them
 
+
     private SkinnedMeshRenderer[] meshRenderers;
 
 
@@ -297,6 +298,7 @@ public class EnnemyMovement : MonoBehaviour,IHitable
 
         
         Vector3 direction = (transform.position - executionSource.position).normalized;
+        direction.y = 0f;
         Vector3 knockDir = direction + Vector3.up * upwardBias;
 
         // Enter knockback state
