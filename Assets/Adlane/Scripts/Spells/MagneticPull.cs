@@ -147,6 +147,7 @@ public class MagneticPull : MonoBehaviour
                 if (hit.rigidbody != null && hit.collider.CompareTag("Pullable"))
                 {
                     heldItem = hit.rigidbody;
+                    if (heldItem.isKinematic) heldItem.isKinematic = false;
                     Vector3 targetPosition = cam.transform.position + cam.transform.forward * floatingPosition;
                     Vector3 direction = targetPosition - heldItem.position;
                     float distance = direction.magnitude;
