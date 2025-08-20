@@ -8,6 +8,8 @@ TagManager:
   - Ground
   - Undefined
   - Pullable
+  - Wall
+  - PP
   layers:
   - Default
   - TransparentFX

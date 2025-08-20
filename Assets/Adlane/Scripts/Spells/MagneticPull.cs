@@ -71,13 +71,13 @@ public class MagneticPull : MonoBehaviour
         if (context.performed)
         {
             isHolding = true;
-            lineVFX.SetActive(true);
-            lineVFX.GetComponent<VisualEffect>().SetVector3("StartingPos", StartPos.position);
+            if (lineVFX != null) lineVFX.SetActive(true);
+            if (lineVFX != null) lineVFX.GetComponent<VisualEffect>().SetVector3("StartingPos", StartPos.position);
         }
         if (isHolding && context.canceled)
         {
             isHolding = false;
-            lineVFX.SetActive(false);
+            if (lineVFX != null) lineVFX.SetActive(false);
         }
     }
 
@@ -150,7 +150,7 @@ public class MagneticPull : MonoBehaviour
                     Vector3 targetPosition = cam.transform.position + cam.transform.forward * floatingPosition;
                     Vector3 direction = targetPosition - heldItem.position;
                     float distance = direction.magnitude;
-                    lineVFX.GetComponent<VisualEffect>().SetVector3("heldItem", heldItem.position);
+                    if (lineVFX != null) lineVFX.GetComponent<VisualEffect>().SetVector3("heldItem", heldItem.position);
 
 
                     if (distance > aimTolerance)

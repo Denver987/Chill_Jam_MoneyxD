@@ -450,7 +450,7 @@ GameObject:
   - component: {fileID: 943220061114335338}
   - component: {fileID: 6140458048293846890}
   m_Layer: 0
-  m_Name: HealthBAr
+  m_Name: ChargeSlider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1531,6 +1531,10 @@ MonoBehaviour:
   invulnerable: 0
   invulnerabilityTime: 1
   inputSystem: {fileID: 0}
+  postProcessing: {fileID: 0}
+  HitColor: {r: 0.1981132, g: 0, b: 0, a: 0}
+  intensity: 0.15
+  hitFlashDuration: 0.1
 --- !u!82 &5157822168036206799
 AudioSource:
   m_ObjectHideFlags: 0
