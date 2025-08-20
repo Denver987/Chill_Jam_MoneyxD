@@ -15,6 +15,8 @@ public class MagneticPull : MonoBehaviour
     [SerializeField] private float rotationSpeed = 180f;
     [SerializeField] private float throwStrength = 10f;
     [SerializeField] private float pullCooldown = 0.5f;
+    [SerializeField] private GameObject lineVFX;
+    [SerializeField] private Transform StartPos;
 
     [SerializeField] private Vector3 rotationAxis = new Vector3(1, 1, 1);
     private Rigidbody heldItem;
@@ -36,7 +38,7 @@ public class MagneticPull : MonoBehaviour
     void Start()
     {
         cam = Camera.main;
-        
+        if (lineVFX == null) lineVFX = GameObject.Find("MagneticGrip");
     }
     public void Telekinesis(InputAction.CallbackContext context)
     {
@@ -69,10 +71,13 @@ public class MagneticPull : MonoBehaviour
         if (context.performed)
         {
             isHolding = true;
+            if (lineVFX != null) lineVFX.SetActive(true);
+            if (lineVFX != null) lineVFX.GetComponent<VisualEffect>().SetVector3("StartingPos", StartPos.position);
         }
         if (isHolding && context.canceled)
         {
             isHolding = false;
+            if (lineVFX != null) lineVFX.SetActive(false);
         }
     }
 
@@ -142,9 +147,11 @@ public class MagneticPull : MonoBehaviour
                 if (hit.rigidbody != null && hit.collider.CompareTag("Pullable"))
                 {
                     heldItem = hit.rigidbody;
+                    if (heldItem.isKinematic) heldItem.isKinematic = false;
                     Vector3 targetPosition = cam.transform.position + cam.transform.forward * floatingPosition;
                     Vector3 direction = targetPosition - heldItem.position;
                     float distance = direction.magnitude;
+                    if (lineVFX != null) lineVFX.GetComponent<VisualEffect>().SetVector3("heldItem", heldItem.position);
 
 
                     if (distance > aimTolerance)
