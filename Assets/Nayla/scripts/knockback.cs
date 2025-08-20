@@ -22,7 +22,7 @@ public class Knockback : MonoBehaviour
     private float chargeStartTime = -1f;
     private bool isCharging = false;
     private Rigidbody rb;
-    private Animator animator;
+    public Animator animator;
     public float ChargeNormalized { get; private set; } = 0f;
 
     private float maxChargeReachedTime = -1f;
@@ -30,9 +30,8 @@ public class Knockback : MonoBehaviour
 
     private void Awake()
     {
-       
-        rb = GetComponent<Rigidbody>();
-        animator = GetComponentInChildren<Animator>();
+       rb = GetComponent<Rigidbody>();
+       if (animator == null) animator = GetComponentInChildren<Animator>();
 
         if (screenShake == null) screenShake = GetComponentInChildren<KnockbackScreenshake>();
     }
@@ -76,7 +75,6 @@ public class Knockback : MonoBehaviour
         {
             isCharging = true;
             chargeStartTime = Time.time;
-            // Reset flags
             hasAutoReleased = false;
             maxChargeReachedTime = -1f;
             animator.SetBool("ShockWave", true);
