@@ -64,6 +64,22 @@ public class CanvasSingleton : MonoBehaviour
         {
             chargeSlider.value = GetPlayerCharge();
         }
+        if (healthSlider != null && player != null)
+        {
+            
+            if (targetHealth != player.health)
+            {
+                targetHealth = player.health;
+                UpdateHealthBarSize(); 
+            }
+            
+
+            currentDisplayedHealth = Mathf.Lerp(currentDisplayedHealth, targetHealth, healthAnimationSpeed * Time.deltaTime);
+            
+
+            healthSlider.value = currentDisplayedHealth;
+            
+        }
     }
     void UpdateHealthBarSize()
     {
