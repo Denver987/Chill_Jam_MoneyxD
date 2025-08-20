@@ -3271,6 +3271,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8079191910186536585, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8170750077524841425, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
       propertyPath: m_Name
       value: Player
@@ -3314,6 +3318,10 @@ PrefabInstance:
     - target: {fileID: 8477196129360747718, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9024095677616243527, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -0.000061035156
       objectReference: {fileID: 0}
     - target: {fileID: 9219682085311476795, guid: f0d96c0659a22fd40b028ae4b4f90e1a, type: 3}
       propertyPath: lineVFX

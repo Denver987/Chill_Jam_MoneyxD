@@ -22,13 +22,14 @@ public class Knockback : MonoBehaviour
     private float chargeStartTime = -1f;
     private bool isCharging = false;
     private Rigidbody rb;
-    
+    private Animator animator;
     public float ChargeNormalized { get; private set; } = 0f;
 
     private void Awake()
     {
         cam = Camera.main;
         rb = GetComponent<Rigidbody>();
+        animator = GetComponentInChildren<Animator>();
     }
 
     void Update()
@@ -48,13 +49,14 @@ public class Knockback : MonoBehaviour
         {
             isCharging = true;
             chargeStartTime = Time.time;
+            animator.SetBool("ShockWave", true);
             return;
         }
 
         if (context.phase == InputActionPhase.Canceled && isCharging)
         {
-            isCharging = false; // Add this line - you forgot to set isCharging to false
-            
+            isCharging = false;
+
             float held = Mathf.Clamp01((Time.time - chargeStartTime) / Mathf.Max(0.0001f, maxChargeTime));
             float t = chargeCurve.Evaluate(held);
             float finalKnockbackStrengthEnemy = Mathf.Lerp(initialKnockbackStrength, maxKnockbackStrength, t);
@@ -85,6 +87,7 @@ public class Knockback : MonoBehaviour
                 }
             }
             ChargeNormalized = 0f;
+            animator.SetBool("ShockWave", false);
         }
     }
 }
