@@ -65,25 +65,28 @@ public class EnemySpawner : MonoBehaviour
         if (bouncingShellPool == null || shellSpawnZones.Count == 0) return;
 
         PoolableObject pooledShell = bouncingShellPool.GetObject();
-        if (pooledShell == null) return; // no more shells available
+        if (pooledShell == null) return; // pool empty
 
+        // Pick random spawn point
         Transform spawnPoint = shellSpawnZones[Random.Range(0, shellSpawnZones.Count)];
 
-        if (NavMesh.SamplePosition(spawnPoint.position, out NavMeshHit hit, 2f, NavMesh.AllAreas))
-        {
-            GameObject shellObj = pooledShell.gameObject;
-            shellObj.transform.position = hit.position;
-            shellObj.SetActive(true);
+        GameObject shellObj = pooledShell.gameObject;
+        shellObj.transform.position = spawnPoint.position;
+        shellObj.transform.rotation = Quaternion.identity; // reset rotation
+        shellObj.SetActive(true);
 
-            // Reset shell movement
-            var shell = shellObj.GetComponent<BouncingShell>();
-            if (shell != null)
-            {
-                shellObj.GetComponent<Rigidbody>().linearVelocity = Vector3.zero;
-                shell.enabled = true;
-            }
+        // Reset movement
+        var shell = shellObj.GetComponent<BouncingShell>();
+        if (shell != null)
+        {
+            var rb = shellObj.GetComponent<Rigidbody>();
+            if (rb != null) rb.linearVelocity = Vector3.zero;
+
+            shell.enabled = true;   // restart wandering
+            shell.RestartWandering(); // <-- ensure it always starts wandering fresh
         }
     }
+
 
     /// <summary>Spawn an enemy prefab directly (used by WaveManager)</summary>
     public void SpawnSpecificEnemy(Enemy prefab)

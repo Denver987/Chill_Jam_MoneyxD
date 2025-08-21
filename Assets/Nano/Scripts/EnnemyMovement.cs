@@ -34,7 +34,6 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     public float attackKnockbackForce = 5f;
     public int attackDamage = 10;
 
-    private float lastAttackTime = 0f;
     private NavMeshAgent navMeshAgent;
     private Rigidbody rb;
     public EnemySpawner spawner; // reference to the spawner for accessing all enemies

@@ -1,61 +1,70 @@
-﻿using UnityEngine;
-using DG.Tweening; // ✅ for DOTween
+﻿using DG.Tweening;
+using SmallHedge.SoundManager;
+using System.Collections;
+using UnityEngine;
 
 public class BouncingShell : MonoBehaviour, IHitable
 {
-    public float wanderSpeed = 2f;   // speed while wandering
-    public float moveSpeed = 6f;     // speed while bouncing
-    public float lifeTime = 10f;
-    public float wanderChangeInterval = 2f; // how often to pick a new random direction
-    public float knockbackRecoveryTime = 0.5f;
+    [Header("Wander")]
+    public float wanderSpeed = 2f;
+    public float wanderChangeInterval = 2f;
+
+
+    private SkinnedMeshRenderer[] meshRenderers;
+
+    [Header("Bounce / Launch")]
+    public float minLaunchSpeed = 8f;       // baseline speed when launched
+    public float maxLaunchSpeed = 20f;      // clamp so it doesn't get insane
+    public float speedPerStrength = 0.6f;   // converts knockbackStrength into speed
+    [Range(0.7f, 1.0f)] public float keepSpeedOnBounce = 1f; // 1 keeps speed, <1 dampens
+    public bool keepOnGround = true;        // flatten Y so it slides along ground
+
+    [Header("Active life")]
+    public float activeLifeTime = 5f;
 
     private Animator animator;
     private Rigidbody rb;
-    private bool isActive = false;   // bouncing mode
+    private bool isActive = false;  // bouncing mode
     private Vector3 wanderDir;
     private float wanderTimer;
-    private bool isMoving = false;
-
-    private bool isKnockedBack = false;
-    private float knockbackTimer = 0f;
+    private float activeTimer = 0f;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
+        meshRenderers = GetComponentsInChildren<SkinnedMeshRenderer>();
+
     }
 
     private void OnEnable()
     {
-        StartWandering();
+        RestartWandering();
     }
 
-    private void StartWandering()
+    public void RestartWandering()
     {
         isActive = false;
+        activeTimer = 0f;
         wanderTimer = wanderChangeInterval;
         PickNewWanderDirection();
+        rb.linearVelocity = Vector3.zero;
     }
 
     private void PickNewWanderDirection()
     {
-        // random horizontal direction
-        wanderDir = new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f)).normalized;
+        wanderDir = new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f));
+        if (keepOnGround) wanderDir.y = 0f;
+        if (wanderDir.sqrMagnitude < 0.001f) wanderDir = transform.forward;
+        wanderDir.Normalize();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
-        if (isKnockedBack)
-        {
-            knockbackTimer -= Time.deltaTime;
-            if (knockbackTimer <= 0f) RecoverFromKnockback();
-            return;
-        }
-
+        animator.SetBool("IsMoving", !isActive);
         if (!isActive)
         {
-            animator.SetBool("IsMoving", !isActive);
-
+            // --- WANDER MODE ---
             wanderTimer -= Time.deltaTime;
             if (wanderTimer <= 0f)
             {
@@ -64,101 +73,134 @@ public class BouncingShell : MonoBehaviour, IHitable
             }
 
             rb.linearVelocity = wanderDir * wanderSpeed;
+
+            // Rotate to velocity
+            if (rb.linearVelocity.sqrMagnitude > 0.01f)
+            {
+                var look = rb.linearVelocity; if (keepOnGround) look.y = 0f;
+                if (look.sqrMagnitude > 0.0001f)
+                {
+                    Quaternion targetRot = Quaternion.LookRotation(look.normalized, Vector3.up);
+                    transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * 5f);
+                }
+            }
+        }
+        else
+        {
+            // --- ACTIVE BOUNCE MODE ---
+            activeTimer += Time.deltaTime;
+            if (activeTimer >= activeLifeTime)
+            {
+                Deactivate();
+                return;
+            }
+
+            // Keep facing travel direction while active
+            if (rb.linearVelocity.sqrMagnitude > 0.01f)
+            {
+                var look = rb.linearVelocity; if (keepOnGround) look.y = 0f;
+                if (look.sqrMagnitude > 0.0001f)
+                {
+                    Quaternion targetRot = Quaternion.LookRotation(look.normalized, Vector3.up);
+                    transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * 12f);
+                }
+            }
+
+           
         }
     }
 
-    public void Activate(Vector3 knockbackDir)
-    {
-        animator.SetBool("IsKnocking",true);
-        isActive = true;
-        rb.linearVelocity = knockbackDir.normalized * moveSpeed;
-    }
-
+    // ===== Bounce handling =====
     private void OnCollisionEnter(Collision collision)
     {
         if (!isActive) return;
 
-        // Reflect bounce
-        Vector3 reflectDir = Vector3.Reflect(rb.linearVelocity.normalized, collision.contacts[0].normal);
-        rb.linearVelocity = reflectDir * moveSpeed;
+        float speed = rb.linearVelocity.magnitude;
+        Vector3 n = collision.contacts[0].normal;
+        Vector3 v = Vector3.Reflect(rb.linearVelocity, n);
 
-        // Hit enemy
+        if (keepOnGround) v.y = 0f;
+        v = v.sqrMagnitude > 0.0001f ? v.normalized : transform.forward;
+
+        rb.linearVelocity = v * (speed * keepSpeedOnBounce);
+
+        // Damage things it hits
         var enemy = collision.gameObject.GetComponent<EnnemyMovement>();
-        if (enemy != null)
-            enemy.Die();
+        if (enemy != null) enemy.Die();
 
-        // Hit player
         var player = collision.gameObject.GetComponent<Player>();
-        if (player != null)
-            player.TakeDamage(10, reflectDir, 5f);
+        if (player != null) player.TakeDamage(10, v, 5f);
     }
 
     private void Deactivate()
     {
         gameObject.SetActive(false);
     }
+    private bool isHitPaused = false;
+    IEnumerator HitPause(float duration)
+    {
+        if (isHitPaused) yield break;
 
-    // --- IHitable Implementation ---
+        isHitPaused = true;
+
+        float originalTimeScale = Time.timeScale;
+        Time.timeScale = 0f;
+        yield return new WaitForSecondsRealtime(duration);
+        Time.timeScale = originalTimeScale;
+
+        isHitPaused = false;
+    }
+    // ===== IHitable =====
     public void Execute(Transform executionSource, float knockbackStrength)
     {
-        KnockBackEntity(executionSource, knockbackStrength);
+        if (executionSource == null || rb == null) return;
+
+        // Exact 3D direction away from source
+        Vector3 dir = (transform.position - executionSource.position).normalized;
+
+        // Visual feedback
+        transform.DOPunchScale(Vector3.one * 0.1f, 0.2f, 1, 0.5f);
+        foreach (var r in meshRenderers)
+            r.material.DOColor(Color.red, 0.1f).SetLoops(2, LoopType.Yoyo);
+
+        // Camera shake & hit pause
+        CameraSettings.Instance?.StartShake(0.15f, 0.05f);
+        StartCoroutine(HitPause(0.08f));
+
+        SoundManager.PlaySound(SoundType.ennemyDamage, GetComponent<AudioSource>(), 1f);
+
+        // Apply knockback like EnnemyMovement
+        KnockBackShell(dir, knockbackStrength);
     }
+
+    private void KnockBackShell(Vector3 direction, float strength)
+    {
+        // Enter bounce state
+        isActive = true;
+        animator.SetBool("IsKnocking", true);
+        activeTimer = 0f;
+
+        // Stop any DOTween position conflicts
+        DOTween.Kill(transform);
+
+        // Enable physics
+        rb.isKinematic = false;
+        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+
+        // Apply knockback impulse in exact direction
+        rb.linearVelocity = direction * strength;
+
+        // Optional: small DOTween punch for visuals (doesn’t affect physics)
+        Vector3 targetPos = transform.position + direction * (strength * 0.1f);
+        transform.DOMove(targetPos, 0.15f).SetEase(Ease.OutQuad);
+    }
+
 
     public void ExecuteWithUpwardBias(Transform executionSource, float knockbackStrength, float upwardBias = 0.5f)
     {
-        KnockBackEntityUpward(executionSource, knockbackStrength, upwardBias);
+      
     }
 
-    private void KnockBackEntity(Transform executionSource, float knockbackStrength)
-    {
-        if (executionSource == null || rb == null) return;
+   
 
-        Vector3 direction = (transform.position - executionSource.position).normalized;
-        direction.y = 0f;
-
-        isKnockedBack = true;
-        knockbackTimer = knockbackRecoveryTime;
-
-        rb.AddForce(direction * knockbackStrength, ForceMode.Impulse);
-
-        // DOTween knockback
-        Vector3 targetPos = transform.position + direction * (knockbackStrength * 0.1f);
-        transform.DOMove(targetPos, 0.2f).SetEase(Ease.OutQuad);
-
-        // Visual feedback (scale punch)
-        transform.DOPunchScale(Vector3.one * 0.1f, 0.2f, 1, 0.5f);
-        animator?.SetTrigger("Hit");
-
-        // Camera shake
-        CameraSettings.Instance?.StartShake(0.15f, 0.05f);
-    }
-
-    private void KnockBackEntityUpward(Transform executionSource, float knockbackStrength, float upwardBias = 0.5f)
-    {
-        if (executionSource == null || rb == null) return;
-
-        Vector3 direction = (transform.position - executionSource.position).normalized;
-        direction.y = 0f;
-        Vector3 knockDir = direction + Vector3.up * upwardBias;
-
-        isKnockedBack = true;
-        knockbackTimer = knockbackRecoveryTime;
-
-        rb.AddForce(knockDir * knockbackStrength, ForceMode.Impulse);
-
-        Vector3 targetPos = transform.position + knockDir * (knockbackStrength * 0.1f);
-        transform.DOMove(targetPos, 0.2f).SetEase(Ease.OutQuad);
-
-        transform.DOPunchScale(Vector3.one * 0.1f, 0.2f, 1, 0.5f);
-        animator?.SetTrigger("Hit");
-
-        CameraSettings.Instance?.StartShake(0.15f, 0.05f);
-    }
-
-    private void RecoverFromKnockback()
-    {
-        rb.linearVelocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
-        isKnockedBack = false;
-    }
 }
