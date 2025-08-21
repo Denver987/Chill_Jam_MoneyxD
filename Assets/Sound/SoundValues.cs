@@ -12,8 +12,11 @@ namespace SmallHedge.SoundManager
         ennemyDamage,
         enemyDeath,
         spell1,
+        magicianspells,
+        ennemyAttack,
+        spawning,
 
 
-       
+
     }
 }

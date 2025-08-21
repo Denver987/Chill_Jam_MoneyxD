@@ -245,7 +245,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2977581803618796525, guid: fb43f3004efadf94fab9b1e53d0dce2c, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -980,7 +980,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6547081573346654078, guid: ee0ede9c667c9f247878039a71ac779e, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1243,10 +1243,22 @@ PrefabInstance:
       propertyPath: _cameraHeight
       value: 200
       objectReference: {fileID: 0}
+    - target: {fileID: 5206730420783595628, guid: 14536f952a537ee4abf48100bc8de730, type: 3}
+      propertyPath: maxShakeMagnitude
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5206730420783595628, guid: 14536f952a537ee4abf48100bc8de730, type: 3}
+      propertyPath: minShakeMagnitude
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 5364009818676742676, guid: 14536f952a537ee4abf48100bc8de730, type: 3}
       propertyPath: animator
       value: 
       objectReference: {fileID: 415474835}
+    - target: {fileID: 5364009818676742676, guid: 14536f952a537ee4abf48100bc8de730, type: 3}
+      propertyPath: hitCooldown
+      value: 0.25
+      objectReference: {fileID: 0}
     - target: {fileID: 6043545288325615685, guid: 14536f952a537ee4abf48100bc8de730, type: 3}
       propertyPath: deathVolume
       value: 

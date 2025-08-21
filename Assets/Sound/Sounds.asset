@@ -45,3 +45,21 @@ MonoBehaviour:
     mixer: {fileID: 0}
     sounds:
     - {fileID: 8300000, guid: c91fcf414acc0344cb03b13996f1bf3b, type: 3}
+  - name: magicianspells
+    volume: 1
+    mixer: {fileID: 0}
+    sounds:
+    - {fileID: 8300000, guid: 4f10c2ca649d3774cafbb4315f391ff7, type: 3}
+    - {fileID: 8300000, guid: c10b7395c91d8c541ab2bc581f0ebfb9, type: 3}
+    - {fileID: 8300000, guid: 256d38df90c835d418c4cf0618f4d548, type: 3}
+    - {fileID: 8300000, guid: 240da82fb4d354642b107b066a66fed6, type: 3}
+    - {fileID: 8300000, guid: 4b4b6f69be3d61141993864699c43697, type: 3}
+    - {fileID: 8300000, guid: 95a384f57f1ab9b4aa9f8fe88c2efb83, type: 3}
+  - name: ennemyAttack
+    volume: 1
+    mixer: {fileID: 0}
+    sounds: []
+  - name: spawning
+    volume: 1
+    mixer: {fileID: 0}
+    sounds: []

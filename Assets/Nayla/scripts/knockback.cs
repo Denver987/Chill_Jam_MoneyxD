@@ -90,6 +90,7 @@ public class Knockback : MonoBehaviour
     private void ReleaseCharge()
     {
         if (!isCharging) return;
+        SoundManager.PlaySound(SoundType.magicianspells, this.GetComponent<AudioSource>(),0.25f);
         SoundManager.PlaySound(SoundType.spell1, this.GetComponent<AudioSource>(),0.25f);
         isCharging = false;
 

@@ -18,11 +18,11 @@ MonoBehaviour:
   spreadRadius: 1.5
   separationRadius: 3
   avoidanceForce: 5
-  separationUpdateRate: 25
+  separationUpdateRate: 5
   knockbackRecoveryTime: 0.5
   rotationSpeed: 5
-  maxRotationSpeed: 6
-  minRotationSpeed: 3
+  maxRotationSpeed: 4.5
+  minRotationSpeed: 2
   attackRange: 3
   attackCooldown: 2
   attackKnockbackForce: 25
