@@ -65,19 +65,29 @@ public class Knockback : MonoBehaviour
                 ReleaseCharge();
             }
         }
-
-        ///crosshair scal check///
+        // --- Crosshair + Outline (aim ray) ---
         Ray ray = cam.ScreenPointToRay(Input.mousePosition);
         bool targetable = false;
+        Outline outlineTarget = null;
 
-        if (Physics.Raycast(ray, out RaycastHit hit, maxDistance))
+        if (Physics.Raycast(ray, out RaycastHit hit, maxDistance, ~0, QueryTriggerInteraction.Ignore))
         {
-            IHitable hitable = hit.transform.GetComponent<IHitable>();
-            targetable = (hitable != null);
+            // “in range & hittable”
+            var hitable = hit.transform.GetComponent<IHitable>();
+            if (hitable != null)
+            {
+                targetable = true;
+
+                // Try to find an Outline on the hit object, its parent, or child (disabled by default on prefab)
+                outlineTarget = hit.transform.GetComponent<Outline>()
+                               ?? hit.transform.GetComponentInParent<Outline>()
+                               ?? hit.transform.GetComponentInChildren<Outline>();
+                // (We only toggle .enabled; we don't AddComponent here per QuickOutline guidance.)
+            }
         }
 
-        CameraSettings.Instance?.SetCrosshairTargetable(targetable);
-        ////
+        CameraSettings.Instance?.SetCrosshairTargetable(targetable, outlineTarget);
+
     }
 
     public void knockback(InputAction.CallbackContext context)

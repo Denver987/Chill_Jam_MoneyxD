@@ -157,35 +157,64 @@ public class CameraSettings : MonoBehaviour
     }
     /////./////
 
-    
-    //////crosshair call////
+
+    //////crosshair + outline//////
     private RectTransform _crosshairRect;
     private Tween crosshairTween;
 
+    // Optional defaults (tweak in Inspector or here)
+    [SerializeField] private Outline.Mode outlineMode = Outline.Mode.OutlineAll;
+    [SerializeField] private Color outlineColor = Color.yellow;
+    [SerializeField] private float outlineWidth = 5f;
+
+    private Outline _currentOutline;
 
     private void Start()
     {
         if (crosshair != null)
         {
             _crosshairRect = crosshair.rectTransform;
-            _crosshairRect.localScale = crosshairNormalScale;   // start normal size
+            _crosshairRect.localScale = crosshairNormalScale;
         }
     }
 
-    /// <summary>Make the crosshair big (true) or normal (false).</summary>
-    public void SetCrosshairTargetable(bool isTargetable)
+    /// <summary>
+    /// Scale crosshair and toggle enemy outline. Pass `outlineTarget` when hittable is under cursor.
+    /// </summary>
+    public void SetCrosshairTargetable(bool isTargetable, Outline outlineTarget = null)
     {
-        if (_crosshairRect == null) return;
+        // Crosshair scale (DOTween)
+        if (_crosshairRect != null)
+        {
+            Vector3 target = isTargetable ? crosshairTargetScale : crosshairNormalScale;
+            crosshairTween?.Kill();
+            crosshairTween = _crosshairRect.DOScale(target, 0.15f).SetEase(Ease.OutBack);
+        }
 
-        Vector3 targetScale = isTargetable ? crosshairTargetScale : crosshairNormalScale;
+        // Disable old outline if target changed
+        if (_currentOutline != null && _currentOutline != outlineTarget)
+        {
+            _currentOutline.enabled = false;
+            _currentOutline = null;
+        }
 
-        // kill old tween so they don't overlap
-        crosshairTween?.Kill();
+        // Enable/refresh new outline when targetable
+        if (isTargetable && outlineTarget != null)
+        {
+            _currentOutline = outlineTarget;
 
-        // animate with ease
-        crosshairTween = _crosshairRect.DOScale(targetScale, 0.15f)
-            .SetEase(Ease.OutBack); // nice springy ease
+            // configure (cheap, runs once per change)
+            _currentOutline.OutlineMode = outlineMode;
+            _currentOutline.OutlineColor = outlineColor;
+            _currentOutline.OutlineWidth = outlineWidth;
+
+            _currentOutline.enabled = true;
+        }
+        else if (!isTargetable && _currentOutline != null)
+        {
+            _currentOutline.enabled = false;
+            _currentOutline = null;
+        }
     }
-
 
 }
