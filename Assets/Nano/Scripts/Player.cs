@@ -159,6 +159,7 @@ public class Player : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         CanvasSingleton.Instance.die.GetComponent<DieTMP>().ShowText(level, experience, darkmoonCards.Count);
         Time.timeScale = 0f; 
+        Debug.Log("Player has died. Level: " + level + ", Experience: " + experience + ", Cards: " + darkmoonCards.Count);
 
         
         Debug.Log("Player died!");

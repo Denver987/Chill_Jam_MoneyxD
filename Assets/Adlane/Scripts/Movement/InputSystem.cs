@@ -74,14 +74,18 @@ public class InputSystem : MonoBehaviour
         if (!paused){
             // Pause the game
             Time.timeScale = 0f;
+            Cursor.lockState = CursorLockMode.None;
             paused = true;
+            CanvasSingleton.Instance.showPausePanel();
             gameObject.GetComponent<PlayerInput>().SwitchCurrentActionMap("UI");
         }
         else
         {
             // Resume the game
             Time.timeScale = 1f;
+            Cursor.lockState = CursorLockMode.Locked;
             paused = false;
+            CanvasSingleton.Instance.HidePausePanel();
             gameObject.GetComponent<PlayerInput>().SwitchCurrentActionMap("Player");
         }
     }

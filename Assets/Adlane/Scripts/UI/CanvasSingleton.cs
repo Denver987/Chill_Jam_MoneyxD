@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class CanvasSingleton : MonoBehaviour
 {
@@ -11,13 +12,14 @@ public class CanvasSingleton : MonoBehaviour
     public Slider healthSlider; // Reference to the health slider
     private RectTransform healthBarRect;
     public GameObject die;
+    public GameObject PausePanel;
+    public GameObject Hand;
     void Awake()
     {
         // Singleton pattern implementation
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // Optional: keeps canvas across scenes
         }
         else
         {
@@ -42,7 +44,7 @@ public class CanvasSingleton : MonoBehaviour
     
     public float GetPlayerCharge()
     {
-        if (spellSelector.currentSpell != SpellSelector.SpellType.Shockwave)
+        if (spellSelector.currentSpell != SpellSelector.SpellType.Shockwave && spellSelector != null)
         {
             return 0f;
         }
@@ -77,6 +79,26 @@ public class CanvasSingleton : MonoBehaviour
         healthBarRect.sizeDelta = sizeDelta;
 
         healthSlider.maxValue = player.maxHealth;
+    }
+    public void showPausePanel()
+    {
+        if (PausePanel != null)
+        {
+            PausePanel.SetActive(true);
+            chargeSlider.gameObject.SetActive(false);
+            healthBarRect.gameObject.SetActive(false);
+            Hand.SetActive(false);
+        }
+    }
+    public void HidePausePanel()
+    {
+        if (PausePanel != null)
+        {
+            PausePanel.SetActive(false);
+            chargeSlider.gameObject.SetActive(true);
+            healthBarRect.gameObject.SetActive(true);
+            Hand.SetActive(true);
+        }
     }
 
     void OnDestroy()

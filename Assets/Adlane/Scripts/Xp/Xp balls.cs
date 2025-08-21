@@ -30,11 +30,7 @@ public class Xpballs : MonoBehaviour
     {
         // rotate around Y axis
         transform.Rotate(0f, rotatingSpeed * Time.deltaTime, 0f, Space.World);
-
-        float yOffset = startPosition.y + Mathf.PingPong(Time.time * floatingSpeed, height) - (height * 0.5f);
-
         newPosition = transform.position;
-        newPosition.y = yOffset;
         Collider[] colliders = Physics.OverlapSphere(transform.position, radius);
         foreach (var collider in colliders)
         {
@@ -46,9 +42,8 @@ public class Xpballs : MonoBehaviour
         }
 
         if (playerTransform != null)
-        {
+        { 
             Vector3 toPlayer = playerTransform.position - transform.position;
-            toPlayer.y = yOffset;
             float distanceToPlayer = toPlayer.magnitude;
             if (distanceToPlayer <= radius)
             {
@@ -56,7 +51,6 @@ public class Xpballs : MonoBehaviour
                 newPosition += moveDirection * pullStrength * Time.deltaTime;
             }
         }
-        newPosition.y = yOffset;
         transform.position = newPosition;
     }
 

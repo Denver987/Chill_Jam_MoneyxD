@@ -24,7 +24,10 @@ public class DieTMP : MonoBehaviour
     public void BackToMenu()
     {
         SceneManager.LoadScene(0);
-        gameObject.SetActive(false);
+        foreach (var obj in CanvasSingleton.Instance.GetComponentsInChildren<Transform>())
+        {
+            obj.gameObject.SetActive(false);
+        }
     }
     public void ShowText(int level, float experience, int count)
     {
