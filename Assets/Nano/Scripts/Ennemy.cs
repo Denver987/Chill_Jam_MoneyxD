@@ -43,12 +43,13 @@ public class Enemy : PoolableObject
 
     public virtual void SetupAgentFromConfiguration()
     {
-        Movement.moveSpeed = Config.moveSpeed;
+        Movement.moveSpeed = Random.Range(Config.minspeed,Config.maxspeed);
         Movement.spreadRadius = Config.spreadRadius; // how much the enemies spread out
         Movement.separationRadius = Config.separationRadius; // distance to keep from other enemies
         Movement.avoidanceForce = Config.avoidanceForce;
         Movement.separationUpdateRate = Config.separationUpdateRate;
         Movement.knockbackRecoveryTime = Config.knockbackRecoveryTime; // how long it takes to recover from knockback
+        Movement.rotationSpeed = Random.Range(Config.minRotationSpeed, Config.maxRotationSpeed); // how fast the enemy rotates towards the target
 
         Movement.attackCooldown = Config.attackCooldown;
         Movement.attackRange = Config.attackRange;
