@@ -61,11 +61,11 @@ public class Player : MonoBehaviour
             }
         }
 
-        /*if (Input.GetKeyDown(KeyCode.K))
+        if (Input.GetKeyDown(KeyCode.K))
         {
             Debug.Log("K pressed: OnPlayerDeath()");
             CameraSettings.Instance.OnPlayerDeath();
-        }*/
+        }
 
 
     }
