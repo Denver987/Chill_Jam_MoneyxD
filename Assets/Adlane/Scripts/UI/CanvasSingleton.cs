@@ -9,10 +9,8 @@ public class CanvasSingleton : MonoBehaviour
     public SpellSelector spellSelector;
     public Player player;
     public Slider healthSlider; // Reference to the health slider
-    public float healthAnimationSpeed = 5f; 
-    private float targetHealth;
-    private float currentDisplayedHealth;
     private RectTransform healthBarRect;
+    public GameObject die;
     void Awake()
     {
         // Singleton pattern implementation
@@ -37,8 +35,6 @@ public class CanvasSingleton : MonoBehaviour
     {
         if (player != null)
         {
-            targetHealth = player.health;
-            currentDisplayedHealth = player.health;
             UpdateHealthBarSize();
         }
     }

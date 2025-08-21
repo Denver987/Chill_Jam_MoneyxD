@@ -11,7 +11,12 @@ public class Player : MonoBehaviour
     [Header("Health")]
     public int maxHealth = 100;
     public int health = 100;
-
+    [Header ("Exp things")]
+    public float experience = 0;
+    public float experienceToNextLevel = 100f;
+    public int level = 1;
+    public float xpGainMultiplier = 1.2f;
+    public System.Collections.Generic.List<DarkmoonCards> darkmoonCards = new System.Collections.Generic.List<DarkmoonCards>();
     [Header("Invulnerability")]
     public bool invulnerable = false;
     public float invulnerabilityTime = 1f;
@@ -29,6 +34,8 @@ public class Player : MonoBehaviour
     private float originalVignetteSmoothness;
     private bool originalRounded;
     private Vector2 originalVignetteCenter;
+    [Header("other")]
+    public GameObject canvas;
 
     private void Awake()
     {
@@ -60,8 +67,20 @@ public class Player : MonoBehaviour
                 timer = 0f;
             }
         }
+        if (experience >= experienceToNextLevel)
+        {
+            LevelUp();
+        }
 
-
+    }
+    private void LevelUp()
+    {
+        level++;
+        experience = 0;
+        experienceToNextLevel *= xpGainMultiplier;
+        DarkmoonCards newMoon = new DarkmoonCards();
+        newMoon.ChooseCard();
+        darkmoonCards.Add(newMoon);
     }
 
     public void TakeDamage(int damage, Vector3 hitDirection, float knockbackForce)
@@ -72,7 +91,7 @@ public class Player : MonoBehaviour
         if (health < 0) health = 0;
         StartCoroutine(FlashRed());
         StartCoroutine(TakeKnockback(hitDirection, knockbackForce, 0.5f)); // Adjust knockback duration as needed
-        SoundManager.PlaySound(SoundType.PlayerDamage,this.GetComponent<AudioSource>(),0.5f); // Play damage sound with volume 0.5
+        SoundManager.PlaySound(SoundType.PlayerDamage, this.GetComponent<AudioSource>(), 0.5f); // Play damage sound with volume 0.5
 
         if (health <= 0)
         {
@@ -132,7 +151,10 @@ public class Player : MonoBehaviour
 
     private void Die()
     {
-        Debug.Log("Player died!");
-        // TODO: death screen, respawn, etc.
+        CanvasSingleton.Instance.die.SetActive(true);
+        Cursor.lockState = CursorLockMode.None;
+        CanvasSingleton.Instance.die.GetComponent<DieTMP>().ShowText(level, experience, darkmoonCards.Count);
+        Time.timeScale = 0f; 
+
     }
 }
