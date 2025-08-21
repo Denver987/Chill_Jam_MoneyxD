@@ -799,12 +799,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21f43650a8815444e89767c624f68d13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  minSpeed: 0.5
+  maxSpeed: 2
   moveSpeed: 1
   spreadRadius: 1.5
   separationRadius: 2
   avoidanceForce: 2
   separationUpdateRate: 0.2
   knockbackRecoveryTime: 0.5
+  minRotationSpeed: 1
+  maxRotationSpeed: 10
+  rotationSpeed: 5
   attackRange: 1.5
   attackCooldown: 1
   attackKnockbackForce: 5
@@ -812,6 +817,14 @@ MonoBehaviour:
   spawner: {fileID: 0}
   target: {fileID: 0}
   dustExplosion: {fileID: 7561391340482851201, guid: 452e8552857fcc140bf6ab1400680afe, type: 3}
+  fallMultiplier: 3
+  riseGravityMultiplier: 2
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  groundCheckDistance: 0.2
+  isDead: 0
+  isKnockedBack: 0
   canattack: 1
 --- !u!54 &2856799259139121052
 Rigidbody:

@@ -84,41 +84,46 @@ public class Player : MonoBehaviour
 
         if (postProcessing.profile.TryGet<Vignette>(out var vignette))
         {
-            float half = Mathf.Max(0.0001f, hitFlashDuration * 0.5f);
-            float t = 0f;
-            vignette.color.Override(HitColor);
+            // Backup current state (in case another flash already modified it)
+            float startIntensity = vignette.intensity.value;
+            Color startColor = vignette.color.value;
 
-            while (t < half)
+            // Phase 1: Flash in (fade to red)
+            float t = 0f;
+            while (t < hitFlashDuration * 0.5f)
             {
                 t += Time.deltaTime;
-                float k = Mathf.Clamp01(t / half);
-                vignette.intensity.value = Mathf.Lerp(0f, intensity, k);
+                float k = Mathf.Clamp01(t / (hitFlashDuration * 0.5f));
+
+                vignette.color.Override(Color.Lerp(startColor, HitColor, k));
+                vignette.intensity.Override(Mathf.Lerp(startIntensity, intensity, k));
                 yield return null;
             }
-            vignette.smoothness.Override(1f);
-            vignette.rounded.Override(true);
-            vignette.center.Override(new Vector2(0.5f, 0.5f));
-        }
 
-        yield return new WaitForSeconds(hitFlashDuration);
+            // Stay red for a short moment
+            yield return new WaitForSeconds(0.4f);
 
-        if (postProcessing.profile.TryGet<Vignette>(out var vignetteRestore))
-        {
-            float half = Mathf.Max(0.0001f, hitFlashDuration * 0.5f);
-            float t = 0f;
-            while (t < half)
+            // Phase 2: Flash out (fade back)
+            t = 0f;
+            while (t < hitFlashDuration * 0.5f)
             {
                 t += Time.deltaTime;
-                float k = Mathf.Clamp01(t / half);
-                vignetteRestore.intensity.value = Mathf.Lerp(hitFlashDuration, originalVignetteIntensity, k);
+                float k = Mathf.Clamp01(t / (hitFlashDuration * 0.5f));
+
+                vignette.color.Override(Color.Lerp(HitColor, originalVignetteColor, k));
+                vignette.intensity.Override(Mathf.Lerp(intensity, originalVignetteIntensity, k));
                 yield return null;
             }
-            vignetteRestore.color.Override(originalVignetteColor);
-            vignetteRestore.smoothness.Override(originalVignetteSmoothness);
-            vignetteRestore.rounded.Override(originalRounded);
-            vignetteRestore.center.Override(originalVignetteCenter);
+
+            // Ensure restore
+            vignette.color.Override(originalVignetteColor);
+            vignette.intensity.Override(originalVignetteIntensity);
+            vignette.smoothness.Override(originalVignetteSmoothness);
+            vignette.rounded.Override(originalRounded);
+            vignette.center.Override(originalVignetteCenter);
         }
     }
+
 
     private IEnumerator TakeKnockback(Vector3 direction, float force, float duration)
     {

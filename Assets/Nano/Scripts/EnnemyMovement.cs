@@ -9,6 +9,8 @@ public class EnnemyMovement : MonoBehaviour,IHitable
 {
 
     [Header("Settings")]    
+    public float minSpeed = 0.5f; // minimum speed to avoid being stuck
+    public float maxSpeed = 2.0f; // maximum speed for the enemy
     public float moveSpeed = 1.0f;
     public float spreadRadius = 1.5f; // how much the enemies spread out
     public float separationRadius = 2.0f; // distance to keep from other enemies
@@ -17,7 +19,12 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     public float knockbackRecoveryTime = 0.5f; // how long it takes to recover from knockback
     // recalc separation every 0.2s// how strong separation pushes them
 
+    public float minRotationSpeed = 1f; // minimum rotation speed
+    public float maxRotationSpeed = 10f; // maximum rotation speed
+    public float rotationSpeed = 5f; // how fast they rotate to face the player
 
+    public float surroundDistance = 2.0f; // how far they try to stay from the player
+    public float ennemyId = 0f; // unique ID for the enemy, can be used for debugging or tracking
     private SkinnedMeshRenderer[] meshRenderers;
 
 
@@ -70,7 +77,11 @@ public class EnnemyMovement : MonoBehaviour,IHitable
 
     private void Start()
     {
-       spawner = GetComponentInParent<EnemySpawner>();
+        ennemyId = Random.Range(0f, 360f); 
+        surroundDistance = Random.Range(0f, 3f); // random surround distance between 1.5 and 2.5
+
+        // assign a random ID for debugging
+        spawner = GetComponentInParent<EnemySpawner>();
         if(spawner == null)
         {
            
@@ -151,7 +162,10 @@ public class EnnemyMovement : MonoBehaviour,IHitable
         }
 
         // Desired position (player + offset)
-        Vector3 destination = target.position + personalOffset;
+        float angle = (ennemyId * 137) % 360; // "spread" enemies in a circle using golden angle
+        Vector3 offsetDir = Quaternion.Euler(0, angle, 0) * Vector3.forward;
+
+        Vector3 destination = target.position + offsetDir * surroundDistance;
         navMeshAgent.SetDestination(destination);
 
         Vector3 direction = navMeshAgent.desiredVelocity;
@@ -195,9 +209,17 @@ public class EnnemyMovement : MonoBehaviour,IHitable
                 // Face direction of movement
                 if (slopeDir.sqrMagnitude > 0.01f)
                 {
-                    Quaternion targetRot = Quaternion.LookRotation(slopeDir);
-                    rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRot, 10f * Time.fixedDeltaTime));
+                    // Add some "inaccuracy" so they don’t all rotate the same
+                    Vector3 lookDir = slopeDir + new Vector3(
+                        Random.Range(-0.05f, 0.05f),
+                        0f,
+                        Random.Range(-0.05f, 0.05f)
+                    );
+
+                    Quaternion targetRot = Quaternion.LookRotation(lookDir);
+                    rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRot, rotationSpeed * Time.fixedDeltaTime));
                 }
+
             }
         }
         else
@@ -349,7 +371,7 @@ public class EnnemyMovement : MonoBehaviour,IHitable
 
         // Hit pause
         StartCoroutine(HitPause(0.08f));
-        SoundManager.PlaySound(SoundType.ennemyDamage, GetComponent<AudioSource>(), 0.5f); // Play hit sound with volume 0.5
+        SoundManager.PlaySound(SoundType.ennemyDamage, GetComponent<AudioSource>(), 1f); // Play hit sound with volume 0.5
     }
 
 

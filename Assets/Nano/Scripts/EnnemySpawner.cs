@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -12,6 +13,14 @@ public class EnemySpawner : MonoBehaviour
     public List<Enemy> ActiveEnemies = new List<Enemy>();
     public int activeEnemiesCount => ActiveEnemies.Count;
 
+    [Header("Shell Settings")]
+    public GameObject bouncingShellPrefab;
+    public List<Transform> shellSpawnZones = new List<Transform>(); // different spawn zones
+    public int bouncingShellPoolSize = 5;
+    public float spawnInterval = 5f; // how often to try spawning
+    [Range(0f, 1f)] public float spawnChance = 0.3f; // 30% chance
+    private ObjectPool bouncingShellPool;
+
     [Header("Pooling Settings")]
     public int initialPoolSize = 20;
 
@@ -21,6 +30,58 @@ public class EnemySpawner : MonoBehaviour
         for (int i = 0; i < EnemyPrefabs.Count; i++)
         {
             EnemyObjectPools.Add(i, ObjectPool.CreateInstance(EnemyPrefabs[i],initialPoolSize, this.transform));
+        }
+
+        if (bouncingShellPrefab != null)
+        {
+            bouncingShellPool = ObjectPool.CreateInstance(
+                bouncingShellPrefab.GetComponent<PoolableObject>(),
+                bouncingShellPoolSize,
+                this.transform
+            );
+        }
+    }
+
+    private void Start()
+    {
+        // Start automatic shell spawning
+        StartCoroutine(ShellSpawnRoutine());
+    }
+
+    private IEnumerator ShellSpawnRoutine()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(spawnInterval);
+
+            if (Random.value <= spawnChance) // roll chance
+            {
+                SpawnBouncingShell();
+            }
+        }
+    }
+    private void SpawnBouncingShell()
+    {
+        if (bouncingShellPool == null || shellSpawnZones.Count == 0) return;
+
+        PoolableObject pooledShell = bouncingShellPool.GetObject();
+        if (pooledShell == null) return; // no more shells available
+
+        Transform spawnPoint = shellSpawnZones[Random.Range(0, shellSpawnZones.Count)];
+
+        if (NavMesh.SamplePosition(spawnPoint.position, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+        {
+            GameObject shellObj = pooledShell.gameObject;
+            shellObj.transform.position = hit.position;
+            shellObj.SetActive(true);
+
+            // Reset shell movement
+            var shell = shellObj.GetComponent<BouncingShell>();
+            if (shell != null)
+            {
+                shellObj.GetComponent<Rigidbody>().linearVelocity = Vector3.zero;
+                shell.enabled = true;
+            }
         }
     }
 
