@@ -12,19 +12,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be4dd72453f44b44cbb4924af47d8bfa, type: 3}
   m_Name: GoblinEnnemy
   m_EditorClassIdentifier: 
-  moveSpeed: 8
+  minspeed: 6.5
+  maxspeed: 9
+  moveSpeed: 7
   spreadRadius: 1.5
   separationRadius: 3
   avoidanceForce: 5
-  separationUpdateRate: 25
+  separationUpdateRate: 5
   knockbackRecoveryTime: 0.5
+  rotationSpeed: 5
+  maxRotationSpeed: 5
+  minRotationSpeed: 2
   attackRange: 3
   attackCooldown: 1.5
   attackKnockbackForce: 25
   attackDamage: 15
   AvoidancePriority: 50
   BaseOffset: 0
-  Height: 4
+  Height: 4.5
   ObstacleAvoidanceType: 4
-  Radius: 0.5
+  Radius: 1.5
   StoppingDistance: 0

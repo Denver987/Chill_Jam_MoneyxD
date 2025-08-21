@@ -12,12 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be4dd72453f44b44cbb4924af47d8bfa, type: 3}
   m_Name: BasicEnnemy
   m_EditorClassIdentifier: 
+  minspeed: 3
+  maxspeed: 6
   moveSpeed: 6
   spreadRadius: 1.5
   separationRadius: 3
   avoidanceForce: 5
-  separationUpdateRate: 25
+  separationUpdateRate: 5
   knockbackRecoveryTime: 0.5
+  rotationSpeed: 5
+  maxRotationSpeed: 4.5
+  minRotationSpeed: 2
   attackRange: 3
   attackCooldown: 2
   attackKnockbackForce: 25

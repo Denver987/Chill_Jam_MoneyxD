@@ -38,6 +38,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8497005747179457219}
+  - {fileID: 6325551947492668473}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!136 &2425876214020600423
@@ -393,6 +394,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a7f61002cb429b4d9a2fdd3b4ce58aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cam: {fileID: 5509642648806223491}
   pullStrength: 20
   pullRange: 25
   snapSpeed: 100
@@ -401,8 +403,6 @@ MonoBehaviour:
   rotationSpeed: 35
   throwStrength: 40
   pullCooldown: 0.5
-  lineVFX: {fileID: 0}
-  StartPos: {fileID: 0}
   rotationAxis: {x: 1, y: 1, z: 1}
   telekinesisDuration: 3
   telekinesisHeight: 2
@@ -422,9 +422,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cam: {fileID: 5509642648806223491}
   hitCooldown: 0.5
-  initialKnockbackStrength: 5
+  initialKnockbackStrength: 15
   maxChargeTime: 2
-  maxKnockbackStrength: 25
+  maxKnockbackStrength: 40
   groundMultiplier: 0.5
   chargeCurve:
     serializedVersion: 2
@@ -485,9 +485,9 @@ MonoBehaviour:
   invulnerabilityTime: 1
   inputSystem: {fileID: 0}
   postProcessing: {fileID: 0}
-  HitColor: {r: 0.1981132, g: 0, b: 0, a: 0}
-  intensity: 0.15
-  hitFlashDuration: 0.1
+  HitColor: {r: 0.5754717, g: 0.078720205, b: 0.078720205, a: 0}
+  intensity: 0.35
+  hitFlashDuration: 1
 --- !u!1 &985094073902138724
 GameObject:
   m_ObjectHideFlags: 0
@@ -649,12 +649,43 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7040259701305794349}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0.2647988, y: 0, z: 0, w: 0.96430373}
   m_LocalPosition: {x: 0, y: 0.831, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5498466365006062302}
+  m_Father: {fileID: 4208303600349384431}
+  m_LocalEulerAnglesHint: {x: 30.71, y: 0, z: 0}
+--- !u!1 &7803224917281331857
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6325551947492668473}
+  m_Layer: 0
+  m_Name: holdingPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6325551947492668473
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7803224917281331857}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.922, z: 3.388}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
   m_Father: {fileID: 4208303600349384431}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &9103781364945528122

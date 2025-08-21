@@ -1,137 +1,138 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class EnemySpawner : MonoBehaviour
 {
     public Transform target;
-    public int NumberOfEnemiesToSpawn = 5;
-    public float SpawnDelay = 1f;
     public List<Enemy> EnemyPrefabs = new List<Enemy>();
-    public SpawnMethod EnemySpawnMethod = SpawnMethod.RoundRobin;
-
-
-    public bool infiniteSpawn = false; // if true, will spawn enemies infinitely until stopped
-
-    private NavMeshTriangulation Triangulation;
-    public Dictionary<int, ObjectPool> EnemyObjectPools = new Dictionary<int, ObjectPool>();
-
     public List<Transform> spawnzones = new List<Transform>();
 
+    public Dictionary<int, ObjectPool> EnemyObjectPools = new Dictionary<int, ObjectPool>();
     public List<Enemy> ActiveEnemies = new List<Enemy>();
     public int activeEnemiesCount => ActiveEnemies.Count;
+
+    [Header("Shell Settings")]
+    public GameObject bouncingShellPrefab;
+    public List<Transform> shellSpawnZones = new List<Transform>(); // different spawn zones
+    public int bouncingShellPoolSize = 5;
+    public float spawnInterval = 5f; // how often to try spawning
+    [Range(0f, 1f)] public float spawnChance = 0.3f; // 30% chance
+    private ObjectPool bouncingShellPool;
+
+    [Header("Pooling Settings")]
+    public int initialPoolSize = 20;
+
     private void Awake()
     {
+        // create object pools for each enemy prefab
         for (int i = 0; i < EnemyPrefabs.Count; i++)
         {
-            EnemyObjectPools.Add(i, ObjectPool.CreateInstance(EnemyPrefabs[i], NumberOfEnemiesToSpawn,this.transform));
+            EnemyObjectPools.Add(i, ObjectPool.CreateInstance(EnemyPrefabs[i],initialPoolSize, this.transform));
         }
-      
+
+        if (bouncingShellPrefab != null)
+        {
+            bouncingShellPool = ObjectPool.CreateInstance(
+                bouncingShellPrefab.GetComponent<PoolableObject>(),
+                bouncingShellPoolSize,
+                this.transform
+            );
+        }
     }
 
     private void Start()
     {
-        Triangulation = NavMesh.CalculateTriangulation();
+        // Start automatic shell spawning
+        StartCoroutine(ShellSpawnRoutine());
+    }
 
-        if(infiniteSpawn)
-            StartCoroutine(SpawnInfinitEnnemies());
+    private IEnumerator ShellSpawnRoutine()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(spawnInterval);
+
+            if (Random.value <= spawnChance) // roll chance
+            {
+                SpawnBouncingShell();
+            }
+        }
+    }
+    private void SpawnBouncingShell()
+    {
+        if (bouncingShellPool == null || shellSpawnZones.Count == 0) return;
+
+        PoolableObject pooledShell = bouncingShellPool.GetObject();
+        if (pooledShell == null) return; // pool empty
+
+        // Pick random spawn point
+        Transform spawnPoint = shellSpawnZones[Random.Range(0, shellSpawnZones.Count)];
+
+        GameObject shellObj = pooledShell.gameObject;
+        shellObj.transform.position = spawnPoint.position;
+        shellObj.transform.rotation = Quaternion.identity; // reset rotation
+        shellObj.SetActive(true);
+
+        // Reset movement
+        var shell = shellObj.GetComponent<BouncingShell>();
+        if (shell != null)
+        {
+            var rb = shellObj.GetComponent<Rigidbody>();
+            if (rb != null) rb.linearVelocity = Vector3.zero;
+
+            shell.enabled = true;   // restart wandering
+            shell.RestartWandering(); // <-- ensure it always starts wandering fresh
+        }
+    }
+
+
+    /// <summary>Spawn an enemy prefab directly (used by WaveManager)</summary>
+    public void SpawnSpecificEnemy(Enemy prefab)
+    {
+        int index = EnemyPrefabs.IndexOf(prefab);
+        if (index >= 0)
+        {
+            DoSpawnEnemy(index);
+        }
         else
-            StartCoroutine(SpawnEnemies());
-    }
-
-    private IEnumerator SpawnInfinitEnnemies()
-    {
-        if (EnemyObjectPools.Count == 0)
-            yield return null; // wait until there are no active enemies
-
-        WaitForSeconds Wait = new WaitForSeconds(SpawnDelay);
-
-        while (true) // infinite loop
         {
-            // only spawn if below max active enemies
-            if (ActiveEnemies.Count < NumberOfEnemiesToSpawn)
-            {
-                if (EnemySpawnMethod == SpawnMethod.RoundRobin)
-                {
-                    SpawnRoundRobinEnemy(ActiveEnemies.Count);
-                }
-                else if (EnemySpawnMethod == SpawnMethod.Random)
-                {
-                    SpawnRandomEnemy();
-                }
-            }
-
-            yield return Wait;
+            Debug.LogWarning($"Prefab {prefab.name} not found in EnemyPrefabs list!");
         }
     }
 
-    private IEnumerator SpawnEnemies()
+    private void DoSpawnEnemy(int spawnIndex)
     {
-        WaitForSeconds Wait = new WaitForSeconds(SpawnDelay);
+        if (!EnemyObjectPools.ContainsKey(spawnIndex)) return;
 
-        int SpawnedEnemies = 0;
+        PoolableObject poolableObject = EnemyObjectPools[spawnIndex].GetObject();
 
-        while (SpawnedEnemies < NumberOfEnemiesToSpawn)
+        if (poolableObject == null)
         {
-            if (EnemySpawnMethod == SpawnMethod.RoundRobin)
-            {
-                SpawnRoundRobinEnemy(SpawnedEnemies);
-            }
-            else if (EnemySpawnMethod == SpawnMethod.Random)
-            {
-                SpawnRandomEnemy();
-            }
+            // Pool is empty, no more enemies of this type can be spawned
+            Debug.LogWarning($"Pool for {EnemyPrefabs[spawnIndex].name} is exhausted!");
+            return;
+        }
 
-            SpawnedEnemies++;
+        Enemy enemy = poolableObject.GetComponent<Enemy>();
 
-            yield return Wait;
+        // Pick one spawn point
+        Transform spawnPoint = spawnzones[Random.Range(0, spawnzones.Count)];
+
+        if (NavMesh.SamplePosition(spawnPoint.position, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+        {
+            enemy.ResetEnemy(hit.position, target);
+
+            if (!ActiveEnemies.Contains(enemy))
+                ActiveEnemies.Add(enemy);
         }
     }
 
-    private void SpawnRoundRobinEnemy(int SpawnedEnemies)
-    {
-        int SpawnIndex = SpawnedEnemies % EnemyPrefabs.Count;
 
-        DoSpawnEnemy(SpawnIndex);
-    }
-
-    private void SpawnRandomEnemy()
-    {
-        DoSpawnEnemy(Random.Range(0, EnemyPrefabs.Count));
-    }
-
-    private void DoSpawnEnemy(int SpawnIndex)
-    {
-        PoolableObject poolableObject = EnemyObjectPools[SpawnIndex].GetObject();
-        if (poolableObject != null)
-        {
-            Enemy enemy = poolableObject.GetComponent<Enemy>();
-
-            // Pick one spawn point
-            Transform spawnPoint = spawnzones[Random.Range(0, spawnzones.Count)];
-
-            NavMeshHit hit;
-            if (NavMesh.SamplePosition(spawnPoint.position, out hit, 2f, NavMesh.AllAreas))
-            {
-                enemy.ResetEnemy(hit.position, target);
-
-                if (!ActiveEnemies.Contains(enemy))
-                    ActiveEnemies.Add(enemy);
-            }
-        }
-    }
     public void RemoveEnemy(Enemy enemy)
     {
         if (ActiveEnemies.Contains(enemy))
             ActiveEnemies.Remove(enemy);
-    }
-
-    public enum SpawnMethod
-    {
-        RoundRobin,
-        Random
-        // Other spawn methods can be added here
     }
 }

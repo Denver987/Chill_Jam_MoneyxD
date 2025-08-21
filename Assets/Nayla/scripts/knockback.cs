@@ -90,7 +90,8 @@ public class Knockback : MonoBehaviour
     private void ReleaseCharge()
     {
         if (!isCharging) return;
-
+        SoundManager.PlaySound(SoundType.magicianspells, this.GetComponent<AudioSource>(),0.25f);
+        SoundManager.PlaySound(SoundType.spell1, this.GetComponent<AudioSource>(),0.25f);
         isCharging = false;
 
         // Stop the progressive shake
@@ -107,9 +108,21 @@ public class Knockback : MonoBehaviour
             IHitable hitable = hit.transform.GetComponent<IHitable>();
             if (hitable != null)
             {
-                SoundManager.PlaySound(SoundType.spell1, this.GetComponent<AudioSource>(), 0.5f);
-                hitable.ExecuteWithUpwardBias(transform, finalKnockbackStrengthEnemy, upwardForce);
-                nextAllowedHitTime = Time.time + hitCooldown;
+                if(hit.transform.gameObject.GetComponent<BouncingShell>() != null)
+                {
+                    hitable.Execute(hit.transform, finalKnockbackStrengthEnemy);
+                    nextAllowedHitTime = Time.time + hitCooldown;
+
+                }
+                else
+                {
+                    hitable.ExecuteWithUpwardBias(transform, finalKnockbackStrengthEnemy, upwardForce);
+                    nextAllowedHitTime = Time.time + hitCooldown;
+                }
+               
+                
+
+              
             }
             else
             {
@@ -130,5 +143,7 @@ public class Knockback : MonoBehaviour
         hasAutoReleased = false;
         maxChargeReachedTime = -1f;
     }
+    
+    
 }
 
