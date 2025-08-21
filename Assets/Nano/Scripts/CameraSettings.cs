@@ -84,27 +84,19 @@ public class CameraSettings : MonoBehaviour
         zoomRoutine = null;
     }
 
-    // 🔹 Slow Motion
+    // 🔹 Slow Motion (safe, never stuck)
     public void StartSlowMotion(float targetScale, float duration)
     {
         if (slowMotionRoutine != null) StopCoroutine(slowMotionRoutine);
-        slowMotionRoutine = StartCoroutine(SlowMotion(targetScale, duration));
+        slowMotionRoutine = StartCoroutine(SlowMotionRoutine(targetScale, duration));
     }
 
-    private IEnumerator SlowMotion(float targetScale, float duration)
+    private IEnumerator SlowMotionRoutine(float targetScale, float duration)
     {
-        float originalTimeScale = Time.timeScale;
-        float elapsed = 0f;
+        float originalTimeScale = 1f; // always return to normal speed
+        Time.timeScale = targetScale;
 
-        while (elapsed < duration)
-        {
-            float t = elapsed / duration;
-            float smoothT = t * t * (3f - 2f * t);
-            Time.timeScale = Mathf.Lerp(originalTimeScale, targetScale, smoothT);
-
-            elapsed += Time.unscaledDeltaTime;
-            yield return null;
-        }
+        yield return new WaitForSecondsRealtime(duration);
 
         Time.timeScale = originalTimeScale;
         slowMotionRoutine = null;

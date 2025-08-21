@@ -43,18 +43,20 @@ public class ObjectPool
         }
     }
 
-   
+
     public PoolableObject GetObject()
     {
+        if (AvailableObjectsPool.Count == 0)
+        {
+          
+            return null; // nothing available
+        }
+
         PoolableObject instance = AvailableObjectsPool[0];
-
         AvailableObjectsPool.RemoveAt(0);
-
         instance.gameObject.SetActive(true);
-
         return instance;
     }
-
     public void ReturnObjectToPool(PoolableObject Object)
     {
         Debug.Log($"Returning {Object.name} to pool {this.Prefab.name}");

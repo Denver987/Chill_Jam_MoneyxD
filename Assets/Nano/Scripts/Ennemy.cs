@@ -22,6 +22,8 @@ public class Enemy : PoolableObject
     {
        
         Movement.canattack = true; // Reset attack state
+        Movement.isDead = false; // Reset death state
+        Movement.isKnockedBack = false; // Reset knockback state
         this.transform.GetChild(1).gameObject.SetActive(true); // hide the dust explosion  
         // Reactivate navmesh agent
         Agent.enabled = true;

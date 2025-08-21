@@ -40,11 +40,16 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     private float separationTimer = 0f;
 
     private const string isMoving = "IsMoving";
+    [SerializeField] private float fallMultiplier = 2f;
+    [SerializeField] private float riseGravityMultiplier = 1.5f;
+    [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private float groundCheckDistance = 0.2f;
 
-    private bool isDead;
+    private bool grounded;
+    public bool isDead;
     private Animator animator;
     private Enemy enemy;
-    private bool isKnockedBack = false;
+    public bool isKnockedBack = false;
     private bool isAttacking = false;
     public bool canattack = true; // can attack after cooldown
     private float knockbackTimer = 0f;
@@ -86,7 +91,8 @@ public class EnnemyMovement : MonoBehaviour,IHitable
         }
 
         FollowTarget();
-       
+        GroundCheck();
+
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -215,6 +221,22 @@ public class EnnemyMovement : MonoBehaviour,IHitable
 
         // Start attack
         StartCoroutine(AttackRoutine());
+    }
+    private void GroundCheck()
+    {
+        grounded = Physics.Raycast(transform.position + Vector3.up * 0.1f, Vector3.down, groundCheckDistance, groundLayer);
+
+        if (!grounded)
+        {
+            if (rb.linearVelocity.y < 0) // falling
+            {
+                rb.AddForce(Vector3.down * (Mathf.Abs(Physics.gravity.y) * (fallMultiplier - 1) * Time.fixedDeltaTime), ForceMode.VelocityChange);
+            }
+            else if (rb.linearVelocity.y > 0) // rising (knockback / jump)
+            {
+                rb.AddForce(Vector3.down * (Mathf.Abs(Physics.gravity.y) * (riseGravityMultiplier - 1) * Time.fixedDeltaTime), ForceMode.VelocityChange);
+            }
+        }
     }
 
     private IEnumerator AttackRoutine()
