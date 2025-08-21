@@ -1,6 +1,7 @@
 using SmallHedge.SoundManager;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEngine.Rendering.DebugUI;
 
 public class Knockback : MonoBehaviour
 {
@@ -37,7 +38,7 @@ public class Knockback : MonoBehaviour
     }
 
     void Update()
-    {
+    {   
         if (isCharging)
         {
             ChargeNormalized = Mathf.Clamp01((Time.time - chargeStartTime) / Mathf.Max(0.0001f, maxChargeTime));
@@ -64,6 +65,29 @@ public class Knockback : MonoBehaviour
                 ReleaseCharge();
             }
         }
+        // --- Crosshair + Outline (aim ray) ---
+        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+        bool targetable = false;
+        Outline outlineTarget = null;
+
+        if (Physics.Raycast(ray, out RaycastHit hit, maxDistance, ~0, QueryTriggerInteraction.Ignore))
+        {
+            // “in range & hittable”
+            var hitable = hit.transform.GetComponent<IHitable>();
+            if (hitable != null)
+            {
+                targetable = true;
+
+                // Try to find an Outline on the hit object, its parent, or child (disabled by default on prefab)
+                outlineTarget = hit.transform.GetComponent<Outline>()
+                               ?? hit.transform.GetComponentInParent<Outline>()
+                               ?? hit.transform.GetComponentInChildren<Outline>();
+                // (We only toggle .enabled; we don't AddComponent here per QuickOutline guidance.)
+            }
+        }
+
+        CameraSettings.Instance?.SetCrosshairTargetable(targetable, outlineTarget);
+
     }
 
     public void knockback(InputAction.CallbackContext context)
@@ -108,9 +132,10 @@ public class Knockback : MonoBehaviour
             IHitable hitable = hit.transform.GetComponent<IHitable>();
             if (hitable != null)
             {
-                if(hit.transform.gameObject.GetComponent<BouncingShell>() != null)
+
+                if (hit.transform.gameObject.GetComponent<BouncingShell>() != null)
                 {
-                    hitable.Execute(hit.transform, finalKnockbackStrengthEnemy);
+                    hitable.Execute(transform, finalKnockbackStrengthEnemy);
                     nextAllowedHitTime = Time.time + hitCooldown;
 
                 }
@@ -119,13 +144,14 @@ public class Knockback : MonoBehaviour
                     hitable.ExecuteWithUpwardBias(transform, finalKnockbackStrengthEnemy, upwardForce);
                     nextAllowedHitTime = Time.time + hitCooldown;
                 }
-               
-                
 
-              
+
+
+
             }
             else
             {
+
                 if (hit.normal.y >= 0.95f)
                 {
                     if (rb != null)
@@ -136,6 +162,7 @@ public class Knockback : MonoBehaviour
                 }
             }
         }
+        
 
         // Reset everything
         ChargeNormalized = 0f;

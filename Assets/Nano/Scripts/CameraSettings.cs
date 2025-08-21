@@ -1,6 +1,10 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.UI; // for Image
+using DG.Tweening;   // add this at the top
+
+
 
 
 public class CameraSettings : MonoBehaviour
@@ -12,6 +16,17 @@ public class CameraSettings : MonoBehaviour
     [SerializeField] private Volume deathVolume;     // assign your DeathFX Global Volume here
     [SerializeField] private float deathFadeDuration = 1f;
     private Coroutine deathFxRoutine;
+
+    [Header("Crosshair FX")]
+    [SerializeField] private Image crosshair;                 // drag your crosshair Image here
+    [SerializeField] private Color crosshairNormal = Color.white;
+    [SerializeField] private Color crosshairTarget = Color.red;
+    [SerializeField] private Vector3 crosshairNormalScale = Vector3.one;
+    [SerializeField] private Vector3 crosshairTargetScale = Vector3.one * 1.25f;
+    [SerializeField] private float crosshairLerpSpeed = 10f;
+
+    private Coroutine crosshairCo;
+    private bool crosshairIsTargetable = false;
 
 
     private Vector3 originalPos;
@@ -141,4 +156,65 @@ public class CameraSettings : MonoBehaviour
         deathFxRoutine = null;
     }
     /////./////
+
+
+    //////crosshair + outline//////
+    private RectTransform _crosshairRect;
+    private Tween crosshairTween;
+
+    // Optional defaults (tweak in Inspector or here)
+    [SerializeField] private Outline.Mode outlineMode = Outline.Mode.OutlineAll;
+    [SerializeField] private Color outlineColor = Color.yellow;
+    [SerializeField] private float outlineWidth = 5f;
+
+    private Outline _currentOutline;
+
+    private void Start()
+    {
+        if (crosshair != null)
+        {
+            _crosshairRect = crosshair.rectTransform;
+            _crosshairRect.localScale = crosshairNormalScale;
+        }
+    }
+
+    /// <summary>
+    /// Scale crosshair and toggle enemy outline. Pass `outlineTarget` when hittable is under cursor.
+    /// </summary>
+    public void SetCrosshairTargetable(bool isTargetable, Outline outlineTarget = null)
+    {
+        // Crosshair scale (DOTween)
+        if (_crosshairRect != null)
+        {
+            Vector3 target = isTargetable ? crosshairTargetScale : crosshairNormalScale;
+            crosshairTween?.Kill();
+            crosshairTween = _crosshairRect.DOScale(target, 0.15f).SetEase(Ease.OutBack);
+        }
+
+        // Disable old outline if target changed
+        if (_currentOutline != null && _currentOutline != outlineTarget)
+        {
+            _currentOutline.enabled = false;
+            _currentOutline = null;
+        }
+
+        // Enable/refresh new outline when targetable
+        if (isTargetable && outlineTarget != null)
+        {
+            _currentOutline = outlineTarget;
+
+            // configure (cheap, runs once per change)
+            _currentOutline.OutlineMode = outlineMode;
+            _currentOutline.OutlineColor = outlineColor;
+            _currentOutline.OutlineWidth = outlineWidth;
+
+            _currentOutline.enabled = true;
+        }
+        else if (!isTargetable && _currentOutline != null)
+        {
+            _currentOutline.enabled = false;
+            _currentOutline = null;
+        }
+    }
+
 }
