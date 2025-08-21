@@ -23,4 +23,17 @@ public class GameManager : MonoBehaviour
                Debug.Log("Game stopped. Final score: " + score);
         // Additional logic to stop the game can be added here
     }
+
+
+    public void StartGame()
+    {
+        ResetScore();
+        Debug.Log("Game started. Score reset to: " + score);
+        // Additional logic to start the game can be added here
+    }
+
+    public void MainMenu()
+    {
+
+    }
 }
