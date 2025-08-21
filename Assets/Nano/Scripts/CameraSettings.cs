@@ -46,7 +46,10 @@ public class CameraSettings : MonoBehaviour
             return;
         }
         Instance = this;
-
+        if (deathVolume == null)
+        {
+            deathVolume = GetComponentInChildren<Volume>();
+        }
         mainCamera = Camera.main;
         originalPos = transform.localPosition;
         originalFOV = mainCamera.fieldOfView;

@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 5364009818676742676}
   - component: {fileID: 3259701314520415494}
   - component: {fileID: 1684448272960268909}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -506,9 +506,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2358007947352666514}
   - component: {fileID: 5509642648806223491}
-  - component: {fileID: 6026237009770907942}
   - component: {fileID: 3911480534287889774}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Camera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -581,14 +580,6 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!81 &6026237009770907942
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 985094073902138724}
-  m_Enabled: 0
 --- !u!114 &3911480534287889774
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -673,7 +664,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8497005747179457219}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Head
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -772,7 +763,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_IsGlobal: 1
-  priority: 1
+  priority: 10
   blendDistance: 0
   weight: 0
   sharedProfile: {fileID: 11400000, guid: 6c844e872f91a964b9754f42aaefaef6, type: 2}
@@ -791,7 +782,7 @@ GameObject:
   - component: {fileID: 4323366325558490167}
   - component: {fileID: 6043545288325615685}
   - component: {fileID: 5206730420783595628}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Main Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
@@ -932,7 +923,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _camera: {fileID: 1768113341237375081}
   _rawImage: {fileID: 0}
-  _cameraHeight: 150
+  _cameraHeight: 200
 --- !u!114 &6043545288325615685
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -945,8 +936,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 448ad324e4bc210409169467683847db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deathVolume: {fileID: 2813305406991110349}
+  deathVolume: {fileID: 0}
   deathFadeDuration: 1
+  crosshair: {fileID: 0}
+  crosshairNormal: {r: 1, g: 1, b: 1, a: 1}
+  crosshairTarget: {r: 1, g: 0, b: 0, a: 1}
+  crosshairNormalScale: {x: 0.5, y: 0.5, z: 0.5}
+  crosshairTargetScale: {x: 0.65, y: 0.65, z: 0.65}
+  crosshairLerpSpeed: 1
+  outlineMode: 0
+  outlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  outlineWidth: 5
 --- !u!114 &5206730420783595628
 MonoBehaviour:
   m_ObjectHideFlags: 0
