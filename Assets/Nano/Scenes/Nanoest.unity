@@ -11989,7 +11989,7 @@ MonoBehaviour:
   - {fileID: 366333074}
   bouncingShellPoolSize: 15
   spawnInterval: 7.5
-  spawnChance: 0.3
+  spawnChance: 1
   initialPoolSize: 20
 --- !u!1001 &5794397969411223399
 PrefabInstance:

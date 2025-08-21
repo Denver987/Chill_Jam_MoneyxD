@@ -10,8 +10,16 @@ public class BouncingShell : MonoBehaviour, IHitable
     public float wanderChangeInterval = 2f;
 
 
+    [Header("Physics")]
+    [SerializeField] private float fallMultiplier = 2f;       // faster falling
+    [SerializeField] private float riseGravityMultiplier = 1.5f; // optional for upward knockback
+    [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private float groundCheckDistance = 0.2f;
+
+
     private SkinnedMeshRenderer[] meshRenderers;
 
+    private bool grounded;
     [Header("Bounce / Launch")]
     public float minLaunchSpeed = 8f;       // baseline speed when launched
     public float maxLaunchSpeed = 20f;      // clamp so it doesn't get insane
@@ -35,6 +43,23 @@ public class BouncingShell : MonoBehaviour, IHitable
         animator = GetComponent<Animator>();
         meshRenderers = GetComponentsInChildren<SkinnedMeshRenderer>();
 
+    }
+    private void ApplyFallMultiplier()
+    {
+        // Ground check
+        grounded = Physics.Raycast(transform.position + Vector3.up * 0.1f, Vector3.down, groundCheckDistance, groundLayer);
+
+        if (!grounded)
+        {
+            if (rb.linearVelocity.y < 0) // falling
+            {
+                rb.AddForce(Vector3.down * (Mathf.Abs(Physics.gravity.y) * (fallMultiplier - 1) * Time.fixedDeltaTime), ForceMode.VelocityChange);
+            }
+            else if (rb.linearVelocity.y > 0) // rising
+            {
+                rb.AddForce(Vector3.down * (Mathf.Abs(Physics.gravity.y) * (riseGravityMultiplier - 1) * Time.fixedDeltaTime), ForceMode.VelocityChange);
+            }
+        }
     }
 
     private void OnEnable()
@@ -108,6 +133,7 @@ public class BouncingShell : MonoBehaviour, IHitable
 
            
         }
+        ApplyFallMultiplier();
     }
 
     // ===== Bounce handling =====
