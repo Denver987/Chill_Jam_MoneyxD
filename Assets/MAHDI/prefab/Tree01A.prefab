@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6150175396652113612}
   - component: {fileID: 4525300014806063798}
-  - component: {fileID: 685620182482484151}
   m_Layer: 0
   m_Name: Tree01A
   m_TagString: Obstacle
@@ -58,29 +57,6 @@ LODGroup:
     renderers:
     - renderer: {fileID: 80328586924670425}
   m_Enabled: 1
---- !u!136 &685620182482484151
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1095435199807133571}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 1.5
-  m_Height: 8
-  m_Direction: 1
-  m_Center: {x: -0.0077775717, y: 3.75, z: -0.037122846}
 --- !u!1 &1169868977724067192
 GameObject:
   m_ObjectHideFlags: 0
@@ -92,7 +68,6 @@ GameObject:
   - component: {fileID: 6958340502790594191}
   - component: {fileID: 8569051432707961992}
   - component: {fileID: 8324118467609588477}
-  - component: {fileID: 572794138500506937}
   m_Layer: 0
   m_Name: Tree01_LOD0
   m_TagString: Obstacle
@@ -169,29 +144,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!136 &572794138500506937
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1169868977724067192}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 1.5
-  m_Height: 8
-  m_Direction: 1
-  m_Center: {x: -0.0077775717, y: 3.75, z: -0.037122846}
 --- !u!1 &3947344298698992426
 GameObject:
   m_ObjectHideFlags: 0
@@ -203,7 +155,6 @@ GameObject:
   - component: {fileID: 4438574146079291177}
   - component: {fileID: 6828441482326870800}
   - component: {fileID: 80328586924670425}
-  - component: {fileID: 3189634856396461356}
   m_Layer: 0
   m_Name: Tree01_LOD2
   m_TagString: Untagged
@@ -280,26 +231,3 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!136 &3189634856396461356
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3947344298698992426}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 1.5
-  m_Height: 8
-  m_Direction: 1
-  m_Center: {x: -0.0077775717, y: 3.75, z: -0.037122846}

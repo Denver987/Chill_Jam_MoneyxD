@@ -118,6 +118,7 @@ public class EnnemyMovement : MonoBehaviour,IHitable
             }
         }else if(collision.gameObject.CompareTag("Obstacle"))
         {
+            Debug.Log("Hit wall");
             if (isKnockedBack)
             {
                 Die();
