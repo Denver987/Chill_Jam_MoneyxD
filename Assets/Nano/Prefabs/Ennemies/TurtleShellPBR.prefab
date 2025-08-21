@@ -122,7 +122,7 @@ Rigidbody:
   m_GameObject: {fileID: 893278293128645176}
   serializedVersion: 4
   m_Mass: 1
-  m_Drag: 0
+  m_Drag: 0.1
   m_AngularDrag: 0
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -160,9 +160,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   groundCheckDistance: 0.2
-  minLaunchSpeed: 20
-  maxLaunchSpeed: 40
-  speedPerStrength: 0.6
+  minLaunchSpeed: 4
+  maxLaunchSpeed: 12
+  speedPerStrength: 0.4
   keepSpeedOnBounce: 1
   keepOnGround: 1
   activeLifeTime: 15

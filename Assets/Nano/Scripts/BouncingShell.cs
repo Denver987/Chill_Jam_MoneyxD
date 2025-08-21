@@ -181,23 +181,36 @@ public class BouncingShell : MonoBehaviour, IHitable
     {
         if (executionSource == null || rb == null) return;
 
-        // Exact 3D direction away from source
-        Vector3 dir = (transform.position - executionSource.position).normalized;
+        // Direction AWAY from the attacker (hit source) → attacker -> shell
+        Vector3 dir = transform.position - executionSource.position;
 
-        // Visual feedback
+        // If you want strictly ground slide, project onto ground plane
+        if (keepOnGround)
+        {
+            dir = Vector3.ProjectOnPlane(dir, Vector3.up);
+        }
+        else
+        {
+            // Prevent pushing downward; add a tiny pop so it doesn't grind into the ground
+            if (dir.y <= 0f) dir.y = 0.15f;
+        }
+
+        if (dir.sqrMagnitude < 0.0001f) dir = transform.forward;
+        dir.Normalize();
+
+        // (Feedback kept as-is)
         transform.DOPunchScale(Vector3.one * 0.1f, 0.2f, 1, 0.5f);
         foreach (var r in meshRenderers)
             r.material.DOColor(Color.red, 0.1f).SetLoops(2, LoopType.Yoyo);
-
-        // Camera shake & hit pause
         CameraSettings.Instance?.StartShake(0.15f, 0.05f);
         StartCoroutine(HitPause(0.08f));
-
         SoundManager.PlaySound(SoundType.ennemyDamage, GetComponent<AudioSource>(), 1f);
 
-        // Apply knockback like EnnemyMovement
+        // Apply the knockback along that hit direction
         KnockBackShell(dir, knockbackStrength);
     }
+
+
 
     private void KnockBackShell(Vector3 direction, float strength)
     {
@@ -213,8 +226,8 @@ public class BouncingShell : MonoBehaviour, IHitable
         rb.isKinematic = false;
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
 
-        // Apply knockback impulse in exact direction
-        rb.linearVelocity = direction * strength;
+        if (keepOnGround) direction.y = 0f;   // enforce ground slide if wanted
+        rb.linearVelocity = direction.normalized * strength;
 
         // Optional: small DOTween punch for visuals (doesn’t affect physics)
         Vector3 targetPos = transform.position + direction * (strength * 0.1f);

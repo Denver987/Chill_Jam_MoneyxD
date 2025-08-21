@@ -1,6 +1,10 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.UI; // for Image
+using DG.Tweening;   // add this at the top
+
+
 
 
 public class CameraSettings : MonoBehaviour
@@ -12,6 +16,17 @@ public class CameraSettings : MonoBehaviour
     [SerializeField] private Volume deathVolume;     // assign your DeathFX Global Volume here
     [SerializeField] private float deathFadeDuration = 1f;
     private Coroutine deathFxRoutine;
+
+    [Header("Crosshair FX")]
+    [SerializeField] private Image crosshair;                 // drag your crosshair Image here
+    [SerializeField] private Color crosshairNormal = Color.white;
+    [SerializeField] private Color crosshairTarget = Color.red;
+    [SerializeField] private Vector3 crosshairNormalScale = Vector3.one;
+    [SerializeField] private Vector3 crosshairTargetScale = Vector3.one * 1.25f;
+    [SerializeField] private float crosshairLerpSpeed = 10f;
+
+    private Coroutine crosshairCo;
+    private bool crosshairIsTargetable = false;
 
 
     private Vector3 originalPos;
@@ -141,4 +156,36 @@ public class CameraSettings : MonoBehaviour
         deathFxRoutine = null;
     }
     /////./////
+
+    
+    //////crosshair call////
+    private RectTransform _crosshairRect;
+    private Tween crosshairTween;
+
+
+    private void Start()
+    {
+        if (crosshair != null)
+        {
+            _crosshairRect = crosshair.rectTransform;
+            _crosshairRect.localScale = crosshairNormalScale;   // start normal size
+        }
+    }
+
+    /// <summary>Make the crosshair big (true) or normal (false).</summary>
+    public void SetCrosshairTargetable(bool isTargetable)
+    {
+        if (_crosshairRect == null) return;
+
+        Vector3 targetScale = isTargetable ? crosshairTargetScale : crosshairNormalScale;
+
+        // kill old tween so they don't overlap
+        crosshairTween?.Kill();
+
+        // animate with ease
+        crosshairTween = _crosshairRect.DOScale(targetScale, 0.15f)
+            .SetEase(Ease.OutBack); // nice springy ease
+    }
+
+
 }

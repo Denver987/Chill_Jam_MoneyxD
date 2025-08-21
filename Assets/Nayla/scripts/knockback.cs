@@ -1,6 +1,7 @@
 using SmallHedge.SoundManager;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEngine.Rendering.DebugUI;
 
 public class Knockback : MonoBehaviour
 {
@@ -37,7 +38,7 @@ public class Knockback : MonoBehaviour
     }
 
     void Update()
-    {
+    {   
         if (isCharging)
         {
             ChargeNormalized = Mathf.Clamp01((Time.time - chargeStartTime) / Mathf.Max(0.0001f, maxChargeTime));
@@ -64,6 +65,19 @@ public class Knockback : MonoBehaviour
                 ReleaseCharge();
             }
         }
+
+        ///crosshair scal check///
+        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+        bool targetable = false;
+
+        if (Physics.Raycast(ray, out RaycastHit hit, maxDistance))
+        {
+            IHitable hitable = hit.transform.GetComponent<IHitable>();
+            targetable = (hitable != null);
+        }
+
+        CameraSettings.Instance?.SetCrosshairTargetable(targetable);
+        ////
     }
 
     public void knockback(InputAction.CallbackContext context)
@@ -107,9 +121,10 @@ public class Knockback : MonoBehaviour
             IHitable hitable = hit.transform.GetComponent<IHitable>();
             if (hitable != null)
             {
-                if(hit.transform.gameObject.GetComponent<BouncingShell>() != null)
+
+                if (hit.transform.gameObject.GetComponent<BouncingShell>() != null)
                 {
-                    hitable.Execute(hit.transform, finalKnockbackStrengthEnemy);
+                    hitable.Execute(transform, finalKnockbackStrengthEnemy);
                     nextAllowedHitTime = Time.time + hitCooldown;
 
                 }
@@ -118,13 +133,14 @@ public class Knockback : MonoBehaviour
                     hitable.ExecuteWithUpwardBias(transform, finalKnockbackStrengthEnemy, upwardForce);
                     nextAllowedHitTime = Time.time + hitCooldown;
                 }
-               
-                
 
-              
+
+
+
             }
             else
             {
+
                 if (hit.normal.y >= 0.95f)
                 {
                     if (rb != null)
@@ -135,6 +151,7 @@ public class Knockback : MonoBehaviour
                 }
             }
         }
+        
 
         // Reset everything
         ChargeNormalized = 0f;
