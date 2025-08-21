@@ -5,7 +5,9 @@ using UnityEngine.VFX;
 
 public class MagneticPull : MonoBehaviour
 {
-    private Camera cam;
+    public Camera cam;
+
+
     [Header("Pull Settings")]
     [SerializeField] private float pullStrength = 10f;
     [SerializeField] private float pullRange = 5f;
@@ -15,8 +17,6 @@ public class MagneticPull : MonoBehaviour
     [SerializeField] private float rotationSpeed = 180f;
     [SerializeField] private float throwStrength = 10f;
     [SerializeField] private float pullCooldown = 0.5f;
-    [SerializeField] private GameObject lineVFX;
-    [SerializeField] private Transform StartPos;
 
     [SerializeField] private Vector3 rotationAxis = new Vector3(1, 1, 1);
     private Rigidbody heldItem;
@@ -37,8 +37,10 @@ public class MagneticPull : MonoBehaviour
 
     void Start()
     {
-        cam = Camera.main;
-        if (lineVFX == null) lineVFX = GameObject.Find("MagneticGrip");
+      /*  if (cam == null)
+        {
+            cam=Camera.main;
+        }*/
     }
     public void Telekinesis(InputAction.CallbackContext context)
     {
@@ -71,13 +73,10 @@ public class MagneticPull : MonoBehaviour
         if (context.performed)
         {
             isHolding = true;
-            if (lineVFX != null) lineVFX.SetActive(true);
-            if (lineVFX != null) lineVFX.GetComponent<VisualEffect>().SetVector3("StartingPos", StartPos.position);
         }
         if (isHolding && context.canceled)
         {
             isHolding = false;
-            if (lineVFX != null) lineVFX.SetActive(false);
         }
     }
 
@@ -147,11 +146,15 @@ public class MagneticPull : MonoBehaviour
                 if (hit.rigidbody != null && hit.collider.CompareTag("Pullable"))
                 {
                     heldItem = hit.rigidbody;
+
+                    // prepare duplicate when grabbed
+                    var dup = heldItem.GetComponent<DuplicateOnSpellInteract>();
+                    if (dup) dup.OnSpellPrepare();
+
                     if (heldItem.isKinematic) heldItem.isKinematic = false;
                     Vector3 targetPosition = cam.transform.position + cam.transform.forward * floatingPosition;
                     Vector3 direction = targetPosition - heldItem.position;
                     float distance = direction.magnitude;
-                    if (lineVFX != null) lineVFX.GetComponent<VisualEffect>().SetVector3("heldItem", heldItem.position);
 
 
                     if (distance > aimTolerance)
@@ -178,6 +181,11 @@ public class MagneticPull : MonoBehaviour
         if (isThrowing && cam != null && heldItem != null)
         {
             isThrowing = false;
+
+            // trigger duplicate activation + delete original on throw
+            var dup = heldItem.GetComponent<DuplicateOnSpellInteract>();
+            if (dup) dup.OnSpellThrown();
+
             heldItem.AddForce(cam.transform.forward * throwStrength, ForceMode.Impulse);
             pullCooldownTimer = pullCooldown;
             heldItem.useGravity = true;
@@ -185,12 +193,5 @@ public class MagneticPull : MonoBehaviour
         }
     }
 
-    void OnDrawGizmosSelected()
-    {
-            if (cam != null)
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(cam.transform.position, pullRange);
-        }
-    }
+   
 }
