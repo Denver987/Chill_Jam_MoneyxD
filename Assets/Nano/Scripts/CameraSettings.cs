@@ -1,9 +1,18 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.Rendering;
+
 
 public class CameraSettings : MonoBehaviour
 {
     public static CameraSettings Instance { get; private set; }
+    
+    /// death thing
+    [Header("Post FX - Death")]
+    [SerializeField] private Volume deathVolume;     // assign your DeathFX Global Volume here
+    [SerializeField] private float deathFadeDuration = 1f;
+    private Coroutine deathFxRoutine;
+
 
     private Vector3 originalPos;
     private Camera mainCamera;
@@ -109,4 +118,35 @@ public class CameraSettings : MonoBehaviour
         Time.timeScale = originalTimeScale;
         slowMotionRoutine = null;
     }
+    //get called when the player is zero hp
+     public void OnPlayerDeath()
+    {
+        StartDeathFxFade(1f);
+    }
+
+    private void StartDeathFxFade(float target)
+    {
+        if (deathVolume == null)
+        {
+            Debug.LogWarning("[CameraSettings] Death Volume not assigned.");
+            return;
+        }
+
+        if (deathFxRoutine != null) StopCoroutine(deathFxRoutine);
+        deathFxRoutine = StartCoroutine(FadeDeathFx(deathVolume.weight, target, deathFadeDuration));
+    }
+
+    private IEnumerator FadeDeathFx(float from, float to, float duration)
+    {
+        float t = 0f;
+        while (t < duration)
+        {
+            t += Time.unscaledDeltaTime; // works even if Time.timeScale = 0
+            deathVolume.weight = Mathf.Lerp(from, to, t / duration);
+            yield return null;
+        }
+        deathVolume.weight = to;
+        deathFxRoutine = null;
+    }
+    /////./////
 }
