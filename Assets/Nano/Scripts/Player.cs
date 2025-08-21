@@ -60,6 +60,12 @@ public class Player : MonoBehaviour
             }
         }
 
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            Debug.Log("K pressed: OnPlayerDeath()");
+            CameraSettings.Instance.OnPlayerDeath();
+        }
+
 
     }
 
@@ -131,7 +137,14 @@ public class Player : MonoBehaviour
 
     private void Die()
     {
+        
         Debug.Log("Player died!");
+        CameraSettings.Instance.OnPlayerDeath();
+        if (CameraSettings.Instance == null)
+        {
+            Debug.LogError("CameraSettings.Instance is NULL. Is the script on the Main Camera and enabled?");
+            return;
+        }
         // TODO: death screen, respawn, etc.
     }
 }
