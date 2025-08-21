@@ -36,8 +36,7 @@ public class Player : MonoBehaviour
     }
     void Start()
     {
-        postProcessing = GameObject.FindGameObjectWithTag("PP")?.GetComponent<Volume>();
-        if (postProcessing == null || postProcessing.profile == null) return;
+        
 
         if (postProcessing.profile.TryGet<Vignette>(out var vignette))
         {

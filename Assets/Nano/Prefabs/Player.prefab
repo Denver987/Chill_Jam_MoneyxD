@@ -38,6 +38,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8497005747179457219}
+  - {fileID: 6325551947492668473}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!136 &2425876214020600423
@@ -393,6 +394,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a7f61002cb429b4d9a2fdd3b4ce58aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cam: {fileID: 5509642648806223491}
   pullStrength: 20
   pullRange: 25
   snapSpeed: 100
@@ -401,8 +403,6 @@ MonoBehaviour:
   rotationSpeed: 35
   throwStrength: 40
   pullCooldown: 0.5
-  lineVFX: {fileID: 0}
-  StartPos: {fileID: 0}
   rotationAxis: {x: 1, y: 1, z: 1}
   telekinesisDuration: 3
   telekinesisHeight: 2
