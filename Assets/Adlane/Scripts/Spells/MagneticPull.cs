@@ -5,7 +5,7 @@ using UnityEngine.VFX;
 
 public class MagneticPull : MonoBehaviour
 {
-    private Camera cam;
+    public Camera cam;
     [Header("Pull Settings")]
     [SerializeField] private float pullStrength = 10f;
     [SerializeField] private float pullRange = 5f;
@@ -15,8 +15,6 @@ public class MagneticPull : MonoBehaviour
     [SerializeField] private float rotationSpeed = 180f;
     [SerializeField] private float throwStrength = 10f;
     [SerializeField] private float pullCooldown = 0.5f;
-    [SerializeField] private GameObject lineVFX;
-    [SerializeField] private Transform StartPos;
 
     [SerializeField] private Vector3 rotationAxis = new Vector3(1, 1, 1);
     private Rigidbody heldItem;
@@ -30,6 +28,7 @@ public class MagneticPull : MonoBehaviour
     [SerializeField] private float telekinesisHeight = 2f;
     [SerializeField] private float telekinesisUpForce = 12f;
     [SerializeField] private float telekinesisCD = 3f;
+    [SerializeField] private Animator animator;
     private float telekinesisTimer = 0f;
     private float telekinesisStartY = 0f; 
     private Rigidbody telekinesisTarget;
@@ -37,8 +36,9 @@ public class MagneticPull : MonoBehaviour
 
     void Start()
     {
-        cam = Camera.main;
-        if (lineVFX == null) lineVFX = GameObject.Find("MagneticGrip");
+        if (cam == null) cam = Camera.main;
+
+        if (animator == null) animator = GetComponentInChildren<Animator>();
     }
     public void Telekinesis(InputAction.CallbackContext context)
     {
@@ -58,7 +58,7 @@ public class MagneticPull : MonoBehaviour
                 telekinesisTarget.useGravity = false;
                 telekinesisTimer = telekinesisDuration;
                 cdTimer = telekinesisCD;
-
+                animator.SetTrigger("Telekinesis");
             }
         }
         
@@ -71,13 +71,11 @@ public class MagneticPull : MonoBehaviour
         if (context.performed)
         {
             isHolding = true;
-            if (lineVFX != null) lineVFX.SetActive(true);
-            if (lineVFX != null) lineVFX.GetComponent<VisualEffect>().SetVector3("StartingPos", StartPos.position);
+            animator.SetBool("Magnetic", true);
         }
         if (isHolding && context.canceled)
         {
             isHolding = false;
-            if (lineVFX != null) lineVFX.SetActive(false);
         }
     }
 
@@ -89,6 +87,7 @@ public class MagneticPull : MonoBehaviour
         if (pullCooldownTimer > 0f) return;
         if (context.performed)
         {
+            animator.SetBool("Magnetic", false);
             isHolding = false;
             isThrowing = true;
         }
@@ -151,7 +150,6 @@ public class MagneticPull : MonoBehaviour
                     Vector3 targetPosition = cam.transform.position + cam.transform.forward * floatingPosition;
                     Vector3 direction = targetPosition - heldItem.position;
                     float distance = direction.magnitude;
-                    if (lineVFX != null) lineVFX.GetComponent<VisualEffect>().SetVector3("heldItem", heldItem.position);
 
 
                     if (distance > aimTolerance)
@@ -174,7 +172,7 @@ public class MagneticPull : MonoBehaviour
                 }
             }
         }
-
+        if (!isHolding && !isThrowing) animator.SetBool("Magnetic", false);
         if (isThrowing && cam != null && heldItem != null)
         {
             isThrowing = false;
