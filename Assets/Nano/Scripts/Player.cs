@@ -153,21 +153,21 @@ public class Player : MonoBehaviour
 
     }
 
-    private void Die()
-    {
-        CanvasSingleton.Instance.die.SetActive(true);
-        Cursor.lockState = CursorLockMode.None;
-        CanvasSingleton.Instance.die.GetComponent<DieTMP>().ShowText(level, experience, darkmoonCards.Count);
-        Time.timeScale = 0f; 
-        Debug.Log("Player has died. Level: " + level + ", Experience: " + experience + ", Cards: " + darkmoonCards.Count);
+    // private void Die()
+    // {
+    //     CanvasSingleton.Instance.die.SetActive(true);
+    //     Cursor.lockState = CursorLockMode.None;
+    //     CanvasSingleton.Instance.die.GetComponent<DieTMP>().ShowText(level, experience, darkmoonCards.Count);
+    //     Time.timeScale = 0f; 
+    //     Debug.Log("Player has died. Level: " + level + ", Experience: " + experience + ", Cards: " + darkmoonCards.Count);
 
         
-        Debug.Log("Player died!");
-        CameraSettings.Instance.OnPlayerDeath();
-        if (CameraSettings.Instance == null)
-        {
-            Debug.LogError("CameraSettings.Instance is NULL. Is the script on the Main Camera and enabled?");
-            return;
-        }
-    }
+    //     Debug.Log("Player died!");
+    //     CameraSettings.Instance.OnPlayerDeath();
+    //     if (CameraSettings.Instance == null)
+    //     {
+    //         Debug.LogError("CameraSettings.Instance is NULL. Is the script on the Main Camera and enabled?");
+    //         return;
+    //     }
+    // }
 }
