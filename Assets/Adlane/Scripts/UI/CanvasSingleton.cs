@@ -12,7 +12,6 @@ public class CanvasSingleton : MonoBehaviour
     public float healthAnimationSpeed = 5f; 
     private float targetHealth;
     private float currentDisplayedHealth;
-    private float baseHealthBarWidth = 200f; 
     private RectTransform healthBarRect;
     void Awake()
     {
@@ -67,19 +66,8 @@ public class CanvasSingleton : MonoBehaviour
         }
         if (healthSlider != null && player != null)
         {
-            
-            if (targetHealth != player.health)
-            {
-                targetHealth = player.health;
-                UpdateHealthBarSize(); 
-            }
-            
-
-            currentDisplayedHealth = Mathf.Lerp(currentDisplayedHealth, targetHealth, healthAnimationSpeed * Time.deltaTime);
-            
-
-            healthSlider.value = currentDisplayedHealth;
-            
+            UpdateHealthBarSize(); 
+            healthSlider.value = player.health; 
         }
     }
     void UpdateHealthBarSize()
@@ -91,7 +79,7 @@ public class CanvasSingleton : MonoBehaviour
         Vector2 sizeDelta = healthBarRect.sizeDelta;
         sizeDelta.x = newWidth;
         healthBarRect.sizeDelta = sizeDelta;
-        
+
         healthSlider.maxValue = player.maxHealth;
     }
 
