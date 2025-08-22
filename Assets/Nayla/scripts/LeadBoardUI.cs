@@ -8,14 +8,13 @@ public class LeaderBoardUI : MonoBehaviour
     [SerializeField] private List<TextMeshProUGUI> names;
     [SerializeField] private List<TextMeshProUGUI> scores;
 
-    public string publicLeaderBoardKey = "c27757b80fa469562d1ffd09d2ca68f2bc83b4b09b7ae661cf7d3e4485014e2e";
+    public string publicLeaderBoardKey = "6e27e986969cc70102cc8ff7652de566b198f6bdc84c988655621c995bb498ff";
 
     // private string[] badWords = { "" }; idk if this is necessary
 
 
     private void Start()
     {
-        DontDestroyOnLoad(this.gameObject);
         GetLeaderboard();
     }
     public void GetLeaderboard()
@@ -31,21 +30,4 @@ public class LeaderBoardUI : MonoBehaviour
         });
     }
 
-    public void SetLeaderBoardEntry(string username, int score)
-    {
-        
-        // foreach (string badWord in badWords)
-        // {
-        //     if (username.ToLower().Contains(badWord.ToLower()))
-        //     {
-        //         return;
-        //     }
-        // } 
-
-        LeaderboardCreator.UploadNewEntry(publicLeaderBoardKey, username, score, (_) =>
-        {
-            GetLeaderboard();
-            LeaderboardCreator.ResetPlayer(); // reset after upload so new entries don’t override
-        });
-    }
 }

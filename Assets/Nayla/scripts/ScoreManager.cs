@@ -11,17 +11,11 @@ public class ScoreManager : MonoBehaviour
 
     [SerializeField] private int inputScore;
     [SerializeField] private TMP_InputField inputName;
-    private List<(string, int)> names = new List<(string, int)>();
-    List<string> nom = new List<string>();
+    [SerializeField] private List<TextMeshProUGUI> names;
+    [SerializeField] private List<TextMeshProUGUI> scores;
     public string publicLeaderBoardKey = "6e27e986969cc70102cc8ff7652de566b198f6bdc84c988655621c995bb498ff";
     private int maxScore;
 
-    public void Start()
-    {
-        DontDestroyOnLoad(this.gameObject);
-    }
-
-    public UnityEvent<string, int> submitScoreEvent;
     public void SubmitScore()
     {
         maxScore = GameManager.Instance.score;
@@ -39,7 +33,7 @@ public class ScoreManager : MonoBehaviour
             }
         });
 
-        submitScoreEvent.Invoke(inputName.text, maxScore);
+        SetLeaderBoardEntry(inputName.text, maxScore);
     }
     public void ClickOnButton()
     {
@@ -49,5 +43,34 @@ public class ScoreManager : MonoBehaviour
     public void Update()
     {
         SubmitScore();
+    }
+    public void SetLeaderBoardEntry(string username, int score)
+    {
+
+        // foreach (string badWord in badWords)
+        // {
+        //     if (username.ToLower().Contains(badWord.ToLower()))
+        //     {
+        //         return;
+        //     }
+        // } 
+
+        LeaderboardCreator.UploadNewEntry(publicLeaderBoardKey, username, score, (_) =>
+        {
+            GetLeaderboard();
+            LeaderboardCreator.ResetPlayer(); // reset after upload so new entries don’t override
+        });
+    }
+        public void GetLeaderboard()
+    {
+        LeaderboardCreator.GetLeaderboard(publicLeaderBoardKey, (msg) =>
+        {
+            int loopLentgh = (msg.Length < names.Count) ? msg.Length : names.Count;
+            for (int i = 0; i < loopLentgh; ++i)
+            {
+                names[i].text = msg[i].Username;
+                scores[i].text = msg[i].Score.ToString();
+            }
+        });
     }
 }

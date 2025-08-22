@@ -17,6 +17,7 @@ public class CanvasSingleton : MonoBehaviour
     public GameObject Hand;
     public GameObject CardsSelection;
     public Transform xpBar;
+
     void Awake()
     {
         // Singleton pattern implementation

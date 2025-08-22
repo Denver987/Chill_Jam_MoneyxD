@@ -1,3 +1,5 @@
+using Microsoft.Unity.VisualStudio.Editor;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -13,6 +15,10 @@ public class SpellSelector : MonoBehaviour
     public bool magneticPullEnabled = false;
     private Knockback knockback;
     private MagneticPull magneticPull;
+    public GameObject knockbackIcon;
+    public GameObject magneticPullIcon;
+    public GameObject knockbackHighlited;
+    public GameObject magneticPullHighlited;
 
     private void Awake()
     {
@@ -24,7 +30,11 @@ public class SpellSelector : MonoBehaviour
         if (context.performed && !gameObject.GetComponent<Knockback>().isCharging && !gameObject.GetComponent<MagneticPull>().isHolding)
         {
             knockback.enabled = true;
-            if(GameManager.Instance.isTutorial ==false) // Only enable knockback if not in tutorial
+            knockbackHighlited.SetActive(true);
+            magneticPullHighlited.SetActive(false);
+            magneticPullIcon.SetActive(true);
+            knockbackIcon.SetActive(false);
+            if (GameManager.Instance.isTutorial == false)
             {
                 magneticPull.enabled = false;
             }
@@ -39,6 +49,10 @@ public class SpellSelector : MonoBehaviour
         {
             knockback.enabled = false;
             magneticPull.enabled = true;
+            knockbackHighlited.SetActive(false);
+            magneticPullHighlited.SetActive(true);
+            magneticPullIcon.SetActive(false);
+            knockbackIcon.SetActive(true);
             Debug.Log("Magnetic Pull spell selected");
             currentSpell = SpellType.MagneticPull;
         }
