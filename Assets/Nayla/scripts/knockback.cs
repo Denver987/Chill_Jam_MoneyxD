@@ -3,6 +3,7 @@ using SmallHedge.SoundManager;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using static UnityEngine.Rendering.DebugUI;
+using System.Collections;
 
 public class Knockback : MonoBehaviour
 {
@@ -25,21 +26,23 @@ public class Knockback : MonoBehaviour
     public bool isCharging = false;
     private Rigidbody rb;
     public Animator animator;
+    public GameObject vfx;
     public float ChargeNormalized { get; private set; } = 0f;
 
     private float maxChargeReachedTime = -1f;
     private bool hasAutoReleased = false;
+    private bool shockwaveAnimationComplete = false;
 
     private void Awake()
     {
-       rb = GetComponent<Rigidbody>();
-       if (animator == null) animator = GetComponentInChildren<Animator>();
+        rb = GetComponent<Rigidbody>();
+        if (animator == null) animator = GetComponentInChildren<Animator>();
 
         if (screenShake == null) screenShake = GetComponentInChildren<KnockbackScreenshake>();
     }
 
     void Update()
-    {   
+    {
         if (isCharging)
         {
             ChargeNormalized = Mathf.Clamp01((Time.time - chargeStartTime) / Mathf.Max(0.0001f, maxChargeTime));
@@ -115,8 +118,8 @@ public class Knockback : MonoBehaviour
     private void ReleaseCharge()
     {
         if (!isCharging) return;
-        
-        SoundManager.PlaySound(SoundType.spell1, this.GetComponent<AudioSource>(),0.25f);
+
+        SoundManager.PlaySound(SoundType.spell1, this.GetComponent<AudioSource>(), 0.25f);
         isCharging = false;
 
         // Stop the progressive shake
@@ -163,13 +166,24 @@ public class Knockback : MonoBehaviour
                 }
             }
         }
-        
 
+        StartCoroutine(ReleaseShockwave());
         // Reset everything
         ChargeNormalized = 0f;
         animator.SetBool("ShockWave", false);
         hasAutoReleased = false;
         maxChargeReachedTime = -1f;
+    }
+    private IEnumerator ReleaseShockwave()
+    {
+        shockwaveAnimationComplete = false;
+        vfx.SetActive(true);
+        yield return new WaitUntil(() => shockwaveAnimationComplete);
+        vfx.SetActive(false);
+    }
+    public void ShockwaveAnimationComplete()
+    {
+        shockwaveAnimationComplete = true;
     }
     
     

@@ -70,7 +70,7 @@ public class InputSystem : MonoBehaviour
     public void Pause(InputAction.CallbackContext context)
     {
         if (!context.performed) return;
-
+        if (CanvasSingleton.Instance.CardsSelection.GetComponent<CardSelectionUI>().choosingCards) return;
         if (!paused){
             // Pause the game
             Time.timeScale = 0f;

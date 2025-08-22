@@ -28,22 +28,17 @@ public class CardsSpawner : MonoBehaviour
 
     public void IndexsForCards()
     {
-
         indexesForCards.Clear();
         spawnIndexes.Clear();
 
-        foreach (var card in cards)
+        for (int i = 0; i < cards.Count; i++)
         {
-            if (card.GetComponent<Cards>().canSpawn && !card.GetComponent<Cards>().CardCap)
+            if (cards[i].GetComponent<Cards>().canSpawn && !cards[i].GetComponent<Cards>().CardCap)
             {
-                indexesForCards.Add(cards.IndexOf(card));
+                indexesForCards.Add(cards.IndexOf(cards[i]));
             }
         }
-        if (indexesForCards.Count < 3)
-        {
-            spawnIndexes.Add(-1);
-            return;
-        }
+        Debug.Log("Spawn indexes: " + indexesForCards.Count);
         if (indexesForCards.Count == 1)
         {
             spawnIndexes.Add(indexesForCards[0]);
@@ -57,18 +52,22 @@ public class CardsSpawner : MonoBehaviour
             spawnIndexes.Add(-1);
             return;
         }
+
         int index1 = Random.Range(0, indexesForCards.Count);
-        spawnIndexes.Add(indexesForCards[index1]); 
+        spawnIndexes.Add(indexesForCards[index1]);
+        Debug.Log("removing " + indexesForCards[index1]);
         indexesForCards.RemoveAt(index1);
 
         int index2 = Random.Range(0, indexesForCards.Count);
         spawnIndexes.Add(indexesForCards[index2]);
+        Debug.Log("removing " + indexesForCards[index2]);
         indexesForCards.RemoveAt(index2);
 
         int index3 = Random.Range(0, indexesForCards.Count);
         spawnIndexes.Add(indexesForCards[index3]);
+        Debug.Log("removing " + indexesForCards[index3]);
         indexesForCards.RemoveAt(index3);
-
+        
 
         // for (int i = 0; i < nextNumber; i++)
         // {
@@ -115,10 +114,11 @@ public class CardsSpawner : MonoBehaviour
         }
 
         IndexsForCards();
+        int spawnCount = Mathf.Min(spawnIndexes.Count, cardSlots.Count);
         for (int i = 0; i < spawnIndexes.Count; i++)
         {
             GameObject cardToSpawn;
-        
+
             // -1 means use healing card instead of regular card
             if (spawnIndexes[i] == -1)
             {
@@ -129,14 +129,8 @@ public class CardsSpawner : MonoBehaviour
                 }
                 cardToSpawn = healingCard;
             }
-            else 
+            else
             {
-                // Regular card - check index is valid
-                if (spawnIndexes[i] < 0 || spawnIndexes[i] >= cards.Count)
-                {
-                    Debug.LogError($"Invalid card index: {spawnIndexes[i]} at slot {i}");
-                    continue;
-                }
                 cardToSpawn = cards[spawnIndexes[i]];
             }
 
