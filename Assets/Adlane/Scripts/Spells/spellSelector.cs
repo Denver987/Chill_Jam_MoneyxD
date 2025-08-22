@@ -24,7 +24,10 @@ public class SpellSelector : MonoBehaviour
         if (context.performed && !gameObject.GetComponent<Knockback>().isCharging && !gameObject.GetComponent<MagneticPull>().isHolding)
         {
             knockback.enabled = true;
-            magneticPull.enabled = false;
+            if(GameManager.Instance.isTutorial ==false) // Only enable knockback if not in tutorial
+            {
+                magneticPull.enabled = false;
+            }
             Debug.Log("Shockwave spell selected");
             currentSpell = SpellType.Shockwave;
         }

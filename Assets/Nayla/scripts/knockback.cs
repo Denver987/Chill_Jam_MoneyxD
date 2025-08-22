@@ -153,18 +153,7 @@ public class Knockback : MonoBehaviour
 
 
             }
-            else
-            {
-
-                if (hit.normal.y >= 0.95f)
-                {
-                    if (rb != null)
-                    {
-                        rb.AddForce(Vector3.up * finalKnockbackStrengthPlayer, ForceMode.VelocityChange);
-                        nextAllowedHitTime = Time.time + hitCooldown;
-                    }
-                }
-            }
+            
         }
 
         StartCoroutine(ReleaseShockwave());
