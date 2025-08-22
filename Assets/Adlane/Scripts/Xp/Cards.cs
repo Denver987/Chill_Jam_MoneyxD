@@ -42,7 +42,7 @@ public class Cards : MonoBehaviour
 
     public void CardChoose()
     {
-
+        player.gameObject.GetComponent<Knockback>().enabled = true; 
         switch (cardType)
         {
             case CardType.MagneticPull:
