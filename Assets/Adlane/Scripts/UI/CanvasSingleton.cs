@@ -14,6 +14,8 @@ public class CanvasSingleton : MonoBehaviour
     public GameObject die;
     public GameObject PausePanel;
     public GameObject Hand;
+    public GameObject CardsSelection;
+    public Transform xpBar;
     void Awake()
     {
         // Singleton pattern implementation
@@ -64,8 +66,12 @@ public class CanvasSingleton : MonoBehaviour
         }
         if (healthSlider != null && player != null)
         {
-            UpdateHealthBarSize(); 
-            healthSlider.value = player.health; 
+            UpdateHealthBarSize();
+            healthSlider.value = player.health;
+        }
+        if (xpBar != null && player != null)
+        {
+            UpdateXpBarSize();
         }
     }
     void UpdateHealthBarSize()
@@ -79,6 +85,12 @@ public class CanvasSingleton : MonoBehaviour
         healthBarRect.sizeDelta = sizeDelta;
 
         healthSlider.maxValue = player.maxHealth;
+    }
+    void UpdateXpBarSize()
+    {
+        if (xpBar == null || player == null) return;
+        xpBar.GetComponent<Slider>().maxValue = player.experienceToNextLevel;
+        xpBar.GetComponent<Slider>().value = player.experience;
     }
     public void showPausePanel()
     {

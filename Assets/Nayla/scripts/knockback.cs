@@ -7,15 +7,15 @@ public class Knockback : MonoBehaviour
 {
     public Camera cam;
 
-    [SerializeField] private float hitCooldown = 0.5f;
-    [SerializeField] private float initialKnockbackStrength = 10f;
-    [SerializeField] private float maxChargeTime = 2f;
-    [SerializeField] private float maxKnockbackStrength = 20f;
-    [SerializeField] private float groundMultiplier = 2f;
-    [SerializeField] private AnimationCurve chargeCurve;
+    public float hitCooldown = 0.5f;
+    public float initialKnockbackStrength = 10f;
+    public float maxChargeTime = 2f;
+    public float maxKnockbackStrength = 20f;
+    public float groundMultiplier = 2f;
+    public AnimationCurve chargeCurve;
 
     [Header("Screen Shake")]
-    [SerializeField] private KnockbackScreenshake screenShake;
+    public KnockbackScreenshake screenShake;
 
     public float maxDistance = 100f; // maximum distance to hit something   
     public float upwardForce = 0.5f; // how much upward force to apply when hitting the ground
@@ -72,7 +72,7 @@ public class Knockback : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit, maxDistance, ~0, QueryTriggerInteraction.Ignore))
         {
-            // “in range & hittable”
+            // ï¿½in range & hittableï¿½
             var hitable = hit.transform.GetComponent<IHitable>();
             if (hitable != null)
             {

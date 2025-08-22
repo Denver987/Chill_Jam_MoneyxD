@@ -10,6 +10,7 @@ public class SpellSelector : MonoBehaviour
     }
 
     public SpellType currentSpell;
+    public bool magneticPullEnabled;
     private Knockback knockback;
     private MagneticPull magneticPull;
 

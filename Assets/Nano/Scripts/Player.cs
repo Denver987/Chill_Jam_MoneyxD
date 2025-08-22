@@ -34,8 +34,6 @@ public class Player : MonoBehaviour
     private float originalVignetteSmoothness;
     private bool originalRounded;
     private Vector2 originalVignetteCenter;
-    [Header("other")]
-    public GameObject canvas;
 
     private void Awake()
     {
@@ -75,11 +73,15 @@ public class Player : MonoBehaviour
     private void LevelUp()
     {
         level++;
+        if (health < maxHealth)
+        {
+            health = maxHealth; // Restore health on level up
+        }
         experience = 0;
         experienceToNextLevel *= xpGainMultiplier;
-        DarkmoonCards newMoon = new DarkmoonCards();
-        newMoon.ChooseCard();
-        darkmoonCards.Add(newMoon);
+        CanvasSingleton.Instance.CardsSelection.SetActive(true);
+        CanvasSingleton.Instance.CardsSelection.GetComponent<CardSelectionUI>().SpawnCards();
+
     }
 
     public void TakeDamage(int damage, Vector3 hitDirection, float knockbackForce)
