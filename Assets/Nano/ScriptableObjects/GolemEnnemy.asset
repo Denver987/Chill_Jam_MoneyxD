@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be4dd72453f44b44cbb4924af47d8bfa, type: 3}
   m_Name: GolemEnnemy
   m_EditorClassIdentifier: 
-  minspeed: 2
-  maxspeed: 4
+  minspeed: 4
+  maxspeed: 6
   moveSpeed: 1
   spreadRadius: 1.5
   separationRadius: 3
@@ -21,8 +21,8 @@ MonoBehaviour:
   separationUpdateRate: 0.2
   knockbackRecoveryTime: 0.5
   rotationSpeed: 5
-  maxRotationSpeed: 5
-  minRotationSpeed: 2
+  maxRotationSpeed: 10
+  minRotationSpeed: 5
   attackRange: 4
   attackCooldown: 2
   attackKnockbackForce: 45

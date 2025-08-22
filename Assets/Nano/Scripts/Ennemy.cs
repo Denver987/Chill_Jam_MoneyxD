@@ -34,7 +34,9 @@ public class Enemy : PoolableObject
 
         // Reset NavMesh agent and physics
         Agent.enabled = true;
+       
         Agent.Warp(position);
+        this.transform.position = position; // Move to the spawn position first
         Movement.target = target;
 
         // Show only the spawn effect child

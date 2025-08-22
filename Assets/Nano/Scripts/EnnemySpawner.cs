@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -46,6 +46,14 @@ public class EnemySpawner : MonoBehaviour
     {
         // Start automatic shell spawning
         StartCoroutine(ShellSpawnRoutine());
+
+        foreach (var zone in spawnzones)
+        {
+            if (!NavMesh.SamplePosition(zone.position, out _, 5f, NavMesh.AllAreas))
+            {
+                Debug.LogError($"❌ Spawn zone '{zone.name}' is NOT on the NavMesh! Fix it in the scene.");
+            }
+        }
     }
 
     private IEnumerator ShellSpawnRoutine()
@@ -107,10 +115,8 @@ public class EnemySpawner : MonoBehaviour
         if (!EnemyObjectPools.ContainsKey(spawnIndex)) return;
 
         PoolableObject poolableObject = EnemyObjectPools[spawnIndex].GetObject();
-
         if (poolableObject == null)
         {
-            // Pool is empty, no more enemies of this type can be spawned
             Debug.LogWarning($"Pool for {EnemyPrefabs[spawnIndex].name} is exhausted!");
             return;
         }
@@ -120,12 +126,20 @@ public class EnemySpawner : MonoBehaviour
         // Pick one spawn point
         Transform spawnPoint = spawnzones[Random.Range(0, spawnzones.Count)];
 
-        if (NavMesh.SamplePosition(spawnPoint.position, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+        // Force snap to NavMesh only
+        if (NavMesh.SamplePosition(spawnPoint.position, out NavMeshHit hit, 5f, NavMesh.AllAreas))
         {
+            // Found a valid NavMesh position near spawnPoint
             StartCoroutine(enemy.ResetEnemy(hit.position, target, 2f));
 
             if (!ActiveEnemies.Contains(enemy))
                 ActiveEnemies.Add(enemy);
+        }
+        else
+        {
+            // No valid NavMesh found → skip this spawn
+            Debug.Log($"⚠ Spawn zone '{spawnPoint.name}' is not on NavMesh! Enemy skipped.");
+            poolableObject.gameObject.SetActive(false); // return to pool
         }
     }
 
