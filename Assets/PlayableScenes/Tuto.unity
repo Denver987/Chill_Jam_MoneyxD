@@ -7514,6 +7514,7 @@ MonoBehaviour:
   upwardForce: 0.25
   isCharging: 0
   animator: {fileID: 2022697870281016425}
+  vfx: {fileID: 0}
 --- !u!4 &5374057227166359060
 Transform:
   m_ObjectHideFlags: 0
