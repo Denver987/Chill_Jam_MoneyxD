@@ -1445,9 +1445,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 448ad324e4bc210409169467683847db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deathVolume: {fileID: 0}
+  deathVolume: {fileID: 2813305406991110349}
   deathFadeDuration: 1
-  crosshair: {fileID: 0}
+  crosshair: {fileID: 287180660885781226}
   crosshairNormal: {r: 1, g: 1, b: 1, a: 1}
   crosshairTarget: {r: 1, g: 0, b: 0, a: 1}
   crosshairNormalScale: {x: 0.5, y: 0.5, z: 0.5}
@@ -1628,6 +1628,17 @@ PrefabInstance:
       addedObject: {fileID: 6187931910152368436}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 081de494ed20cbd459447a4a04a75d62, type: 3}
+--- !u!114 &287180660885781226 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5213414931721887153, guid: 081de494ed20cbd459447a4a04a75d62, type: 3}
+  m_PrefabInstance: {fileID: 5450903696629393243}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1455061847999375559 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6887388126366175132, guid: 081de494ed20cbd459447a4a04a75d62, type: 3}

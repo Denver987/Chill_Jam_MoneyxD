@@ -53,7 +53,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2641351520469420136
 Transform:
   m_ObjectHideFlags: 0
@@ -155,8 +155,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wanderSpeed: 2
   wanderChangeInterval: 5
-  fallMultiplier: 10
-  riseGravityMultiplier: 5
+  fallMultiplier: 2
+  riseGravityMultiplier: 1.5
   groundLayer:
     serializedVersion: 2
     m_Bits: 0
@@ -166,7 +166,7 @@ MonoBehaviour:
   speedPerStrength: 0.4
   keepSpeedOnBounce: 1
   keepOnGround: 1
-  activeLifeTime: 15
+  activeLifeTime: 60
 --- !u!114 &8051308538655630343
 MonoBehaviour:
   m_ObjectHideFlags: 0

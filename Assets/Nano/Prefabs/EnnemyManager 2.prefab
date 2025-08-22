@@ -263,8 +263,8 @@ MonoBehaviour:
   - {fileID: 275260038145272254}
   - {fileID: 9099291133596633824}
   bouncingShellPoolSize: 15
-  spawnInterval: 7.5
-  spawnChance: 1
+  spawnInterval: 10
+  spawnChance: 0
   initialPoolSize: 20
 --- !u!1 &4630974224388025444
 GameObject:
