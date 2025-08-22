@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class CanvasSingleton : MonoBehaviour
 {
@@ -42,8 +43,9 @@ public class CanvasSingleton : MonoBehaviour
             UpdateHealthBarSize();
         }
     }
-    public void CardsUI() {
+    public IEnumerator CardsUI() {
         Instance.CardsSelection.SetActive(true);
+        yield return new WaitForSeconds(0.5f); // Wait a frame to ensure the UI is active
         CardsSelection.GetComponent<CardSelectionUI>().SpawnCards();
     }
     

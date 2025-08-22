@@ -46,7 +46,7 @@ public class EnemySpawner : MonoBehaviour
     private void Awake()
     {
         // create object pools for each enemy prefab
-        for (int i = 0; i < EnemyPrefabs.Count; i++)
+        for (int i = 0; i < EnemyPrefabs.Count -1; i++)
         {
             EnemyObjectPools.Add(i, ObjectPool.CreateInstance(EnemyPrefabs[i],initialPoolSize, this.transform));
         }
@@ -67,15 +67,19 @@ public class EnemySpawner : MonoBehaviour
                 this.transform
             );
         }
-        for (int i = 0; i < xpOrbPrefabs.Count; i++)
-        {
-            xpOrbPools.Add(ObjectPool.CreateInstance(
-                xpOrbPrefabs[i].GetComponent<PoolableObject>(),
-                xpOrbPoolSizePerType,
-                this.transform
-            ));
-        }
+     
 
+    }
+
+    private bool once = false;
+
+    private void Update()
+    { 
+        if (target.gameObject.GetComponent<MagneticPull>().enabled && !once)
+        {
+            EnemyObjectPools.Add(2, ObjectPool.CreateInstance(EnemyPrefabs[2], initialPoolSize, this.transform));
+            once = true; // ensure this runs only once
+        }
     }
 
     public void SpawnXpOrbs(Vector3 enemyPosition, int count, int orbTypeIndex = 0)

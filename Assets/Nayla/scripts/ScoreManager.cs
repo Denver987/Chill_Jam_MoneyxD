@@ -11,6 +11,7 @@ public class ScoreManager : MonoBehaviour {
     public UnityEvent<string, int> submitScoreEvent;
     public void SubmitScore()
     {
+        
         submitScoreEvent.Invoke(inputName.text, int.Parse(inputScore.text));
     }
 }

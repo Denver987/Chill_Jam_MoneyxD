@@ -137,7 +137,7 @@ public class EnnemyMovement : MonoBehaviour,IHitable
                 Die();
             }
         }
-        else if (collision.gameObject.CompareTag("Wate")) {
+        else if (collision.gameObject.CompareTag("Water")) {
 
             Die();
         }

@@ -33,10 +33,10 @@ public class HealingPotion : MonoBehaviour
                 player.health += healAmount;
             }
             SoundManager.PlaySound(SoundType.healing, player.gameObject.GetComponent<AudioSource>(), 0.5f);
-            StartCoroutine(player.FlashGreen());
+           
 
         }
-        yield return new WaitForSeconds(1.1f);
+       
         this.gameObject.SetActive(false);
     }
 }
