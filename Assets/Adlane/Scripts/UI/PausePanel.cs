@@ -20,11 +20,21 @@ public class PausePanel : MonoBehaviour
     }
     public void ResumeGame()
     {
-        Time.timeScale = 1f; // Resume the game
+        // Use InputSystem's resume helper so internal state (paused, action map, locks) stays consistent
+        var input = CanvasSingleton.Instance?.player?.GetComponent<InputSystem>();
+        if (input != null)
+        {
+            input.ResumeFromUI();
+        }
+        else
+        {
+            // fallback if input component not found
+            Time.timeScale = 1f;
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+            CanvasSingleton.Instance.HidePausePanel();
+        }
 
-        Cursor.lockState = CursorLockMode.None; // Lock the cursor
-        Cursor.visible = false;
-        CanvasSingleton.Instance.HidePausePanel(); // Hide the pause panel from the singleton
         gameObject.SetActive(false); // Hide the pause panel
     }
     public void Back()

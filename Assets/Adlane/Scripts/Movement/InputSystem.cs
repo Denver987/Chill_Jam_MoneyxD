@@ -40,6 +40,9 @@ public class InputSystem : MonoBehaviour
     private float pitch;
     private bool paused = false;
 
+    // debounce lock to ignore leftover input when switching maps
+    private bool pauseInputLocked = false;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -69,25 +72,76 @@ public class InputSystem : MonoBehaviour
     }
     public void Pause(InputAction.CallbackContext context)
     {
-        if (!context.performed) return;
-        if (CanvasSingleton.Instance.CardsSelection.GetComponent<CardSelectionUI>().choosingCards) return;
-        if (!paused){
-            // Pause the game
+        // only react on button-down (avoid performed/release confusion)
+        if (!context.started) return;
+
+        // prevent immediate reentry while switching maps / changing cursor
+        if (pauseInputLocked) return;
+
+        // guard: if card selection active don't pause
+        var canvas = CanvasSingleton.Instance;
+        if (canvas != null && canvas.CardsSelection != null)
+        {
+            var cs = canvas.CardsSelection.GetComponent<CardSelectionUI>();
+            if (cs != null && cs.choosingCards) return;
+        }
+
+        StartCoroutine(HandlePauseToggle());
+    }
+
+    private IEnumerator HandlePauseToggle()
+    {
+        pauseInputLocked = true;
+
+        var playerInput = gameObject.GetComponent<PlayerInput>();
+
+        if (!paused)
+        {
+            // Pause
             Time.timeScale = 0f;
             Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
             paused = true;
-            CanvasSingleton.Instance.showPausePanel();
-            gameObject.GetComponent<PlayerInput>().SwitchCurrentActionMap("UI");
+            if (CanvasSingleton.Instance != null) CanvasSingleton.Instance.showPausePanel();
+            if (playerInput != null) playerInput.SwitchCurrentActionMap("UI");
         }
         else
         {
-            // Resume the game
+            // Resume
             Time.timeScale = 1f;
             Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
             paused = false;
-            CanvasSingleton.Instance.HidePausePanel();
-            gameObject.GetComponent<PlayerInput>().SwitchCurrentActionMap("Player");
+            if (CanvasSingleton.Instance != null) CanvasSingleton.Instance.HidePausePanel();
+            if (playerInput != null) playerInput.SwitchCurrentActionMap("Player");
         }
+
+        // wait one frame then a tiny realtime delay to consume any leftover event
+        yield return null;
+        yield return new WaitForSecondsRealtime(0.05f);
+
+        pauseInputLocked = false;
+    }
+
+    // Add this public helper so UI buttons can resume cleanly
+    public void ResumeFromUI()
+    {
+        // if already resumed do nothing
+        if (!paused) return;
+
+        // stop any running pause coroutine to avoid races
+        StopAllCoroutines();
+
+        var playerInput = gameObject.GetComponent<PlayerInput>();
+
+        Time.timeScale = 1f;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        paused = false;
+        pauseInputLocked = false;
+
+        if (CanvasSingleton.Instance != null) CanvasSingleton.Instance.HidePausePanel();
+        if (playerInput != null) playerInput.SwitchCurrentActionMap("Player");
     }
 
     public void Move(InputAction.CallbackContext context)

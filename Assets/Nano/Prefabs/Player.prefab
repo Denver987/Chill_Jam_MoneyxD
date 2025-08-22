@@ -4317,6 +4317,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1684448272960268909}
     - target: {fileID: 6294896592158259523, guid: 081de494ed20cbd459447a4a04a75d62, type: 3}
+      propertyPath: spells
+      value: 
+      objectReference: {fileID: 1449236851381915498}
+    - target: {fileID: 6294896592158259523, guid: 081de494ed20cbd459447a4a04a75d62, type: 3}
       propertyPath: spellSelector
       value: 
       objectReference: {fileID: 3259701314520415494}
