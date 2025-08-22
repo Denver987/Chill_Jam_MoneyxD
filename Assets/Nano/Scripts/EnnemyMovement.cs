@@ -28,6 +28,10 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     private SkinnedMeshRenderer[] meshRenderers;
 
 
+
+    public bool isGolem = false; // is this enemy a golem?
+
+
     [Header("Attack Settings")]
     public float attackRange = 1.5f;
     public float attackCooldown = 1.0f;
@@ -107,6 +111,7 @@ public class EnnemyMovement : MonoBehaviour,IHitable
 
     private void OnCollisionEnter(Collision collision)
     {
+        if (isGolem) return; // Golems don't take damage from collisions
         EnnemyMovement otherEnemy = collision.gameObject.GetComponent<EnnemyMovement>();
         if(otherEnemy != null)
         {
@@ -114,6 +119,7 @@ public class EnnemyMovement : MonoBehaviour,IHitable
             {
 
                 Die();
+                if(otherEnemy.isGolem) return; // Golems don't die from collisions
                 otherEnemy.Die(); // if knocked back, both die
             }
         }else if (collision.gameObject.CompareTag("Obstacle"))

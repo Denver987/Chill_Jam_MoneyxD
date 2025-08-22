@@ -424,10 +424,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cam: {fileID: 5509642648806223491}
-  hitCooldown: 0.5
+  hitCooldown: 0.25
   initialKnockbackStrength: 15
   maxChargeTime: 2
-  maxKnockbackStrength: 40
+  maxKnockbackStrength: 35
   groundMultiplier: 0.5
   chargeCurve:
     serializedVersion: 2
@@ -455,8 +455,8 @@ MonoBehaviour:
     m_RotationOrder: 4
   screenShake: {fileID: 5206730420783595628}
   maxDistance: 5
-  upwardForce: 0.25
-  animator: {fileID: 2022697871669014234}
+  upwardForce: 0.15
+  animator: {fileID: 0}
 --- !u!114 &3259701314520415494
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -492,6 +492,7 @@ MonoBehaviour:
   invulnerable: 0
   invulnerabilityTime: 1
   inputSystem: {fileID: 0}
+  knockback: {fileID: 0}
   postProcessing: {fileID: 0}
   HitColor: {r: 0.5754717, g: 0.078720205, b: 0.078720205, a: 0}
   intensity: 0.35
@@ -1432,7 +1433,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _camera: {fileID: 1768113341237375081}
   _rawImage: {fileID: 1455061847999375559}
-  _cameraHeight: 200
+  _cameraHeight: 250
 --- !u!114 &6043545288325615685
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1445,7 +1446,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 448ad324e4bc210409169467683847db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deathVolume: {fileID: 2813305406991110349}
+  deathVolume: {fileID: 0}
   deathFadeDuration: 1
   crosshair: {fileID: 287180660885781226}
   crosshairNormal: {r: 1, g: 1, b: 1, a: 1}
@@ -1468,9 +1469,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fd2442607ae1f74288a970991691029, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minShakeMagnitude: 0.001
-  maxShakeMagnitude: 0.02
-  shakeThreshold: 0.8
+  minShakeMagnitude: 0.05
+  maxShakeMagnitude: 0.15
+  shakeThreshold: 0.5
   autoReleaseDelay: 1
   shakeIntensityCurve:
     serializedVersion: 2
