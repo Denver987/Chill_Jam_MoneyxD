@@ -9,7 +9,6 @@ using System.Linq;
 public class ScoreManager : MonoBehaviour
 {
 
-    [SerializeField] private int inputScore;
     [SerializeField] private TMP_InputField inputName;
     [SerializeField] private List<TextMeshProUGUI> names;
     [SerializeField] private List<TextMeshProUGUI> scores;
@@ -37,8 +36,6 @@ public class ScoreManager : MonoBehaviour
     }
     public void ClickOnButton()
     {
-        inputScore = GameManager.Instance.score;
-
     }
     public void Update()
     {
