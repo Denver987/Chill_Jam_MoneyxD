@@ -15,6 +15,7 @@ public class LeaderBoardUI : MonoBehaviour
 
     private void Start()
     {
+        DontDestroyOnLoad(this.gameObject);
         GetLeaderboard();
     }
     public void GetLeaderboard()
