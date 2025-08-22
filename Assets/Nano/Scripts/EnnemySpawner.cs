@@ -28,6 +28,15 @@ public class EnemySpawner : MonoBehaviour
     [Range(0f, 1f)] public float healthPotionDropChance = 0.2f; // 20% chance on enemy death
     private ObjectPool healthPotionPool;
 
+
+    [Header("Experience Settings")]
+    public List<GameObject> xpOrbPrefabs = new List<GameObject>(); // assign 1 prefab per type in inspector
+    public int xpOrbPoolSizePerType = 20;
+    public float xpOrbSpawnRadius = 1.5f;
+
+    private List<ObjectPool> xpOrbPools = new List<ObjectPool>();
+
+
     [Header("Pooling Settings")]
     public int initialPoolSize = 20;
 
@@ -55,7 +64,40 @@ public class EnemySpawner : MonoBehaviour
                 this.transform
             );
         }
+        for (int i = 0; i < xpOrbPrefabs.Count; i++)
+        {
+            xpOrbPools.Add(ObjectPool.CreateInstance(
+                xpOrbPrefabs[i].GetComponent<PoolableObject>(),
+                xpOrbPoolSizePerType,
+                this.transform
+            ));
+        }
+
     }
+
+    public void SpawnXpOrbs(Vector3 enemyPosition, int count, int orbTypeIndex = 0)
+    {
+        if (xpOrbPools.Count == 0) return;
+        if (orbTypeIndex < 0 || orbTypeIndex >= xpOrbPools.Count) orbTypeIndex = 0;
+
+        ObjectPool pool = xpOrbPools[orbTypeIndex];
+        if (pool == null) return;
+
+        for (int i = 0; i < count; i++)
+        {
+            PoolableObject pooledOrb = pool.GetObject();
+            if (pooledOrb == null) return; // pool empty
+
+            Vector3 randomOffset = Random.insideUnitSphere * xpOrbSpawnRadius;
+            randomOffset.y = 0f; // keep on ground plane
+
+            GameObject orbObj = pooledOrb.gameObject;
+            orbObj.transform.position = enemyPosition + randomOffset;
+            orbObj.transform.rotation = Quaternion.identity;
+            orbObj.SetActive(true);
+        }
+    }
+
 
     private void Start()
     {

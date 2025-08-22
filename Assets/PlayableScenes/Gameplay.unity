@@ -1002,17 +1002,45 @@ PrefabInstance:
       value: 0.085
       objectReference: {fileID: 0}
     - target: {fileID: 5956603224159184898, guid: 38ca042b9e7428c49bdec8e147e8bac9, type: 3}
+      propertyPath: initialPoolSize
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 5956603224159184898, guid: 38ca042b9e7428c49bdec8e147e8bac9, type: 3}
       propertyPath: healthPotionPrefab
       value: 
       objectReference: {fileID: 2940517123286488711, guid: c037d725193d76540b20b65e8c00f7f8, type: 3}
+    - target: {fileID: 5956603224159184898, guid: 38ca042b9e7428c49bdec8e147e8bac9, type: 3}
+      propertyPath: xpOrbPoolSizePerType
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 5956603224159184898, guid: 38ca042b9e7428c49bdec8e147e8bac9, type: 3}
       propertyPath: EnemyPrefabs.Array.size
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5956603224159184898, guid: 38ca042b9e7428c49bdec8e147e8bac9, type: 3}
+      propertyPath: xpOrbPrefabs.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5956603224159184898, guid: 38ca042b9e7428c49bdec8e147e8bac9, type: 3}
       propertyPath: 'EnemyPrefabs.Array.data[2]'
       value: 
       objectReference: {fileID: 940849130707843443, guid: 9730f890e163f0541a416eed61356f6e, type: 3}
+    - target: {fileID: 5956603224159184898, guid: 38ca042b9e7428c49bdec8e147e8bac9, type: 3}
+      propertyPath: 'xpOrbPrefabs.Array.data[0]'
+      value: 
+      objectReference: {fileID: 3843664624355230064, guid: 142799731b7561341b4e3d4ca64fe28c, type: 3}
+    - target: {fileID: 5956603224159184898, guid: 38ca042b9e7428c49bdec8e147e8bac9, type: 3}
+      propertyPath: 'xpOrbPrefabs.Array.data[1]'
+      value: 
+      objectReference: {fileID: 1563075025830686538, guid: 23d86b65ae8ba6b40be24699fff5020a, type: 3}
+    - target: {fileID: 5956603224159184898, guid: 38ca042b9e7428c49bdec8e147e8bac9, type: 3}
+      propertyPath: 'xpOrbPrefabs.Array.data[2]'
+      value: 
+      objectReference: {fileID: 4206803222252285341, guid: 026f89f840a9b0a4a874f57f2e7111fa, type: 3}
+    - target: {fileID: 5956603224159184898, guid: 38ca042b9e7428c49bdec8e147e8bac9, type: 3}
+      propertyPath: 'xpOrbPrefabs.Array.data[3]'
+      value: 
+      objectReference: {fileID: 3322236251101375430, guid: dcfb6ab89d38fab48af25708b3c86f0a, type: 3}
     - target: {fileID: 6582195378734706295, guid: 38ca042b9e7428c49bdec8e147e8bac9, type: 3}
       propertyPath: m_LocalPosition.y
       value: -5.824

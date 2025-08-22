@@ -107,19 +107,19 @@ public class Xpballs : MonoBehaviour
             {
                 case ballType.green:
                     player.addExperience(10);
-                    Destroy(gameObject);
+                    this.gameObject.SetActive(false);
                     break;
                 case ballType.red:
                     player.addExperience(20);
-                    Destroy(gameObject);
+                    this.gameObject.SetActive(false);
                     break;
                 case ballType.purple:
                     player.addExperience(30);
-                    Destroy(gameObject);
+                    this.gameObject.SetActive(false);
                     break;
                 case ballType.diamond:
                     player.addExperience(40);
-                    Destroy(gameObject);
+                    this.gameObject.SetActive(false);
                     break;
             }
         }

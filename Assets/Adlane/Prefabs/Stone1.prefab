@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4008372408492617126}
   - component: {fileID: 1153855937887529658}
   - component: {fileID: 7519099125672940}
-  - component: {fileID: 4246192462493530961}
+  - component: {fileID: 2618347858565326675}
   m_Layer: 0
   m_Name: Stone1
   m_TagString: Untagged
@@ -151,30 +151,15 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 2137208523138566550, guid: 05ae247dfb11ce5498fd8466c689a3cc, type: 3}
---- !u!54 &4246192462493530961
-Rigidbody:
+--- !u!114 &2618347858565326675
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3843664624355230064}
-  serializedVersion: 4
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 1
-  m_Constraints: 122
-  m_CollisionDetection: 2
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6788c4b938cd49140b7d7fef141afeef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

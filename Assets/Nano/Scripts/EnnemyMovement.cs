@@ -162,6 +162,8 @@ public class EnnemyMovement : MonoBehaviour,IHitable
         yield return new WaitForSeconds(1f);
 
         this.transform.GetChild(0).gameObject.SetActive(false); // hide the dust explosion
+        int xpCount = Random.Range(0, 3); 
+        spawner.SpawnXpOrbs(transform.position, 1,xpCount); // spawn XP orbs
         spawner.TrySpawnHealthPotion(transform.position + Vector3.up, HealthPotionDropChance);
         GameManager.Instance.AddScore(scoreAdder); // add score for killing the enemy
         gameObject.SetActive(false);
