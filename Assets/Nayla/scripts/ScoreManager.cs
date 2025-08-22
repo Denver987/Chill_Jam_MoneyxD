@@ -34,13 +34,6 @@ public class ScoreManager : MonoBehaviour
 
         SetLeaderBoardEntry(inputName.text, maxScore);
     }
-    public void ClickOnButton()
-    {
-    }
-    public void Update()
-    {
-        SubmitScore();
-    }
     public void SetLeaderBoardEntry(string username, int score)
     {
 
