@@ -17,6 +17,7 @@ public class CanvasSingleton : MonoBehaviour
     public GameObject Hand;
     public GameObject CardsSelection;
     public Transform xpBar;
+    public GameObject spells;
 
     void Awake()
     {
@@ -105,7 +106,9 @@ public class CanvasSingleton : MonoBehaviour
             PausePanel.SetActive(true);
             chargeSlider.gameObject.SetActive(false);
             healthBarRect.gameObject.SetActive(false);
+            spells.SetActive(false);
             Hand.SetActive(false);
+            xpBar.gameObject.SetActive(false);
         }
     }
     public void HidePausePanel()
@@ -115,7 +118,9 @@ public class CanvasSingleton : MonoBehaviour
             PausePanel.SetActive(false);
             chargeSlider.gameObject.SetActive(true);
             healthBarRect.gameObject.SetActive(true);
+            spells.SetActive(true);
             Hand.SetActive(true);
+            xpBar.gameObject.SetActive(true);
         }
     }
 
