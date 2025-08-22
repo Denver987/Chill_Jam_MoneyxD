@@ -1,3 +1,4 @@
+using SmallHedge.SoundManager;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
@@ -11,6 +12,7 @@ public class Enemy : PoolableObject
 
     public virtual void OnEnable()
     {
+
         SetupAgentFromConfiguration();
     }
     public override void OnDisable()
@@ -52,6 +54,7 @@ public class Enemy : PoolableObject
 
         // Wait for the effect duration
         yield return new WaitForSeconds(spawnEffectDelay);
+        SoundManager.PlaySound(SoundType.spawning, this.gameObject.GetComponent<AudioSource>(), 0.5f);
 
         this.transform.GetChild(1).gameObject.SetActive(false);
 

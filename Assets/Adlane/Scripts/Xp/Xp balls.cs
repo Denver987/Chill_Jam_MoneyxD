@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using System.Collections;
 using System.Collections.Generic;
+using SmallHedge.SoundManager;
 
 public class Xpballs : MonoBehaviour
 {
@@ -103,6 +104,7 @@ public class Xpballs : MonoBehaviour
     {
         if (other.TryGetComponent<Player>(out Player player))
         {
+            SoundManager.PlaySound(SoundType.stone, player.gameObject.GetComponent<AudioSource>(), 0.5f);
             switch (type)
             {
                 case ballType.green:

@@ -82,6 +82,7 @@ public class Player : MonoBehaviour
 
     public void UpdateLevel()
     {
+        SoundManager.PlaySound(SoundType.levelUp, this.GetComponent<AudioSource>(), 0.5f); // Play level up sound with volume 0.5
         if (health < maxHealth)
         {
             health = maxHealth;
@@ -100,10 +101,10 @@ public class Player : MonoBehaviour
         StartCoroutine(TakeKnockback(hitDirection, knockbackForce, 0.5f)); // Adjust knockback duration as needed
         SoundManager.PlaySound(SoundType.PlayerDamage, this.GetComponent<AudioSource>(), 0.5f); // Play damage sound with volume 0.5
 
-        // if (health <= 0)
-        // {
-        //     Die();
-        // }
+       if (health <= 0)
+       {
+        Die();
+       }
     }
     private IEnumerator FlashRed()
     {
@@ -150,6 +151,56 @@ public class Player : MonoBehaviour
             vignette.center.Override(originalVignetteCenter);
         }
     }
+
+    public IEnumerator FlashGreen()
+    {
+        if (postProcessing == null || postProcessing.profile == null) yield break;
+
+        if (postProcessing.profile.TryGet<Vignette>(out var vignette))
+        {
+            // Backup current state
+            float startIntensity = vignette.intensity.value;
+            Color startColor = vignette.color.value;
+
+            Color greenColor = Color.green; // <-- Flash color
+
+            // Phase 1: Flash in (fade to green)
+            float t = 0f;
+            while (t < hitFlashDuration * 0.5f)
+            {
+                t += Time.deltaTime;
+                float k = Mathf.Clamp01(t / (hitFlashDuration * 0.5f));
+
+                vignette.color.Override(Color.Lerp(startColor, greenColor, k));
+                vignette.intensity.Override(Mathf.Lerp(startIntensity, intensity, k));
+                yield return null;
+            }
+
+            // Stay green for a short moment
+            yield return new WaitForSeconds(0.4f);
+
+            // Phase 2: Flash out (fade back to original)
+            t = 0f;
+            while (t < hitFlashDuration * 0.5f)
+            {
+                t += Time.deltaTime;
+                float k = Mathf.Clamp01(t / (hitFlashDuration * 0.5f));
+
+                vignette.color.Override(Color.Lerp(greenColor, originalVignetteColor, k));
+                vignette.intensity.Override(Mathf.Lerp(intensity, originalVignetteIntensity, k));
+                yield return null;
+            }
+
+            // Ensure restore
+            vignette.color.Override(originalVignetteColor);
+            vignette.intensity.Override(originalVignetteIntensity);
+            vignette.smoothness.Override(originalVignetteSmoothness);
+            vignette.rounded.Override(originalRounded);
+            vignette.center.Override(originalVignetteCenter);
+        }
+    }
+
+
 
 
     private IEnumerator TakeKnockback(Vector3 direction, float force, float duration)
@@ -255,11 +306,15 @@ public class Player : MonoBehaviour
 
     private void Die()
     {
-        GameManager.Instance.StopGame(); // Stop the game
+        CanvasSingleton.Instance.die.SetActive(true);
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        CanvasSingleton.Instance.die.GetComponent<DieTMP>().ShowText(level, experience);
         inputSystem.enabled = false; // Disable player input
         knockback.enabled = false; // Disable knockback to prevent further movement
         Debug.Log("Player died!");
         CameraSettings.Instance.OnPlayerDeath();
+        GameManager.Instance.StopGame(); // Stop the game
         if (CameraSettings.Instance == null)
         {
             Debug.LogError("CameraSettings.Instance is NULL. Is the script on the Main Camera and enabled?");

@@ -29,9 +29,9 @@ public class DieTMP : MonoBehaviour
             obj.gameObject.SetActive(false);
         }
     }
-    public void ShowText(int level, float experience, int count)
+    public void ShowText(int level, float experience)
     {
-        dieText.text = $"You Died at level {level}, with {experience} XP, and {count} Cards.";
-        SecondDieText.text = $"Your Score : (TODO)";
+        dieText.text = $"You Died at level {level}, with {experience} XP";
+        SecondDieText.text = $"Your Score : " + GameManager.Instance.score;
     }
 }

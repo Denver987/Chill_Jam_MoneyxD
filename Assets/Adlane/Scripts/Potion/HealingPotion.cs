@@ -1,3 +1,5 @@
+using SmallHedge.SoundManager;
+using System.Collections;
 using UnityEngine;
 
 public class HealingPotion : MonoBehaviour
@@ -14,9 +16,14 @@ public class HealingPotion : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.TryGetComponent<Player>(out Player player))
+        StartCoroutine(Heal(other));
+    }
+
+    private IEnumerator Heal(Collider collider)
+    {
+        if (collider.gameObject.TryGetComponent<Player>(out Player player))
         {
-            if (player.health == player.maxHealth) return; 
+            if (player.health == player.maxHealth)  yield break;
             if (player.health + healAmount > player.maxHealth)
             {
                 player.health = player.maxHealth;
@@ -25,7 +32,11 @@ public class HealingPotion : MonoBehaviour
             {
                 player.health += healAmount;
             }
-            this.gameObject.SetActive(false);
+            SoundManager.PlaySound(SoundType.healing, player.gameObject.GetComponent<AudioSource>(), 0.5f);
+            StartCoroutine(player.FlashGreen());
+
         }
+        yield return new WaitForSeconds(0.5f);
+        this.gameObject.SetActive(false);
     }
 }

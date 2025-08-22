@@ -15,6 +15,11 @@ namespace SmallHedge.SoundManager
         magicianspells,
         ennemyAttack,
         spawning,
+        healing,
+        levelUp,
+        stone,
+
+
 
 
 
