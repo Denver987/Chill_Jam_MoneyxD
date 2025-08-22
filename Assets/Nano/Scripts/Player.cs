@@ -88,7 +88,7 @@ public class Player : MonoBehaviour
             health = maxHealth;
         }
         Time.timeScale = 0f;
-        CanvasSingleton.Instance.CardsUI();
+        StartCoroutine(CanvasSingleton.Instance.CardsUI());
     }
 
     public void TakeDamage(int damage, Vector3 hitDirection, float knockbackForce)
@@ -201,7 +201,13 @@ public class Player : MonoBehaviour
     }
 
 
-
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Health"))
+        {
+            StartCoroutine(FlashGreen()); // Flash green when picking up health
+        }
+    }
 
     private IEnumerator TakeKnockback(Vector3 direction, float force, float duration)
     {

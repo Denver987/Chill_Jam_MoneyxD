@@ -11,6 +11,7 @@ TagManager:
   - Wall
   - PP
   - Water
+  - Health
   layers:
   - Default
   - TransparentFX
