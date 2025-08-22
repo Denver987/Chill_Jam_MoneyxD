@@ -18,6 +18,7 @@ public class Player : MonoBehaviour
     private float timer = 0f;
 
     public InputSystem inputSystem;
+    public Knockback knockback; // Reference to the Knockback script
 
     [Header("Vignette Settings")]
     public Volume postProcessing;
@@ -33,6 +34,7 @@ public class Player : MonoBehaviour
     private void Awake()
     {
         inputSystem = GetComponent<InputSystem>();
+        knockback = GetComponent<Knockback>();
     }
     void Start()
     {
@@ -60,11 +62,6 @@ public class Player : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.K))
-        {
-            Debug.Log("K pressed: OnPlayerDeath()");
-            CameraSettings.Instance.OnPlayerDeath();
-        }
 
 
     }
@@ -142,7 +139,9 @@ public class Player : MonoBehaviour
 
     private void Die()
     {
-        
+        GameManager.Instance.StopGame(); // Stop the game
+        inputSystem.enabled = false; // Disable player input
+        knockback.enabled = false; // Disable knockback to prevent further movement
         Debug.Log("Player died!");
         CameraSettings.Instance.OnPlayerDeath();
         if (CameraSettings.Instance == null)

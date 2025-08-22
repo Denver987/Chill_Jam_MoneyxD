@@ -90,7 +90,7 @@ public class Knockback : MonoBehaviour
     private void ReleaseCharge()
     {
         if (!isCharging) return;
-        SoundManager.PlaySound(SoundType.magicianspells, this.GetComponent<AudioSource>(),0.25f);
+        
         SoundManager.PlaySound(SoundType.spell1, this.GetComponent<AudioSource>(),0.25f);
         isCharging = false;
 
@@ -108,8 +108,10 @@ public class Knockback : MonoBehaviour
             IHitable hitable = hit.transform.GetComponent<IHitable>();
             if (hitable != null)
             {
-                if(hit.transform.gameObject.GetComponent<BouncingShell>() != null)
+                SoundManager.PlaySound(SoundType.magicianspells, this.GetComponent<AudioSource>(), 0.25f);
+                if (hit.transform.gameObject.GetComponent<BouncingShell>() != null)
                 {
+                    
                     hitable.Execute(hit.transform, finalKnockbackStrengthEnemy);
                     nextAllowedHitTime = Time.time + hitCooldown;
 

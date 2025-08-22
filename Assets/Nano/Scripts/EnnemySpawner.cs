@@ -122,7 +122,7 @@ public class EnemySpawner : MonoBehaviour
 
         if (NavMesh.SamplePosition(spawnPoint.position, out NavMeshHit hit, 2f, NavMesh.AllAreas))
         {
-            enemy.ResetEnemy(hit.position, target);
+            StartCoroutine(enemy.ResetEnemy(hit.position, target, 2f));
 
             if (!ActiveEnemies.Contains(enemy))
                 ActiveEnemies.Add(enemy);

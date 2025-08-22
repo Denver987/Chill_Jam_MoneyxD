@@ -76,8 +76,8 @@ public class EnnemyMovement : MonoBehaviour,IHitable
 
     private void Start()
     {
-        ennemyId = Random.Range(0f, 360f); 
-        surroundDistance = Random.Range(0f, 3f); // random surround distance between 1.5 and 2.5
+        ennemyId = Random.Range(0f, 180f); 
+        surroundDistance = Random.Range(0f,2f); // random surround distance between 1.5 and 2.5
 
         // assign a random ID for debugging
         spawner = GetComponentInParent<EnemySpawner>();
@@ -116,21 +116,22 @@ public class EnnemyMovement : MonoBehaviour,IHitable
                 Die();
                 otherEnemy.Die(); // if knocked back, both die
             }
-        }else if(collision.gameObject.CompareTag("Obstacle"))
+        }else if (collision.gameObject.CompareTag("Obstacle"))
         {
+           
             Debug.Log("Hit wall");
             if (isKnockedBack)
             {
                 Die();
             }
-        }   
+        }
     }
     public  void Die()
     {
         isDead = true;
         canattack = false;
         this.transform.GetChild(0).gameObject.SetActive(true); // show the dust explosion
-        this.transform.GetChild(1).gameObject.SetActive(false);
+        this.transform.GetChild(2).gameObject.SetActive(false);
         
         //CameraSettings.Instance.StartZoom(55f, 1f);
         SoundManager.PlaySound(SoundType.enemyDeath, GetComponent<AudioSource>(), 0.5f); // Play death sound with volume 0.5

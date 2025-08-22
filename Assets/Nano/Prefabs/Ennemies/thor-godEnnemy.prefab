@@ -1145,6 +1145,7 @@ Transform:
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 7172567624565081563}
+  - {fileID: 4492509317087773957}
   - {fileID: 1140717095844899022}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
@@ -1227,12 +1228,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21f43650a8815444e89767c624f68d13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  minSpeed: 0.5
+  maxSpeed: 2
   moveSpeed: 4
   spreadRadius: 1.5
   separationRadius: 3
   avoidanceForce: 5
   separationUpdateRate: 25
   knockbackRecoveryTime: 0.5
+  minRotationSpeed: 1
+  maxRotationSpeed: 10
+  rotationSpeed: 5
+  surroundDistance: 2
+  ennemyId: 0
   attackRange: 2.5
   attackCooldown: 2
   attackKnockbackForce: 25
@@ -1240,6 +1248,14 @@ MonoBehaviour:
   spawner: {fileID: 0}
   target: {fileID: 0}
   dustExplosion: {fileID: 7561391340482851201, guid: 452e8552857fcc140bf6ab1400680afe, type: 3}
+  fallMultiplier: 2
+  riseGravityMultiplier: 1.5
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  groundCheckDistance: 0.2
+  isDead: 0
+  isKnockedBack: 0
   canattack: 1
 --- !u!114 &3458931458032606731
 MonoBehaviour:
@@ -3794,6 +3810,88 @@ Transform:
   - {fileID: 1527554960244345183}
   m_Father: {fileID: 6445572724771718797}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &3800890147625631755
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 7976784027385852556}
+    m_Modifications:
+    - target: {fileID: 785843055505982734, guid: bcf3a02442adb85438b0fd8627d525b2, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 785843055505982734, guid: bcf3a02442adb85438b0fd8627d525b2, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 785843055505982734, guid: bcf3a02442adb85438b0fd8627d525b2, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 785843055505982734, guid: bcf3a02442adb85438b0fd8627d525b2, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 785843055505982734, guid: bcf3a02442adb85438b0fd8627d525b2, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 785843055505982734, guid: bcf3a02442adb85438b0fd8627d525b2, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 785843055505982734, guid: bcf3a02442adb85438b0fd8627d525b2, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 785843055505982734, guid: bcf3a02442adb85438b0fd8627d525b2, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 785843055505982734, guid: bcf3a02442adb85438b0fd8627d525b2, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 785843055505982734, guid: bcf3a02442adb85438b0fd8627d525b2, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 785843055505982734, guid: bcf3a02442adb85438b0fd8627d525b2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 785843055505982734, guid: bcf3a02442adb85438b0fd8627d525b2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 785843055505982734, guid: bcf3a02442adb85438b0fd8627d525b2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 785843055505982734, guid: bcf3a02442adb85438b0fd8627d525b2, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4540150613310968174, guid: bcf3a02442adb85438b0fd8627d525b2, type: 3}
+      propertyPath: m_Name
+      value: Magic circle 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9174064517423169822, guid: bcf3a02442adb85438b0fd8627d525b2, type: 3}
+      propertyPath: m_BoundingSphereOverride.w
+      value: NaN
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: bcf3a02442adb85438b0fd8627d525b2, type: 3}
+--- !u!4 &4492509317087773957 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 785843055505982734, guid: bcf3a02442adb85438b0fd8627d525b2, type: 3}
+  m_PrefabInstance: {fileID: 3800890147625631755}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8462453216542801856
 PrefabInstance:
   m_ObjectHideFlags: 0
