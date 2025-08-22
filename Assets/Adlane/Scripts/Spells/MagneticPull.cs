@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
 using UnityEngine.VFX;
@@ -17,6 +17,12 @@ public class MagneticPull : MonoBehaviour
     [SerializeField] private float rotationSpeed = 180f;
     [SerializeField] private float throwStrength = 10f;
     [SerializeField] private float pullCooldown = 0.5f;
+    private SpellSelector _selector;
+    private bool _lastInRange; // to avoid retriggering the tween every frame
+    private Outline _lastOutline;
+    private bool _suppressAimUI; // true while clicking/using the spell
+
+
 
     [SerializeField] private Vector3 rotationAxis = new Vector3(1, 1, 1);
     private Rigidbody heldItem;
@@ -30,6 +36,7 @@ public class MagneticPull : MonoBehaviour
     [SerializeField] private float telekinesisHeight = 2f;
     [SerializeField] private float telekinesisUpForce = 12f;
     [SerializeField] private float telekinesisCD = 3f;
+    [SerializeField] private Animator animator;
     private float telekinesisTimer = 0f;
     private float telekinesisStartY = 0f; 
     private Rigidbody telekinesisTarget;
@@ -37,11 +44,66 @@ public class MagneticPull : MonoBehaviour
 
     void Start()
     {
-      /*  if (cam == null)
+
+        if (animator == null) animator = GetComponentInChildren<Animator>();
+        if (animator == null)
         {
-            cam=Camera.main;
-        }*/
+            animator = GetComponentInChildren<Animator>();
+        }
     }
+    private void Awake()
+    {
+        _selector = GetComponent<SpellSelector>();
+    }
+
+    private void ResetAimUI()
+    {
+        if (_lastOutline) _lastOutline.enabled = false;     // make sure outline is OFF
+        CameraSettings.Instance?.SetCrosshairTargetable(false, null);
+        _lastInRange = false;
+        _lastOutline = null;
+    }
+
+
+    private void Update()
+    {
+        if (_suppressAimUI) return;  // pause highlight while using the spell
+
+        // Only show aim UI when MagneticPull is active AND not currently using it
+        if (_selector == null|| _selector.currentSpell != SpellSelector.SpellType.MagneticPull|| _suppressAimUI)
+        {
+            if (_lastInRange || _lastOutline) ResetAimUI();
+            return;
+        }
+
+        if (cam == null) cam = Camera.main;
+
+        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+        bool inRange = false;
+        Outline outlineTarget = null;
+
+        if (Physics.Raycast(ray, out RaycastHit hit, pullRange, ~0, QueryTriggerInteraction.Ignore))
+        {
+            if (hit.rigidbody != null && hit.collider.CompareTag("Pullable"))
+            {
+                inRange = true;
+                outlineTarget =
+                      hit.transform.GetComponent<Outline>()
+                   ?? hit.transform.GetComponentInParent<Outline>()
+                   ?? hit.transform.GetComponentInChildren<Outline>();
+            }
+        }
+
+        // update when state OR target changed (fixes clone swap)
+        if (inRange != _lastInRange || outlineTarget != _lastOutline)
+        {
+            CameraSettings.Instance?.SetCrosshairTargetable(inRange, outlineTarget);
+            _lastInRange = inRange;
+            _lastOutline = outlineTarget;
+        }
+    }
+
+
     public void Telekinesis(InputAction.CallbackContext context)
     {
         if (gameObject.GetComponent<SpellSelector>().currentSpell != SpellSelector.SpellType.MagneticPull) return;
@@ -55,12 +117,16 @@ public class MagneticPull : MonoBehaviour
             {
                 if (hit.rigidbody == null) return;
                 if (!hit.collider.CompareTag("Pullable")) return;
+
+                _suppressAimUI = true;   // 🔹 stop Update() from re-highlighting
+                ResetAimUI();            // 🔹 ensure outline/crosshair are OFF before TK starts
+
                 telekinesisTarget = hit.rigidbody;
                 telekinesisStartY = telekinesisTarget.position.y;
                 telekinesisTarget.useGravity = false;
                 telekinesisTimer = telekinesisDuration;
                 cdTimer = telekinesisCD;
-
+                animator.SetTrigger("Telekinesis");
             }
         }
         
@@ -72,11 +138,15 @@ public class MagneticPull : MonoBehaviour
         if (pullCooldownTimer > 0f) return;
         if (context.performed)
         {
+            _suppressAimUI = true;   // stop Update aim-ui
+            ResetAimUI();            // kill outline BEFORE duplication/hold
             isHolding = true;
+            animator.SetBool("Magnetic", true);
         }
         if (isHolding && context.canceled)
         {
             isHolding = false;
+            _suppressAimUI = false;  // allow aim-ui again
         }
     }
 
@@ -88,6 +158,7 @@ public class MagneticPull : MonoBehaviour
         if (pullCooldownTimer > 0f) return;
         if (context.performed)
         {
+            animator.SetBool("Magnetic", false);
             isHolding = false;
             isThrowing = true;
         }
@@ -134,7 +205,9 @@ public class MagneticPull : MonoBehaviour
             {
                 telekinesisTarget.useGravity = true;
                 telekinesisTarget = null;
+                _suppressAimUI = false;   // ✅ allow Update() highlight again
             }
+
         }
 
         if (isHolding && cam != null && !isThrowing)
@@ -177,7 +250,7 @@ public class MagneticPull : MonoBehaviour
                 }
             }
         }
-
+        if (!isHolding && !isThrowing) animator.SetBool("Magnetic", false);
         if (isThrowing && cam != null && heldItem != null)
         {
             isThrowing = false;
@@ -189,6 +262,15 @@ public class MagneticPull : MonoBehaviour
             heldItem.AddForce(cam.transform.forward * throwStrength, ForceMode.Impulse);
             pullCooldownTimer = pullCooldown;
             heldItem.useGravity = true;
+
+            // Reset crosshair + outline so it doesn’t stick to the old target
+            CameraSettings.Instance?.SetCrosshairTargetable(false, null);
+            _lastInRange = false;
+            _lastOutline = null;
+
+            ResetAimUI();         // make 100% sure old outline is off
+            _suppressAimUI = false;
+
             heldItem = null;
         }
     }
