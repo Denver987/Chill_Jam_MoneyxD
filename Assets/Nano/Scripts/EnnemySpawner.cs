@@ -21,6 +21,13 @@ public class EnemySpawner : MonoBehaviour
     [Range(0f, 1f)] public float spawnChance = 0.3f; // 30% chance
     private ObjectPool bouncingShellPool;
 
+
+    [Header("Potions Settings")]
+    public GameObject healthPotionPrefab;
+    public int healthPotionPoolSize = 20;
+    [Range(0f, 1f)] public float healthPotionDropChance = 0.2f; // 20% chance on enemy death
+    private ObjectPool healthPotionPool;
+
     [Header("Pooling Settings")]
     public int initialPoolSize = 20;
 
@@ -37,6 +44,14 @@ public class EnemySpawner : MonoBehaviour
             bouncingShellPool = ObjectPool.CreateInstance(
                 bouncingShellPrefab.GetComponent<PoolableObject>(),
                 bouncingShellPoolSize,
+                this.transform
+            );
+        }
+        if(healthPotionPrefab != null)
+        {
+            healthPotionPool = ObjectPool.CreateInstance(
+                healthPotionPrefab.GetComponent<PoolableObject>(),
+                healthPotionPoolSize,
                 this.transform
             );
         }
@@ -142,6 +157,24 @@ public class EnemySpawner : MonoBehaviour
             poolableObject.gameObject.SetActive(false); // return to pool
         }
     }
+
+    public void TrySpawnHealthPotion(Vector3 position, float dropChance)
+    {
+        if (healthPotionPool == null) return;
+
+        // Roll the dice
+        if (Random.value <= dropChance)
+        {
+            PoolableObject pooledPotion = healthPotionPool.GetObject();
+            if (pooledPotion == null) return; // pool empty
+
+            GameObject potionObj = pooledPotion.gameObject;
+            potionObj.transform.position = position;
+            potionObj.transform.rotation = Quaternion.identity;
+            potionObj.SetActive(true);
+        }
+    }
+
 
 
     public void RemoveEnemy(Enemy enemy)

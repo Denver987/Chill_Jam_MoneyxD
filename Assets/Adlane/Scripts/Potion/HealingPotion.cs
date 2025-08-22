@@ -25,7 +25,7 @@ public class HealingPotion : MonoBehaviour
             {
                 player.health += healAmount;
             }
-            Destroy(gameObject);
+            this.gameObject.SetActive(false);
         }
     }
 }

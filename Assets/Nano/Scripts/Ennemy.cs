@@ -77,6 +77,9 @@ public class Enemy : PoolableObject
         Movement.separationUpdateRate = Config.separationUpdateRate;
         Movement.knockbackRecoveryTime = Config.knockbackRecoveryTime; // how long it takes to recover from knockback
         Movement.rotationSpeed = Random.Range(Config.minRotationSpeed, Config.maxRotationSpeed); // how fast the enemy rotates towards the target
+        Movement.scoreAdder = Config.scoreValue; // points awarded to player on death
+        Movement.HealthPotionDropChance = Config.HealthDropChance; // chance to drop health potion on death
+
 
         Movement.attackCooldown = Config.attackCooldown;
         Movement.attackRange = Config.attackRange;

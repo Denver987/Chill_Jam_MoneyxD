@@ -17,6 +17,9 @@ public class EnemyScriptableObject : ScriptableObject
     public float separationUpdateRate = 0.2f;
     public float knockbackRecoveryTime = 0.5f; // how long it takes to recover from knockback
 
+    public int scoreValue = 10; // points awarded to player on death    
+    [Range(0f, 1f)] public float HealthDropChance = 0.2f; // chance to drop health potion on death
+
     public float rotationSpeed = 5f; // how fast the enemy rotates towards the target
     public float maxRotationSpeed = 10f; // maximum rotation speed to prevent too fast rotations
     public float minRotationSpeed = 1f; // minimum rotation speed to prevent too slow rotations

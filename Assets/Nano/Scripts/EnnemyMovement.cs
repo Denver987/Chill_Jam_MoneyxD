@@ -32,6 +32,11 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     public bool isGolem = false; // is this enemy a golem?
 
 
+    public int scoreAdder = 20;
+    public float HealthPotionDropChance = 0.3f; // chance to drop a health potion on death  
+
+
+
     [Header("Attack Settings")]
     public float attackRange = 1.5f;
     public float attackCooldown = 1.0f;
@@ -136,6 +141,7 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     {
         isDead = true;
         canattack = false;
+        
         this.transform.GetChild(0).gameObject.SetActive(true); // show the dust explosion
         this.transform.GetChild(2).gameObject.SetActive(false);
         
@@ -156,6 +162,8 @@ public class EnnemyMovement : MonoBehaviour,IHitable
         yield return new WaitForSeconds(1f);
 
         this.transform.GetChild(0).gameObject.SetActive(false); // hide the dust explosion
+        spawner.TrySpawnHealthPotion(transform.position + Vector3.up, HealthPotionDropChance);
+        GameManager.Instance.AddScore(scoreAdder); // add score for killing the enemy
         gameObject.SetActive(false);
         spawner.RemoveEnemy(enemy);
     }

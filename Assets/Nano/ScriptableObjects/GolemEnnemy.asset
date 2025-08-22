@@ -20,6 +20,8 @@ MonoBehaviour:
   avoidanceForce: 3
   separationUpdateRate: 0.2
   knockbackRecoveryTime: 0.5
+  scoreValue: 60
+  HealthDropChance: 0.45
   rotationSpeed: 5
   maxRotationSpeed: 10
   minRotationSpeed: 5
