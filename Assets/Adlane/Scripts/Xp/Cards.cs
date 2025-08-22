@@ -42,7 +42,6 @@ public class Cards : MonoBehaviour
         {
             case CardType.MagneticPull:
                 player.GetComponent<SpellSelector>().magneticPullEnabled = true;
-                cardCapCounter++;
                 break;
             case CardType.MaxHealth:
                 player.maxHealth += 10;
@@ -59,7 +58,7 @@ public class Cards : MonoBehaviour
 
                 break;
             case CardType.HealthRegeneration:
-                player.health += 2;
+                player.IncreaseHealing(2);
                 cardCapCounter++;
 
                 break;
@@ -95,6 +94,7 @@ public class Cards : MonoBehaviour
         transform.parent.parent.gameObject.SetActive(false);
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        CanvasSingleton.Instance.CardsSelection.GetComponent<CardSelectionUI>().choosingCards = false;
     }
     public void Update()
     {
