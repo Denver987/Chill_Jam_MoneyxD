@@ -27,7 +27,7 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     public float ennemyId = 0f; // unique ID for the enemy, can be used for debugging or tracking
     private SkinnedMeshRenderer[] meshRenderers;
 
-
+    public TutorialSpawner tutorialSpawner; // reference to the tutorial spawner if in tutorial mode
 
     public bool isGolem = false; // is this enemy a golem?
 
@@ -161,16 +161,25 @@ public class EnnemyMovement : MonoBehaviour,IHitable
        
         yield return new WaitForSeconds(1f);
 
-        this.transform.GetChild(0).gameObject.SetActive(false); // hide the dust explosion
-        int xpCount = Random.Range(0, 3); 
-        spawner.SpawnXpOrbs(transform.position, 1,xpCount); // spawn XP orbs
-        spawner.TrySpawnHealthPotion(transform.position + Vector3.up, HealthPotionDropChance);
-        GameManager.Instance.AddScore(scoreAdder); // add score for killing the enemy
+        this.transform.GetChild(0).gameObject.SetActive(false);
+        if(GameManager.Instance.isTutorial ==false)
+        {
+            int xpCount = Random.Range(0, 3);
+            spawner.SpawnXpOrbs(transform.position, 1, xpCount); // spawn XP orbs
+            spawner.TrySpawnHealthPotion(transform.position + Vector3.up, HealthPotionDropChance);
+            GameManager.Instance.AddScore(scoreAdder);
+        }
         gameObject.SetActive(false);
         spawner.RemoveEnemy(enemy);
+        if(GameManager.Instance.isTutorial && tutorialSpawner != null)
+        {
+            tutorialSpawner.SpawnEnnemy();
+        }
     }
     private void FollowTarget()
     {
+        if (GameManager.Instance.isTutorial)
+            return;
         if (target == null) return;
         if (isKnockedBack || isAttacking ||isDead)
         {
@@ -252,6 +261,8 @@ public class EnnemyMovement : MonoBehaviour,IHitable
 
     private void TryAttack()
     {
+        if(GameManager.Instance.isTutorial)
+            return;
         if (isKnockedBack || isAttacking || !canattack) return;
 
         // Check if player is still in range before starting
@@ -280,6 +291,7 @@ public class EnnemyMovement : MonoBehaviour,IHitable
 
     private IEnumerator AttackRoutine()
     {
+
         isAttacking = true;
         animator.SetTrigger("Attack");
 

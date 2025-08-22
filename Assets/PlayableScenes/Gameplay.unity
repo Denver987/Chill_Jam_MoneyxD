@@ -999,7 +999,11 @@ PrefabInstance:
       objectReference: {fileID: 994304038}
     - target: {fileID: 5956603224159184898, guid: 38ca042b9e7428c49bdec8e147e8bac9, type: 3}
       propertyPath: spawnChance
-      value: 0.085
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5956603224159184898, guid: 38ca042b9e7428c49bdec8e147e8bac9, type: 3}
+      propertyPath: spawnInterval
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5956603224159184898, guid: 38ca042b9e7428c49bdec8e147e8bac9, type: 3}
       propertyPath: initialPoolSize

@@ -6,7 +6,7 @@ public class GameManager : MonoBehaviour
     public int score = 0;
     public  EnemySpawner EnemySpawner; // Reference to the EnemySpawner script
     public WaveManager WaveManager;
-
+    public bool isTutorial = false; // Flag to indicate if the game is in tutorial mode
     public static GameManager Instance { get; private set; } // Singleton instance
 
 
@@ -23,7 +23,10 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject); // Ensure only one instance exists
         }
     }
-
+    public void LoadScene(int buildIndex)
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene(buildIndex);
+    }
     // Reference to the WaveManager script
 
     public void AddScore(int amount)

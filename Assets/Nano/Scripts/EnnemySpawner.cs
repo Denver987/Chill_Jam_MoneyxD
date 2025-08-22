@@ -13,6 +13,9 @@ public class EnemySpawner : MonoBehaviour
     public List<Enemy> ActiveEnemies = new List<Enemy>();
     public int activeEnemiesCount => ActiveEnemies.Count;
 
+
+
+
     [Header("Shell Settings")]
     public GameObject bouncingShellPrefab;
     public List<Transform> shellSpawnZones = new List<Transform>(); // different spawn zones
@@ -217,7 +220,43 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
+    public Enemy SpawnEnemyAt(Enemy prefab, Transform spawnPoint)
+    {
+        int index = EnemyPrefabs.IndexOf(prefab);
+        if (index < 0)
+        {
+            Debug.LogWarning($"Prefab {prefab.name} not found in EnemyPrefabs list!");
+            return null;
+        }
 
+        if (!EnemyObjectPools.ContainsKey(index)) return null;
+
+        PoolableObject poolableObject = EnemyObjectPools[index].GetObject();
+        if (poolableObject == null)
+        {
+            Debug.LogWarning($"Pool for {EnemyPrefabs[index].name} is exhausted!");
+            return null;
+        }
+
+        Enemy enemy = poolableObject.GetComponent<Enemy>();
+
+        // Snap to NavMesh if possible
+        if (NavMesh.SamplePosition(spawnPoint.position, out NavMeshHit hit, 5f, NavMesh.AllAreas))
+        {
+            StartCoroutine(enemy.ResetEnemy(hit.position, target, 2f));
+
+            if (!ActiveEnemies.Contains(enemy))
+                ActiveEnemies.Add(enemy);
+
+            return enemy;
+        }
+        else
+        {
+            Debug.Log($"⚠ Tutorial spawn zone '{spawnPoint.name}' is not on NavMesh! Enemy skipped.");
+            poolableObject.gameObject.SetActive(false); // return to pool
+            return null;
+        }
+    }
 
     public void RemoveEnemy(Enemy enemy)
     {
