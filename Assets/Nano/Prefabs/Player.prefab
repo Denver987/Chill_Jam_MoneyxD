@@ -19,7 +19,7 @@ GameObject:
   - component: {fileID: 1684448272960268909}
   m_Layer: 3
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1111,6 +1111,7 @@ MonoBehaviour:
   cardCapCounter: 0
   maxCardCaps: 5
   player: {fileID: 1684448272960268909}
+  EnemySpawner: {fileID: 0}
 --- !u!114 &2242395693103898035
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1263,6 +1264,7 @@ MonoBehaviour:
   cardCapCounter: 0
   maxCardCaps: 3
   player: {fileID: 1684448272960268909}
+  EnemySpawner: {fileID: 0}
 --- !u!114 &2538011414695836387
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1415,6 +1417,7 @@ MonoBehaviour:
   cardCapCounter: 0
   maxCardCaps: 1
   player: {fileID: 1684448272960268909}
+  EnemySpawner: {fileID: 0}
 --- !u!114 &9084839023460224160
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1822,6 +1825,7 @@ MonoBehaviour:
   cardCapCounter: 0
   maxCardCaps: 3
   player: {fileID: 1684448272960268909}
+  EnemySpawner: {fileID: 0}
 --- !u!114 &7430406558909696339
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2155,6 +2159,7 @@ MonoBehaviour:
   cardCapCounter: 0
   maxCardCaps: 4
   player: {fileID: 1684448272960268909}
+  EnemySpawner: {fileID: 0}
 --- !u!114 &5139809431691380847
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2307,6 +2312,7 @@ MonoBehaviour:
   cardCapCounter: 0
   maxCardCaps: 2147483647
   player: {fileID: 1684448272960268909}
+  EnemySpawner: {fileID: 0}
 --- !u!114 &6277620826705341291
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2459,6 +2465,7 @@ MonoBehaviour:
   cardCapCounter: 0
   maxCardCaps: 3
   player: {fileID: 1684448272960268909}
+  EnemySpawner: {fileID: 0}
 --- !u!114 &111271279271053585
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2900,6 +2907,7 @@ MonoBehaviour:
   cardCapCounter: 0
   maxCardCaps: 3
   player: {fileID: 1684448272960268909}
+  EnemySpawner: {fileID: 0}
 --- !u!114 &692494050178686082
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3450,6 +3458,7 @@ MonoBehaviour:
   cardCapCounter: 4
   maxCardCaps: 3
   player: {fileID: 1684448272960268909}
+  EnemySpawner: {fileID: 0}
 --- !u!114 &7435622144566182689
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3602,6 +3611,7 @@ MonoBehaviour:
   cardCapCounter: 0
   maxCardCaps: 3
   player: {fileID: 1684448272960268909}
+  EnemySpawner: {fileID: 0}
 --- !u!114 &2338554274464149569
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3829,6 +3839,7 @@ MonoBehaviour:
   cardCapCounter: 0
   maxCardCaps: 5
   player: {fileID: 1684448272960268909}
+  EnemySpawner: {fileID: 0}
 --- !u!114 &8275368663444350659
 MonoBehaviour:
   m_ObjectHideFlags: 0
