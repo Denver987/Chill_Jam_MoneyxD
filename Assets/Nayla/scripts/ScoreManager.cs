@@ -3,35 +3,51 @@ using TMPro;
 using UnityEngine.Events;
 using Dan.Main;
 using System.Collections.Generic;
+using Unity.VisualScripting;
+using System.Linq;
 
-public class ScoreManager : MonoBehaviour {
-    
+public class ScoreManager : MonoBehaviour
+{
 
-    [SerializeField] private TextMeshProUGUI inputScore;
+    [SerializeField] private int inputScore;
     [SerializeField] private TMP_InputField inputName;
     private List<(string, int)> names = new List<(string, int)>();
+    List<string> nom = new List<string>();
+    public string publicLeaderBoardKey = "6e27e986969cc70102cc8ff7652de566b198f6bdc84c988655621c995bb498ff";
+    private int maxScore;
 
     public void Start()
-    { 
+    {
         DontDestroyOnLoad(this.gameObject);
     }
 
     public UnityEvent<string, int> submitScoreEvent;
     public void SubmitScore()
     {
-        LeaderboardCreator.GetLeaderboard("c27757b80fa469562d1ffd09d2ca68f2bc83b4b09b7ae661cf7d3e4485014e2e", (msg) =>
+        maxScore = GameManager.Instance.score;
+        LeaderboardCreator.GetLeaderboard(publicLeaderBoardKey, (msg) =>
         {
             foreach (var entry in msg)
             {
-                names.Add((entry.Username, entry.Score));
+                if (entry.Username.Contains(inputName.text))
+                {
+                    if (entry.Score < maxScore)
+                    {
+                        maxScore = entry.Score;
+                    }
+                }
             }
         });
-        if (!names.Contains((inputName.text, int.Parse(inputScore.text))))
-        {
-            if (int.Parse(inputScore.text) < GameManager.Instance.score)
-            {
-                submitScoreEvent.Invoke(inputName.text, GameManager.Instance.score);
-            }
-        }
+
+        submitScoreEvent.Invoke(inputName.text, maxScore);
+    }
+    public void ClickOnButton()
+    {
+        inputScore = GameManager.Instance.score;
+
+    }
+    public void Update()
+    {
+        SubmitScore();
     }
 }
