@@ -73,7 +73,10 @@ public class BouncingShell : MonoBehaviour, IHitable
         activeTimer = 0f;
         wanderTimer = wanderChangeInterval;
         PickNewWanderDirection();
-        rb.linearVelocity = Vector3.zero;
+        rb.isKinematic = false;
+        rb.useGravity = true;                          // make sure gravity is on
+        rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+
     }
 
     private void PickNewWanderDirection()
@@ -97,7 +100,11 @@ public class BouncingShell : MonoBehaviour, IHitable
                 wanderTimer = wanderChangeInterval;
             }
 
-            rb.linearVelocity = wanderDir * wanderSpeed;
+            var v = rb.linearVelocity;                     // keep current vertical velocity
+            v.x = wanderDir.x * wanderSpeed;
+            v.z = wanderDir.z * wanderSpeed;
+            rb.linearVelocity = v;
+
 
             // Rotate to velocity
             if (rb.linearVelocity.sqrMagnitude > 0.01f)
