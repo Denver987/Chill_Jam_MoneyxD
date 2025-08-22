@@ -24,6 +24,7 @@ public class Player : MonoBehaviour
     private float timer = 0f;
 
     public InputSystem inputSystem;
+    public Knockback knockback; // Reference to the Knockback script
 
     [Header("Vignette Settings")]
     public Volume postProcessing;
@@ -46,6 +47,7 @@ public class Player : MonoBehaviour
     private void Awake()
     {
         inputSystem = GetComponent<InputSystem>();
+        knockback = GetComponent<Knockback>();
     }
     void Start()
     {
@@ -251,21 +253,18 @@ public class Player : MonoBehaviour
 
 
 
-    // private void Die()
-    // {
-    //     CanvasSingleton.Instance.die.SetActive(true);
-    //     Cursor.lockState = CursorLockMode.None;
-    //     CanvasSingleton.Instance.die.GetComponent<DieTMP>().ShowText(level, experience, darkmoonCards.Count);
-    //     Time.timeScale = 0f; 
-    //     Debug.Log("Player has died. Level: " + level + ", Experience: " + experience + ", Cards: " + darkmoonCards.Count);
-
-
-    //     Debug.Log("Player died!");
-    //     CameraSettings.Instance.OnPlayerDeath();
-    //     if (CameraSettings.Instance == null)
-    //     {
-    //         Debug.LogError("CameraSettings.Instance is NULL. Is the script on the Main Camera and enabled?");
-    //         return;
-    //     }
-    // }
+    private void Die()
+    {
+        GameManager.Instance.StopGame(); // Stop the game
+        inputSystem.enabled = false; // Disable player input
+        knockback.enabled = false; // Disable knockback to prevent further movement
+        Debug.Log("Player died!");
+        CameraSettings.Instance.OnPlayerDeath();
+        if (CameraSettings.Instance == null)
+        {
+            Debug.LogError("CameraSettings.Instance is NULL. Is the script on the Main Camera and enabled?");
+            return;
+        }
+        // TODO: death screen, respawn, etc.
+    }
 }

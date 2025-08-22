@@ -1,12 +1,32 @@
+using SmallHedge.SoundManager;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public float score = 0f;
+    public int score = 0;
     public  EnemySpawner EnemySpawner; // Reference to the EnemySpawner script
-    public WaveManager WaveManager; // Reference to the WaveManager script
+    public WaveManager WaveManager;
 
-    public void AddScore(float amount)
+    public static GameManager Instance { get; private set; } // Singleton instance
+
+
+
+    private void Awake()
+    {
+
+
+        EnemySpawner = GetComponentInChildren<EnemySpawner>();
+        WaveManager = GetComponentInChildren<WaveManager>();
+        Instance = this; // Set the singleton instance
+        if(Instance != this)
+        {
+            Destroy(gameObject); // Ensure only one instance exists
+        }
+    }
+
+    // Reference to the WaveManager script
+
+    public void AddScore(int amount)
     {
         score += amount;
         Debug.Log("Score added: " + amount + ". Total score: " + score);
@@ -14,13 +34,30 @@ public class GameManager : MonoBehaviour
 
     public void ResetScore()
     {
-        score = 0f;
+        score = 0;
         Debug.Log("Score reset. Total score: " + score);
     }
 
     public void StopGame()
     {
-               Debug.Log("Game stopped. Final score: " + score);
+        Time.timeScale = 0; // Stop the game by setting time scale to 0
+        foreach (var enemy in EnemySpawner.ActiveEnemies)
+        {
+            if (enemy != null)
+            {
+               enemy.gameObject.SetActive(false); // Deactivate each enemy
+            }
+        }
+        EnemySpawner.ActiveEnemies.Clear();
+        
+        
+        // Clear active enemies
+        WaveManager.StopAllCoroutines(); // Stop all wave spawning coroutines
+        EnemySpawner.enabled = false; // Disable the EnemySpawner
+        WaveManager.enabled = false; // Disable the WaveManager
+
+
+        Debug.Log("Game stopped. Final score: " + score);
         // Additional logic to stop the game can be added here
     }
 

@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be4dd72453f44b44cbb4924af47d8bfa, type: 3}
+  m_Name: GolemEnnemy
+  m_EditorClassIdentifier: 
+  minspeed: 4
+  maxspeed: 6
+  moveSpeed: 1
+  spreadRadius: 1.5
+  separationRadius: 3
+  avoidanceForce: 3
+  separationUpdateRate: 0.2
+  knockbackRecoveryTime: 0.5
+  rotationSpeed: 5
+  maxRotationSpeed: 10
+  minRotationSpeed: 5
+  attackRange: 4
+  attackCooldown: 2
+  attackKnockbackForce: 45
+  attackDamage: 25
+  AvoidancePriority: 50
+  BaseOffset: 0
+  Height: 2.8
+  ObstacleAvoidanceType: 4
+  Radius: 0.75
+  StoppingDistance: 0

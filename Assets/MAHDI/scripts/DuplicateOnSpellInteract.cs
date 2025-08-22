@@ -20,11 +20,13 @@ public class DuplicateOnSpellInteract : MonoBehaviour
     [Tooltip("Delay before deleting the original (0 = instant on throw).")]
     public float destroyOriginalDelay = 0f;
 
+    public bool isThrown = false;
     private bool preparedThisGrab;
 
     /// Call when the spell STARTS interacting/holding this object.
     public void OnSpellPrepare()
     {
+        isThrown = false; // reset the thrown state for the next grab
         if (onlyOncePerGrab && preparedThisGrab) return;
         preparedThisGrab = true;
         DuplicatorManager.PrepareClone(gameObject, stripOnClone);
@@ -33,6 +35,7 @@ public class DuplicateOnSpellInteract : MonoBehaviour
     /// Call when the spell THROWS this object (after applying your impulse).
     public void OnSpellThrown()
     {
+        isThrown = true;
         // start the timer that will ENABLE the prepared clone
         DuplicatorManager.BeginActivationAfterThrow(gameObject, delayAfterThrow);
 
@@ -41,6 +44,19 @@ public class DuplicateOnSpellInteract : MonoBehaviour
             Destroy(gameObject, Mathf.Max(0f, destroyOriginalDelay));
 
         preparedThisGrab = false; // allow a new cycle on next grab
+
+
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (isThrown)
+        {
+            if (collision.gameObject.GetComponent<EnnemyMovement>())
+            {
+                collision.gameObject.GetComponent<EnnemyMovement>().Die();
+            }
+        }
     }
 
     /// Call if you DROP (not throw) and want to cancel the prepared clone.

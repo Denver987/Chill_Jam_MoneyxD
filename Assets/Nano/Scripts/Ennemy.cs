@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -18,28 +19,54 @@ public class Enemy : PoolableObject
 
         Agent.enabled = false;
     }
-    public void ResetEnemy(Vector3 position, Transform target)
-    {
-       
-        Movement.canattack = true; // Reset attack state
-        Movement.isDead = false; // Reset death state
-        Movement.isKnockedBack = false; // Reset knockback state
-        this.transform.GetChild(1).gameObject.SetActive(true); // hide the dust explosion  
-        // Reactivate navmesh agent
-        Agent.enabled = true;
-        Agent.Warp(position);
 
-        // Reset movement target
+
+    public IEnumerator ResetEnemy(Vector3 position, Transform target, float spawnEffectDelay = 0.5f)
+    {
+        Movement.enabled = false; // Disable movement to prevent any unwanted actions during reset
+        Movement.canattack = true;
+        Movement.isDead = false;
+        Movement.isKnockedBack = false;
+
+        // Ensure the object is active so effects can play
+        gameObject.SetActive(true);
+
+
+        // Reset NavMesh agent and physics
+        Agent.enabled = true;
+       
+        Agent.Warp(position);
+        this.transform.position = position; // Move to the spawn position first
         Movement.target = target;
 
-        // Reset knockback / physics
+        // Show only the spawn effect child
+        Transform spawnEffectChild = this.transform.GetChild(1);
+        spawnEffectChild.gameObject.SetActive(true);
+
+        // Hide other children temporarily
+        for (int i = 0; i < this.transform.childCount; i++)
+        {
+            if (i != 1)
+                this.transform.GetChild(i).gameObject.SetActive(false);
+        }
+
+        // Wait for the effect duration
+        yield return new WaitForSeconds(spawnEffectDelay);
+
+        this.transform.GetChild(1).gameObject.SetActive(false);
+
+        // Reactivate full visuals
+        for (int i = 2; i < this.transform.childCount; i++)
+            this.transform.GetChild(i).gameObject.SetActive(true);
+
+
         Rigidbody rb = GetComponent<Rigidbody>();
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
-        // Reactivate the object
-        gameObject.SetActive(true);
+        Movement.enabled = true;
     }
+
 
     public virtual void SetupAgentFromConfiguration()
     {
