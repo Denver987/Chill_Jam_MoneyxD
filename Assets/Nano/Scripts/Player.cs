@@ -82,6 +82,7 @@ public class Player : MonoBehaviour
 
     public void UpdateLevel()
     {
+        this.gameObject.GetComponent<Knockback>().enabled = false;
         SoundManager.PlaySound(SoundType.levelUp, this.GetComponent<AudioSource>(), 0.5f); // Play level up sound with volume 0.5
         if (health < maxHealth)
         {

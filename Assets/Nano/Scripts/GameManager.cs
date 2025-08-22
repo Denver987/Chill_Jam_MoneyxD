@@ -27,13 +27,16 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        if(SceneManager.GetActiveScene().buildIndex == 1 || SceneManager.GetActiveScene().buildIndex == 0)
+        if(SceneManager.GetActiveScene().buildIndex == 0 )
         {
-            SoundManager.PlayMusicLoop(SoundType.Music1, null, 0.5f);
+            SoundManager.PlayMusicLoop(SoundType.Music2, null, 0.25f);
         }
-        else
+        else if(SceneManager.GetActiveScene().buildIndex == 2)
         {
-                       SoundManager.PlayMusicLoop(SoundType.Music3, null, 0.5f);
+                       SoundManager.PlayMusicLoop(SoundType.Music3, null, 0.25f);
+        }else if(SceneManager.GetActiveScene().buildIndex == 1)
+        {
+                       SoundManager.PlayMusicLoop(SoundType.Music1, null, 0.25f);
         }
     }
     public void LoadScene(int buildIndex)

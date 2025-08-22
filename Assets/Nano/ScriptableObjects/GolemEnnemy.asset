@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be4dd72453f44b44cbb4924af47d8bfa, type: 3}
   m_Name: GolemEnnemy
   m_EditorClassIdentifier: 
-  minspeed: 4
-  maxspeed: 6
+  minspeed: 5
+  maxspeed: 7
   moveSpeed: 1
   spreadRadius: 1.5
   separationRadius: 3

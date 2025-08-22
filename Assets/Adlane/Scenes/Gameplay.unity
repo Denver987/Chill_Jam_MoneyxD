@@ -326,7 +326,7 @@ PrefabInstance:
     - target: {fileID: 2677717870251275473, guid: 86ab9978a12780643949b1caa7130f6e, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 2102288060}
+      objectReference: {fileID: 2000026803}
     - target: {fileID: 2791272178276573035, guid: 86ab9978a12780643949b1caa7130f6e, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -720,13 +720,13 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!43 &2102288060
+--- !u!43 &2000026803
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: WaterVolume--1286400
+  m_Name: WaterVolume--744554
   serializedVersion: 11
   m_SubMeshes:
   - serializedVersion: 2
@@ -914,9 +914,33 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 940849130707843443, guid: 9730f890e163f0541a416eed61356f6e, type: 3}
     - target: {fileID: 2365289815191449833, guid: 38ca042b9e7428c49bdec8e147e8bac9, type: 3}
+      propertyPath: baseSpawnCount
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2365289815191449833, guid: 38ca042b9e7428c49bdec8e147e8bac9, type: 3}
+      propertyPath: baseSpawnInterval
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2365289815191449833, guid: 38ca042b9e7428c49bdec8e147e8bac9, type: 3}
       propertyPath: stages.Array.data[1].startMinute
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 2365289815191449833, guid: 38ca042b9e7428c49bdec8e147e8bac9, type: 3}
+      propertyPath: stages.Array.data[3].enemyTypes.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2365289815191449833, guid: 38ca042b9e7428c49bdec8e147e8bac9, type: 3}
+      propertyPath: stages.Array.data[2].enemyTypes.Array.data[1].weight
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2365289815191449833, guid: 38ca042b9e7428c49bdec8e147e8bac9, type: 3}
+      propertyPath: stages.Array.data[3].enemyTypes.Array.data[2].weight
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 2365289815191449833, guid: 38ca042b9e7428c49bdec8e147e8bac9, type: 3}
+      propertyPath: stages.Array.data[3].enemyTypes.Array.data[2].enemyPrefab
+      value: 
+      objectReference: {fileID: 940849130707843443, guid: 9730f890e163f0541a416eed61356f6e, type: 3}
     - target: {fileID: 2885228116447485866, guid: 38ca042b9e7428c49bdec8e147e8bac9, type: 3}
       propertyPath: m_LocalPosition.y
       value: -5.904
