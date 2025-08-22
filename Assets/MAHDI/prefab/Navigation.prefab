@@ -381,6 +381,7 @@ GameObject:
   - component: {fileID: 3796510621307667135}
   - component: {fileID: 2791272178276573035}
   - component: {fileID: 3039169579663178785}
+  - component: {fileID: -7295692893520258741}
   m_Layer: 0
   m_Name: Navigation
   m_TagString: Untagged
@@ -468,6 +469,38 @@ MonoBehaviour:
   m_VoxelSize: 0.5
   m_MinRegionArea: 2
   m_NavMeshData: {fileID: 23800000, guid: cd27693aa04f2e24a9aa8edaf2a0b317, type: 2}
+  m_BuildHeightMesh: 0
+--- !u!114 &-7295692893520258741
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 249826431629321361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SerializedVersion: 0
+  m_AgentTypeID: 0
+  m_CollectObjects: 0
+  m_Size: {x: 10, y: 10, z: 10}
+  m_Center: {x: 0, y: 2, z: 0}
+  m_LayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_UseGeometry: 0
+  m_DefaultArea: 0
+  m_GenerateLinks: 0
+  m_IgnoreNavMeshAgent: 1
+  m_IgnoreNavMeshObstacle: 1
+  m_OverrideTileSize: 0
+  m_TileSize: 256
+  m_OverrideVoxelSize: 0
+  m_VoxelSize: 0.33333334
+  m_MinRegionArea: 2
+  m_NavMeshData: {fileID: 0}
   m_BuildHeightMesh: 0
 --- !u!1 &270558407793769039
 GameObject:
@@ -7265,6 +7298,7 @@ MonoBehaviour:
   onlyOncePerGrab: 1
   destroyOriginalOnThrow: 1
   destroyOriginalDelay: 20
+  isThrown: 0
 --- !u!114 &1972554601934986568
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -36053,6 +36087,7 @@ MonoBehaviour:
   onlyOncePerGrab: 1
   destroyOriginalOnThrow: 1
   destroyOriginalDelay: 20
+  isThrown: 0
 --- !u!114 &6239254310693671711
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -53639,6 +53674,7 @@ MonoBehaviour:
   onlyOncePerGrab: 1
   destroyOriginalOnThrow: 1
   destroyOriginalDelay: 20
+  isThrown: 0
 --- !u!114 &231221292947921539
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -65784,6 +65820,7 @@ MonoBehaviour:
   onlyOncePerGrab: 1
   destroyOriginalOnThrow: 1
   destroyOriginalDelay: 20
+  isThrown: 0
 --- !u!114 &6268542428432101480
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -66068,6 +66105,7 @@ MonoBehaviour:
   onlyOncePerGrab: 1
   destroyOriginalOnThrow: 1
   destroyOriginalDelay: 20
+  isThrown: 0
 --- !u!114 &2793511284826119873
 MonoBehaviour:
   m_ObjectHideFlags: 0
