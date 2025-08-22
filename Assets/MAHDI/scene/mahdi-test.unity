@@ -262,6 +262,10 @@ PrefabInstance:
       propertyPath: spawnChance
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2909832669306934116, guid: fb43f3004efadf94fab9b1e53d0dce2c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.01
+      objectReference: {fileID: 0}
     - target: {fileID: 2977581803618796525, guid: fb43f3004efadf94fab9b1e53d0dce2c, type: 3}
       propertyPath: m_Name
       value: EnnemyManager 2
