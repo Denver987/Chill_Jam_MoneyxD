@@ -118,23 +118,28 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     {
         if (isGolem) return; // Golems don't take damage from collisions
         EnnemyMovement otherEnemy = collision.gameObject.GetComponent<EnnemyMovement>();
-        if(otherEnemy != null)
+        if (otherEnemy != null)
         {
             if (isKnockedBack)
             {
 
                 Die();
-                if(otherEnemy.isGolem) return; // Golems don't die from collisions
+                if (otherEnemy.isGolem) return; // Golems don't die from collisions
                 otherEnemy.Die(); // if knocked back, both die
             }
-        }else if (collision.gameObject.CompareTag("Obstacle"))
+        }
+        else if (collision.gameObject.CompareTag("Obstacle"))
         {
-           
+
             Debug.Log("Hit wall");
             if (isKnockedBack)
             {
                 Die();
             }
+        }
+        else if (collision.gameObject.CompareTag("Wate")) {
+
+            Die();
         }
     }
     public  void Die()
@@ -149,7 +154,7 @@ public class EnnemyMovement : MonoBehaviour,IHitable
         SoundManager.PlaySound(SoundType.enemyDeath, GetComponent<AudioSource>(), 0.5f); // Play death sound with volume 0.5
 
         CameraSettings.Instance.StartShake(0.2f, 0.05f);
-        CameraSettings.Instance.StartSlowMotion(0.5f, 0.5f);
+        CameraSettings.Instance.StartSlowMotion(0.5f, 0.25f);
        
        
         // hide the enemy model
