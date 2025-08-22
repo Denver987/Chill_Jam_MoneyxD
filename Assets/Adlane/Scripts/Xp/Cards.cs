@@ -59,7 +59,7 @@ public class Cards : MonoBehaviour
 
                 break;
             case CardType.HealthRegeneration:
-                player.health += 2;
+                player.IncreaseHealing(2);
                 cardCapCounter++;
 
                 break;
