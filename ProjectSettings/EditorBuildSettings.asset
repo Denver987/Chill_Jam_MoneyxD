@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/Adlane/Scenes/MainMenu/main menu scene.unity
     guid: 722a225c9b5937c42b9f7a453ea60bef
   - enabled: 1
+    path: Assets/MAHDI/scene/mahdi-test 1.unity
+    guid: a4f1c54dc68fb99488e54f946c16081c
+  - enabled: 1
     path: Assets/Nano/Scenes/Nanoest.unity
     guid: 40ad8c65d011c524a8dde04b7ac1c599
   m_configObjects:
