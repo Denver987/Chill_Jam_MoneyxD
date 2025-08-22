@@ -959,7 +959,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2365289815191449833, guid: 38ca042b9e7428c49bdec8e147e8bac9, type: 3}
       propertyPath: stages.Array.data[3].startMinute
-      value: 3
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 2365289815191449833, guid: 38ca042b9e7428c49bdec8e147e8bac9, type: 3}
       propertyPath: stages.Array.data[1].enemyTypes.Array.size
