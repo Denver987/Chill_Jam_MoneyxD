@@ -6,7 +6,9 @@ namespace SmallHedge.SoundManager
     public enum SoundType
     {
         
-        Music,
+        Music1,
+        Music2,
+        Music3,
         Menu,
         PlayerDamage,
         ennemyDamage,

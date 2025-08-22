@@ -1,5 +1,6 @@
 using SmallHedge.SoundManager;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -21,6 +22,18 @@ public class GameManager : MonoBehaviour
         if(Instance != this)
         {
             Destroy(gameObject); // Ensure only one instance exists
+        }
+    }
+
+    private void Start()
+    {
+        if(SceneManager.GetActiveScene().buildIndex == 1 || SceneManager.GetActiveScene().buildIndex == 0)
+        {
+            SoundManager.PlayMusicLoop(SoundType.Music1, null, 0.5f);
+        }
+        else
+        {
+                       SoundManager.PlayMusicLoop(SoundType.Music3, null, 0.5f);
         }
     }
     public void LoadScene(int buildIndex)

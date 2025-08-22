@@ -30,7 +30,23 @@ namespace SmallHedge.SoundManager
                 PlayMusic(currentMusic.Value, audioSource);
             }
         }
+        public static void PlayMusicLoop(SoundType sound, AudioClip clip = null, float volume = 1f)
+        {
+            if (instance == null) return;
 
+            SoundList soundList = instance.SO.sounds[(int)sound];
+
+            // If no specific clip provided, pick random one
+            AudioClip chosenClip = clip ?? soundList.sounds[UnityEngine.Random.Range(0, soundList.sounds.Length)];
+
+            instance.audioSource.outputAudioMixerGroup = soundList.mixer;
+            instance.audioSource.clip = chosenClip;
+            instance.audioSource.volume = volume * soundList.volume;
+            instance.audioSource.loop = true; // 🔁 Loop this time
+            instance.audioSource.Play();
+
+            instance.currentMusic = sound;
+        }
         private void Start()
         {
              //StartCoroutine(StartMusic());
@@ -39,7 +55,7 @@ namespace SmallHedge.SoundManager
         IEnumerator StartMusic()
         {
             yield return new WaitForSeconds(0.1f);
-            PlayMusic(SoundType.Music, audioSource, 0.2f); // Start with a lower volume
+          
         }
         private void PlayMusic(SoundType sound, AudioSource source, float volume = 1)
         {
@@ -84,6 +100,7 @@ namespace SmallHedge.SoundManager
             }
         }
     }
+   
 
 
 

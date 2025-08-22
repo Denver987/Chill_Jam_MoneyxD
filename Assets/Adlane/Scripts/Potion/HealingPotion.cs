@@ -36,7 +36,7 @@ public class HealingPotion : MonoBehaviour
             StartCoroutine(player.FlashGreen());
 
         }
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(1.1f);
         this.gameObject.SetActive(false);
     }
 }

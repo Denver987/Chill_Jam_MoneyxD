@@ -13,14 +13,21 @@ MonoBehaviour:
   m_Name: Sounds
   m_EditorClassIdentifier: 
   sounds:
-  - name: Music
+  - name: Music1
     volume: 1
     mixer: {fileID: 0}
     sounds:
-    - {fileID: 8300000, guid: ba032b10174f8b1478459693b39d815b, type: 3}
-    - {fileID: 8300000, guid: 6b8bbc92328bb5c4699a3fc24a623028, type: 3}
-    - {fileID: 8300000, guid: 3b22015487e9565489ce017a7f2ada31, type: 3}
-    - {fileID: 8300000, guid: 1ca2144859df6084383378e67a8e464d, type: 3}
+    - {fileID: 8300000, guid: 646af35ca01e280469109532e97c4196, type: 3}
+  - name: Music2
+    volume: 1
+    mixer: {fileID: 0}
+    sounds:
+    - {fileID: 8300000, guid: 5742b9c9a046b9542a52caacb9e3bd9a, type: 3}
+  - name: Music3
+    volume: 1
+    mixer: {fileID: 0}
+    sounds:
+    - {fileID: 8300000, guid: 69a43c30736a48142a3c736dfa14610d, type: 3}
   - name: Menu
     volume: 1
     mixer: {fileID: 0}
