@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -50,6 +51,7 @@ public class EnemySpawner : MonoBehaviour
         {
             EnemyObjectPools.Add(i, ObjectPool.CreateInstance(EnemyPrefabs[i],initialPoolSize, this.transform));
         }
+     
 
         if (bouncingShellPrefab != null)
         {
@@ -67,15 +69,17 @@ public class EnemySpawner : MonoBehaviour
                 this.transform
             );
         }
+        
      
 
     }
 
+    
     private bool once = false;
 
     private void Update()
     { 
-        if (target.gameObject.GetComponent<MagneticPull>().enabled && !once)
+        if (target.gameObject.GetComponent<MagneticPull>().enabled && !once && GameManager.Instance.isTutorial == false)
         {
             EnemyObjectPools.Add(2, ObjectPool.CreateInstance(EnemyPrefabs[2], initialPoolSize, this.transform));
             once = true; // ensure this runs only once
@@ -108,8 +112,14 @@ public class EnemySpawner : MonoBehaviour
 
     private void Start()
     {
-        // Start automatic shell spawning
-        StartCoroutine(ShellSpawnRoutine());
+
+        if (GameManager.Instance.isTutorial)
+        {
+            EnemyObjectPools.Add(2, ObjectPool.CreateInstance(EnemyPrefabs[2], initialPoolSize, this.transform));
+            once = true; // ensure this runs only once
+        }
+            // Start automatic shell spawning
+            StartCoroutine(ShellSpawnRoutine());
 
         foreach (var zone in spawnzones)
         {
