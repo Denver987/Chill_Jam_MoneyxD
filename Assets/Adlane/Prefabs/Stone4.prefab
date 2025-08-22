@@ -102,12 +102,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 709aaf73dd5fba14db19428cce687960, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 3
   rotatingSpeed: 130
-  floatingSpeed: 1
   pullStrength: 10
   radius: 15
-  height: 0.1
+  separationRadius: 1
+  separationStrength: 5
+  type: 3
 --- !u!65 &8521060700956920252
 BoxCollider:
   m_ObjectHideFlags: 0

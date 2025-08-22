@@ -42,7 +42,10 @@ public class CanvasSingleton : MonoBehaviour
             UpdateHealthBarSize();
         }
     }
-
+    public void CardsUI() {
+        Instance.CardsSelection.SetActive(true);
+        CardsSelection.GetComponent<CardSelectionUI>().SpawnCards();
+    }
     
     public float GetPlayerCharge()
     {

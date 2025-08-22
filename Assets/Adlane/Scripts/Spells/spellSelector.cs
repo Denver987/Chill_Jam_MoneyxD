@@ -21,7 +21,7 @@ public class SpellSelector : MonoBehaviour
     }
     public void ShockWave(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (context.performed && !gameObject.GetComponent<Knockback>().isCharging && !gameObject.GetComponent<MagneticPull>().isHolding)
         {
             knockback.enabled = true;
             magneticPull.enabled = false;
@@ -31,7 +31,7 @@ public class SpellSelector : MonoBehaviour
     }
     public void MagneticPull(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (context.performed && !gameObject.GetComponent<Knockback>().isCharging && !gameObject.GetComponent<MagneticPull>().isHolding)
         {
             knockback.enabled = false;
             magneticPull.enabled = true;

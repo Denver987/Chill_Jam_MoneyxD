@@ -17,7 +17,8 @@ public class Cards : MonoBehaviour
         DropRatePotion,
         IncreaseKnockbackRange,
         DecreasePullCd,
-        IncreasePullRange
+        IncreasePullRange,
+        Heal
     }
     public CardType cardType;
     public bool canSpawn;
@@ -55,10 +56,12 @@ public class Cards : MonoBehaviour
             case CardType.SpeedBoost:
                 player.GetComponent<InputSystem>().moveSpeed += 2;
                 cardCapCounter++;
+
                 break;
             case CardType.HealthRegeneration:
                 player.health += 2;
                 cardCapCounter++;
+
                 break;
             case CardType.SpawnRateCapsule:
                 // TODO
@@ -71,16 +74,27 @@ public class Cards : MonoBehaviour
             case CardType.IncreaseKnockbackRange:
                 player.GetComponent<Knockback>().maxDistance += 2;
                 cardCapCounter++;
+
                 break;
             case CardType.DecreasePullCd:
                 player.GetComponent<MagneticPull>().pullCooldownTimer -= 1f;
                 cardCapCounter++;
+
                 break;
             case CardType.IncreasePullRange:
                 player.GetComponent<MagneticPull>().pullRange += 2f;
                 cardCapCounter++;
+
+                break;
+            case CardType.Heal:
+                player.health += 15;
+                cardCapCounter++;
                 break;
         }
+        Time.timeScale = 1f;
+        transform.parent.parent.gameObject.SetActive(false);
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
     public void Update()
     {

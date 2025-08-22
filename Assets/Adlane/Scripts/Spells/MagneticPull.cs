@@ -26,7 +26,7 @@ public class MagneticPull : MonoBehaviour
 
     [SerializeField] private Vector3 rotationAxis = new Vector3(1, 1, 1);
     private Rigidbody heldItem;
-    private bool isHolding;
+    public bool isHolding;
     private bool isThrowing = false;
     public float pullCooldownTimer = 0f;
 

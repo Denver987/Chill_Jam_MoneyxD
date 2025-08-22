@@ -1,3 +1,4 @@
+using System.Security.Cryptography.X509Certificates;
 using SmallHedge.SoundManager;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -21,7 +22,7 @@ public class Knockback : MonoBehaviour
     public float upwardForce = 0.5f; // how much upward force to apply when hitting the ground
     private float nextAllowedHitTime = 0f;
     private float chargeStartTime = -1f;
-    private bool isCharging = false;
+    public bool isCharging = false;
     private Rigidbody rb;
     public Animator animator;
     public float ChargeNormalized { get; private set; } = 0f;

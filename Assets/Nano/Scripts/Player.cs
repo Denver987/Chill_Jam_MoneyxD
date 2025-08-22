@@ -1,3 +1,4 @@
+using DG.Tweening;
 using SmallHedge.SoundManager;
 using System.Collections;
 using Unity.VisualScripting;
@@ -11,12 +12,12 @@ public class Player : MonoBehaviour
     [Header("Health")]
     public int maxHealth = 100;
     public int health = 100;
-    [Header ("Exp things")]
+    [Header("Exp things")]
     public float experience = 0;
     public float experienceToNextLevel = 100f;
     public int level = 1;
     public float xpGainMultiplier = 1.2f;
-    public System.Collections.Generic.List<DarkmoonCards> darkmoonCards = new System.Collections.Generic.List<DarkmoonCards>();
+
     [Header("Invulnerability")]
     public bool invulnerable = false;
     public float invulnerabilityTime = 1f;
@@ -35,13 +36,20 @@ public class Player : MonoBehaviour
     private bool originalRounded;
     private Vector2 originalVignetteCenter;
 
+    // Add these fields to your Player class
+    [Header("Health Regeneration")]
+    public float healingRegen = 0;        // Amount to heal per tick
+    public float regenTickInterval = 1f;  // Heal every 1 second
+    private Coroutine regenCoroutine;     // Reference to active regen coroutine
+    private bool isRegenerating = false;  // Track if regeneration is active
+
     private void Awake()
     {
         inputSystem = GetComponent<InputSystem>();
     }
     void Start()
     {
-        
+
 
         if (postProcessing.profile.TryGet<Vignette>(out var vignette))
         {
@@ -51,6 +59,9 @@ public class Player : MonoBehaviour
             originalRounded = vignette.rounded.value;
             originalVignetteCenter = vignette.center.value;
         }
+
+
+        UpdateRegeneration();
     }
 
     private void Update()
@@ -64,24 +75,17 @@ public class Player : MonoBehaviour
                 timer = 0f;
             }
         }
-        if (experience >= experienceToNextLevel)
-        {
-            LevelUp();
-        }
 
     }
-    private void LevelUp()
+
+    public void UpdateLevel()
     {
-        level++;
         if (health < maxHealth)
         {
-            health = maxHealth; // Restore health on level up
+            health = maxHealth;
         }
-        experience = 0;
-        experienceToNextLevel *= xpGainMultiplier;
-        CanvasSingleton.Instance.CardsSelection.SetActive(true);
-        CanvasSingleton.Instance.CardsSelection.GetComponent<CardSelectionUI>().SpawnCards();
-
+        Time.timeScale = 0f;
+        CanvasSingleton.Instance.CardsUI();
     }
 
     public void TakeDamage(int damage, Vector3 hitDirection, float knockbackForce)
@@ -154,6 +158,98 @@ public class Player : MonoBehaviour
         invulnerable = true;
 
     }
+    public void addExperience(int amount)
+    {
+        experience += amount;
+        checkLevelUp();
+    }
+    private void checkLevelUp()
+    {
+        while (experience >= experienceToNextLevel)
+        {
+            experience -= experienceToNextLevel;
+            level++;
+            experienceToNextLevel = Mathf.RoundToInt(experienceToNextLevel * xpGainMultiplier);
+            UpdateLevel();
+        }
+    }
+
+    // Add this method to start/update the regeneration
+    private void UpdateRegeneration()
+    {
+        // Only run regen if we have some healing power
+        if (healingRegen > 0)
+        {
+            // If regen is already running, stop it so we can restart with new values
+            if (isRegenerating && regenCoroutine != null)
+            {
+                StopCoroutine(regenCoroutine);
+            }
+
+            // Start the regeneration coroutine
+            regenCoroutine = StartCoroutine(RegenerateHealth());
+        }
+        else if (isRegenerating && regenCoroutine != null)
+        {
+            // Stop regeneration if healing power becomes zero
+            StopCoroutine(regenCoroutine);
+            isRegenerating = false;
+        }
+    }
+
+    // Coroutine that handles the actual healing
+    private IEnumerator RegenerateHealth()
+    {
+        isRegenerating = true;
+
+        while (true) // Run until stopped
+        {
+            // Wait for the tick interval
+            yield return new WaitForSeconds(regenTickInterval);
+
+            // Only heal if not at max health and game isn't paused
+            if (health < maxHealth && Time.timeScale > 0)
+            {
+                // Calculate the target health (capped at max health)
+                int amountToHeal = Mathf.RoundToInt(healingRegen);
+                int targetHealth = Mathf.Min(health + amountToHeal, maxHealth);
+                
+                if (targetHealth > health)
+                {
+                    // Store the starting health for the tween
+                    int startHealth = health;
+
+                    // Tween the health value over 0.25 seconds
+                    DOTween.To(
+                        () => health,
+                        x => health = x,
+                        targetHealth,
+                        1
+                    ).SetEase(Ease.OutQuad);
+
+                
+                    // Wait for the tween to complete
+                    yield return new WaitForSeconds(1);
+                }
+            }
+
+            // If at max health and game is paused, wait until conditions change
+            if (health >= maxHealth || Time.timeScale == 0)
+            {
+                yield return new WaitUntil(() => Time.timeScale > 0 && health < maxHealth);
+            }
+        }
+    }
+
+
+    public void IncreaseHealing(float amount)
+    {
+        healingRegen += amount;
+        UpdateRegeneration();
+    }
+
+
+
 
     // private void Die()
     // {
@@ -163,7 +259,7 @@ public class Player : MonoBehaviour
     //     Time.timeScale = 0f; 
     //     Debug.Log("Player has died. Level: " + level + ", Experience: " + experience + ", Cards: " + darkmoonCards.Count);
 
-        
+
     //     Debug.Log("Player died!");
     //     CameraSettings.Instance.OnPlayerDeath();
     //     if (CameraSettings.Instance == null)
