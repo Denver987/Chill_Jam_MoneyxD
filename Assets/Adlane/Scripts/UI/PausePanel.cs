@@ -21,10 +21,11 @@ public class PausePanel : MonoBehaviour
     public void ResumeGame()
     {
         Time.timeScale = 1f; // Resume the game
-        gameObject.SetActive(false); // Hide the pause panel
+
         Cursor.lockState = CursorLockMode.None; // Lock the cursor
         Cursor.visible = false;
         CanvasSingleton.Instance.HidePausePanel(); // Hide the pause panel from the singleton
+        gameObject.SetActive(false); // Hide the pause panel
     }
     public void Back()
     {

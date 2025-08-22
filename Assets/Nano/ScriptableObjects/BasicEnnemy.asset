@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be4dd72453f44b44cbb4924af47d8bfa, type: 3}
   m_Name: BasicEnnemy
   m_EditorClassIdentifier: 
-  minspeed: 3
-  maxspeed: 6
+  minspeed: 5
+  maxspeed: 7
   moveSpeed: 6
   spreadRadius: 1.5
   separationRadius: 3

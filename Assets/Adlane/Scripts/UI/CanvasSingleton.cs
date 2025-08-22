@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 using System.Collections;
+using TMPro;
 
 public class CanvasSingleton : MonoBehaviour
 {
@@ -17,6 +17,8 @@ public class CanvasSingleton : MonoBehaviour
     public GameObject Hand;
     public GameObject CardsSelection;
     public Transform xpBar;
+
+    public TextMeshProUGUI scoreText;
     void Awake()
     {
         // Singleton pattern implementation
@@ -48,7 +50,13 @@ public class CanvasSingleton : MonoBehaviour
         yield return new WaitForSeconds(0.5f); // Wait a frame to ensure the UI is active
         CardsSelection.GetComponent<CardSelectionUI>().SpawnCards();
     }
-    
+    public void UpdateScore(int score)
+    {
+        if (scoreText != null)
+        {
+            scoreText.text = "Score: " + score.ToString();
+        }
+    }
     public float GetPlayerCharge()
     {
         if (spellSelector.currentSpell != SpellSelector.SpellType.Shockwave && spellSelector != null)

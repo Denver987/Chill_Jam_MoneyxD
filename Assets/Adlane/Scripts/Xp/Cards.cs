@@ -27,11 +27,16 @@ public class Cards : MonoBehaviour
     public int cardCapCounter;
     public int maxCardCaps = 3;
     public Player player;
+    public EnemySpawner EnemySpawner;
     void Awake()
     {
         if (player == null)
         {
             player = FindFirstObjectByType<Player>();
+        }
+        if(EnemySpawner == null)
+        {
+            EnemySpawner = FindFirstObjectByType<EnemySpawner>();
         }
     }
 
@@ -63,11 +68,15 @@ public class Cards : MonoBehaviour
 
                 break;
             case CardType.SpawnRateCapsule:
-                // TODO
+                EnemySpawner.spawnChance +=0.1f;
                 cardCapCounter++;
                 break;
             case CardType.DropRatePotion:
                 // TODO
+                foreach (var enemy in EnemySpawner.EnemyPrefabs)
+                {
+                    enemy.GetComponent<Enemy>().gameObject.GetComponent<EnnemyMovement>().HealthPotionDropChance += 0.05f;
+                }
                 cardCapCounter++;
                 break;
             case CardType.IncreaseKnockbackRange:
