@@ -46,6 +46,10 @@ public class MagneticPull : MonoBehaviour
     {
 
         if (animator == null) animator = GetComponentInChildren<Animator>();
+        if (animator == null)
+        {
+            animator = GetComponentInChildren<Animator>();
+        }
     }
     private void Awake()
     {

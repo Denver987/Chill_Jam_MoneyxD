@@ -92,10 +92,10 @@ public class Player : MonoBehaviour
         StartCoroutine(TakeKnockback(hitDirection, knockbackForce, 0.5f)); // Adjust knockback duration as needed
         SoundManager.PlaySound(SoundType.PlayerDamage, this.GetComponent<AudioSource>(), 0.5f); // Play damage sound with volume 0.5
 
-        if (health <= 0)
-        {
-            Die();
-        }
+        // if (health <= 0)
+        // {
+        //     Die();
+        // }
     }
     private IEnumerator FlashRed()
     {
