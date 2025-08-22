@@ -20,6 +20,8 @@ public class CanvasSingleton : MonoBehaviour
     public GameObject spells;
 
     public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI levelText; // <-- new: assign in inspector (or auto-find)
+
     void Awake()
     {
         // Singleton pattern implementation
@@ -38,6 +40,13 @@ public class CanvasSingleton : MonoBehaviour
         if (player == null) player = FindFirstObjectByType<Player>();
         if (healthBarRect == null) healthBarRect = GameObject.Find("HealthBar").GetComponent<RectTransform>();
         if (healthSlider == null) healthSlider = healthBarRect.gameObject.GetComponent<Slider>();
+
+        // try to auto-find the level text if not assigned in inspector
+        if (levelText == null)
+        {
+            var go = GameObject.Find("LevelText");
+            if (go != null) levelText = go.GetComponent<TextMeshProUGUI>();
+        }
     }
     void Start()
     {
@@ -87,7 +96,21 @@ public class CanvasSingleton : MonoBehaviour
         {
             UpdateXpBarSize();
         }
+
+        // quick fallback: update level display every frame if we have a text assigned
+        if (levelText != null && player != null)
+        {
+            levelText.text = $"Lv {player.level}";
+        }
     }
+
+    // Call this from Player when the level actually changes (preferred)
+    public void UpdatePlayerLevel()
+    {
+        if (levelText == null || player == null) return;
+        levelText.text = $"Lv {player.level}";
+    }
+
     void UpdateHealthBarSize()
     {
         if (healthBarRect == null || player == null) return;
