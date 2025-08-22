@@ -10,7 +10,7 @@ public class MagneticPull : MonoBehaviour
 
     [Header("Pull Settings")]
     [SerializeField] private float pullStrength = 10f;
-    [SerializeField] private float pullRange = 5f;
+    [SerializeField] public float pullRange = 5f;
     [SerializeField] private float snapSpeed = 5f;
     [SerializeField] private float aimTolerance = 0.5f;
     [SerializeField] private float floatingPosition = 3f;
@@ -26,9 +26,9 @@ public class MagneticPull : MonoBehaviour
 
     [SerializeField] private Vector3 rotationAxis = new Vector3(1, 1, 1);
     private Rigidbody heldItem;
-    private bool isHolding;
+    public bool isHolding;
     private bool isThrowing = false;
-    private float pullCooldownTimer = 0f;
+    public float pullCooldownTimer = 0f;
 
 
     [Header("Telekinesis")]

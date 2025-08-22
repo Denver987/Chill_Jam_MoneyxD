@@ -1,37 +1,61 @@
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
+using System.Collections;
+using System.Collections.Generic;
 
 public class Xpballs : MonoBehaviour
 {
-    public enum ballType
-    {
-        green,
-        red,
-        purple,
-        diamond
-    }
-    public ballType type;
-    public float rotatingSpeed = 100f;
-    public float floatingSpeed = 1f;
-    public float pullStrength = 10f;
-    public float radius = 15f;
-    public float height = 0.1f;
+    // static registry to track all active XP ball instances
+    private static readonly List<Xpballs> allXpBalls = new List<Xpballs>();
 
+    private Collider myCollider;
     private Vector3 startPosition;
     private Transform playerTransform;
     private Vector3 newPosition;
 
-    void Start()
+    [Header("Movement")]
+    public float rotatingSpeed = 100f;
+    public float pullStrength = 10f;
+    public float radius = 15f;
+
+    [Header("Separation (avoid stacking)")]
+    public float separationRadius = 0.5f;       // min distance before repulsion kicks in
+    public float separationStrength = 5f;       // how strong the repulsion is
+
+    public enum ballType { green, red, purple, diamond }
+    public ballType type;
+
+    void Awake()
     {
+        myCollider = GetComponent<Collider>();
         startPosition = transform.position;
         newPosition = startPosition;
     }
 
+    void OnEnable()
+    {
+        if (!allXpBalls.Contains(this)) allXpBalls.Add(this);
+    }
+
+    void OnDisable()
+    {
+        allXpBalls.Remove(this);
+    }
+
+    void OnDestroy()
+    {
+        allXpBalls.Remove(this);
+    }
+
     public void Update()
     {
-        // rotate around Y axis
+        // rotate
         transform.Rotate(0f, rotatingSpeed * Time.deltaTime, 0f, Space.World);
+
+        // find player transform (existing logic)
         newPosition = transform.position;
         Collider[] colliders = Physics.OverlapSphere(transform.position, radius);
+        playerTransform = null;
         foreach (var collider in colliders)
         {
             if (collider.TryGetComponent<Player>(out Player player))
@@ -41,8 +65,9 @@ public class Xpballs : MonoBehaviour
             }
         }
 
+        // pull to player if in range (existing logic)
         if (playerTransform != null)
-        { 
+        {
             Vector3 toPlayer = playerTransform.position - transform.position;
             float distanceToPlayer = toPlayer.magnitude;
             if (distanceToPlayer <= radius)
@@ -51,6 +76,26 @@ public class Xpballs : MonoBehaviour
                 newPosition += moveDirection * pullStrength * Time.deltaTime;
             }
         }
+
+        // Separation pass: push away from other xp balls to avoid stacking
+        // cheap O(n) pass over active balls; keep it light by only doing short-range checks
+        for (int i = 0; i < allXpBalls.Count; i++)
+        {
+            var other = allXpBalls[i];
+            if (other == null || other == this) continue;
+
+            Vector3 diff = transform.position - other.transform.position;
+            float dist = diff.magnitude;
+            if (dist > 0f && dist < separationRadius)
+            {
+                // direction away from other ball
+                Vector3 away = diff.normalized;
+                // amount to push this frame
+                float pushAmount = (separationRadius - dist) * separationStrength * Time.deltaTime;
+                newPosition += away * pushAmount;
+            }
+        }
+
         transform.position = newPosition;
     }
 
@@ -61,19 +106,19 @@ public class Xpballs : MonoBehaviour
             switch (type)
             {
                 case ballType.green:
-                    player.experience += 10;
+                    player.addExperience(10);
                     Destroy(gameObject);
                     break;
                 case ballType.red:
-                    player.experience += 20;
+                    player.addExperience(20);
                     Destroy(gameObject);
                     break;
                 case ballType.purple:
-                    player.experience += 30;
+                    player.addExperience(30);
                     Destroy(gameObject);
                     break;
                 case ballType.diamond:
-                    player.experience += 40;
+                    player.addExperience(40);
                     Destroy(gameObject);
                     break;
             }

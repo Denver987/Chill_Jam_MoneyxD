@@ -10,7 +10,7 @@ public class InputSystem : MonoBehaviour
     [SerializeField] private float jumpForce = 7f;
 
     [Header("Movement Settings")]
-    [SerializeField] private float moveSpeed = 7f;
+    [SerializeField] public float moveSpeed = 7f;
     [SerializeField] private float groundAcceleration = 50f;
     [SerializeField] private float groundDeceleration = 70f;
     [SerializeField] private float airAcceleration = 20f;
