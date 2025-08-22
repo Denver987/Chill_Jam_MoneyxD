@@ -10,6 +10,7 @@ TagManager:
   - Pullable
   - Wall
   - PP
+  - Water
   layers:
   - Default
   - TransparentFX
