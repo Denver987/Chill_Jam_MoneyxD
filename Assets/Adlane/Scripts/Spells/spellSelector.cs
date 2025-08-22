@@ -10,7 +10,7 @@ public class SpellSelector : MonoBehaviour
     }
 
     public SpellType currentSpell;
-    public bool magneticPullEnabled;
+    public bool magneticPullEnabled = false;
     private Knockback knockback;
     private MagneticPull magneticPull;
 
@@ -31,6 +31,7 @@ public class SpellSelector : MonoBehaviour
     }
     public void MagneticPull(InputAction.CallbackContext context)
     {
+        if (!magneticPullEnabled) return;
         if (context.performed && !gameObject.GetComponent<Knockback>().isCharging && !gameObject.GetComponent<MagneticPull>().isHolding)
         {
             knockback.enabled = false;
