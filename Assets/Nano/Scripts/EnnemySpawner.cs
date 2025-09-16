@@ -69,7 +69,19 @@ public class EnemySpawner : MonoBehaviour
                 this.transform
             );
         }
-        
+
+        if (xpOrbPrefabs.Count > 0)
+        {
+            foreach (var prefab in xpOrbPrefabs)
+            {
+                ObjectPool pool = ObjectPool.CreateInstance(
+                    prefab.GetComponent<PoolableObject>(),
+                    xpOrbPoolSizePerType,
+                    this.transform
+                );
+                xpOrbPools.Add(pool);
+            }
+        }
      
 
     }
