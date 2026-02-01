@@ -226,7 +226,7 @@ public class InputSystem : MonoBehaviour
     {
         if (rb == null) return;
 
-        StopAllCoroutines(); // cancel previous knockbacks
+        StopAllCoroutines(); 
         StartCoroutine(KnockbackRoutine(direction, strength, upwardBias, recoveryTime));
     }
 
@@ -251,9 +251,7 @@ public class InputSystem : MonoBehaviour
         rb.linearDamping = originalDrag;
     }
 
-    // --------------------
-    // CAMERA ROTATION
-    // --------------------
+
     private void LateUpdate()
     {
         pitch = Mathf.Clamp(pitch - lookInput.y * lookSpeed * Time.deltaTime, minPitch, maxPitch);
