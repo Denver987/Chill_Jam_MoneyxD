@@ -52,9 +52,10 @@ public class DuplicateOnSpellInteract : MonoBehaviour
     {
         if (isThrown)
         {
-            if (collision.gameObject.GetComponent<EnnemyMovement>())
+            var enemy = collision.gameObject.GetComponent<EnnemyMovement>() ?? collision.gameObject.GetComponentInParent<EnnemyMovement>();
+            if (enemy != null)
             {
-                collision.gameObject.GetComponent<EnnemyMovement>().Die();
+                enemy.Die();
             }
         }
     }

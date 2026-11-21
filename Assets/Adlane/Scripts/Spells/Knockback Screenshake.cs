@@ -12,12 +12,14 @@ public class KnockbackScreenshake : MonoBehaviour
     private bool isShaking = false;
     private float shakeStartTime = -1f;
     private float dynamicShakeRampUpTime = 2f;
+    private float nextShakeTime;
 
     // Update is called once per frame
     void Update()
     {
-        if (isShaking)
+        if (isShaking && Time.timeScale > 0f && Time.unscaledTime >= nextShakeTime)
         {
+            nextShakeTime = Time.unscaledTime + 0.08f;
             float timeSinceShakeStart = Time.time - shakeStartTime;
             float shakeProgress = Mathf.Clamp01(timeSinceShakeStart / dynamicShakeRampUpTime);
 
