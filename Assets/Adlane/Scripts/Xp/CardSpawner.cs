@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-
-
-
+using DG.Tweening;
 
 public class CardsSpawner : MonoBehaviour
 {
@@ -14,6 +12,9 @@ public class CardsSpawner : MonoBehaviour
     public int third;
     public GameObject healingCard;
     public List<Transform> cardSlots; 
+    public Vector3 targetScale = new Vector3(0.45f, 0.45f, 0.45f);
+    private Dictionary<Transform, Vector3> cachedScales = new Dictionary<Transform, Vector3>();
+
     private void Awake()
     {
         if (cards.Count == 0)
@@ -24,83 +25,68 @@ public class CardsSpawner : MonoBehaviour
                 Debug.Log("Card added: " + card.name);
             }
         }
+        foreach (var card in cards)
+            if (card != null && card.transform.localScale != Vector3.zero)
+                cachedScales[card.transform] = card.transform.localScale;
+        if (healingCard != null && healingCard.transform.localScale != Vector3.zero)
+            cachedScales[healingCard.transform] = healingCard.transform.localScale;
     }
+
+    private Vector3 GetCardScale(Transform t) =>
+        t != null && cachedScales.TryGetValue(t, out var s) ? s : targetScale;
 
     public void IndexsForCards()
     {
         indexesForCards.Clear();
         spawnIndexes.Clear();
 
+        var player = FindFirstObjectByType<Player>();
+        int playerLevel = player != null ? player.level : 1;
+
         for (int i = 0; i < cards.Count; i++)
         {
-            if (cards[i].GetComponent<Cards>().canSpawn && !cards[i].GetComponent<Cards>().CardCap)
+            var card = cards[i].GetComponent<Cards>();
+            if (card != null && card.IsAvailable(playerLevel))
             {
-                indexesForCards.Add(cards.IndexOf(cards[i]));
+                indexesForCards.Add(i);
             }
         }
         Debug.Log("Spawn indexes: " + indexesForCards.Count);
-        if (indexesForCards.Count == 1)
+
+        var selector = player != null ? player.GetComponent<SpellSelector>() : null;
+        if (playerLevel >= 5 && selector != null && !selector.magneticPullEnabled)
         {
-            spawnIndexes.Add(indexesForCards[0]);
-            spawnIndexes.Add(-1);
-            return;
+            int pullIdx = indexesForCards.FindIndex(idx =>
+            {
+                var c = cards[idx].GetComponent<Cards>();
+                return c != null && c.cardType == Cards.CardType.MagneticPull;
+            });
+            if (pullIdx != -1)
+            {
+                spawnIndexes.Add(indexesForCards[pullIdx]);
+                indexesForCards.RemoveAt(pullIdx);
+            }
         }
-        if (indexesForCards.Count == 2)
+
+        int maxSlots = cardSlots != null && cardSlots.Count > 0 ? cardSlots.Count : 3;
+
+        while (spawnIndexes.Count < maxSlots && indexesForCards.Count > 0)
         {
-            spawnIndexes.Add(indexesForCards[0]);
-            spawnIndexes.Add(indexesForCards[1]);
-            spawnIndexes.Add(-1);
-            return;
+            int pick = Random.Range(0, indexesForCards.Count);
+            spawnIndexes.Add(indexesForCards[pick]);
+            indexesForCards.RemoveAt(pick);
         }
 
-        int index1 = Random.Range(0, indexesForCards.Count);
-        spawnIndexes.Add(indexesForCards[index1]);
-        Debug.Log("removing " + indexesForCards[index1]);
-        indexesForCards.RemoveAt(index1);
-
-        int index2 = Random.Range(0, indexesForCards.Count);
-        spawnIndexes.Add(indexesForCards[index2]);
-        Debug.Log("removing " + indexesForCards[index2]);
-        indexesForCards.RemoveAt(index2);
-
-        int index3 = Random.Range(0, indexesForCards.Count);
-        spawnIndexes.Add(indexesForCards[index3]);
-        Debug.Log("removing " + indexesForCards[index3]);
-        indexesForCards.RemoveAt(index3);
-        
-
-        // for (int i = 0; i < nextNumber; i++)
-        // {
-        //     first = Random.Range(0, cards.Count);
-        //     if (cards[first].GetComponent<Cards>().canSpawn && !cards[first].GetComponent<Cards>().CardCap)
-        //     {
-        //         indexesForCards.Add(first);
-        //         break;
-        //     }
-        //     nextNumber++;
-        // }
-        // for (int i = 0; i < nextNumber; i++)
-        // {
-        //     second = Random.Range(0, cards.Count);
-        //     if (second != first && cards[second].GetComponent<Cards>().canSpawn && !cards[second].GetComponent<Cards>().CardCap)
-        //     {
-        //         indexesForCards.Add(second);
-        //         break;
-        //     }
-        //     nextNumber++;
-        // }
-        // for (int i = 0; i < nextNumber; i++)
-        // {
-        //     third = Random.Range(0, cards.Count);
-        //     if (third != first && third != second && cards[third].GetComponent<Cards>().canSpawn && !cards[third].GetComponent<Cards>().CardCap)
-        //     {
-        //         indexesForCards.Add(third);
-        //         nextNumber = 1;
-        //         break;
-        //     }
-        //     nextNumber++;
-        // }
+        if (spawnIndexes.Count == 0 && healingCard != null)
+        {
+            spawnIndexes.Add(-1);
+        }
+        else if (spawnIndexes.Count < maxSlots && healingCard != null)
+        {
+            spawnIndexes.Add(-1);
+        }
     }
+
     public void spawnCards()
     {
         foreach(var slot in cardSlots)
@@ -108,6 +94,8 @@ public class CardsSpawner : MonoBehaviour
             for (int i = slot.childCount - 1; i >= 0; i--)
             {
                 var child = slot.GetChild(i);
+                child.DOKill();
+                child.localScale = GetCardScale(child);
                 child.SetParent(transform); 
                 child.gameObject.SetActive(false);
             }
@@ -115,7 +103,16 @@ public class CardsSpawner : MonoBehaviour
 
         IndexsForCards();
         int spawnCount = Mathf.Min(spawnIndexes.Count, cardSlots.Count);
-        for (int i = 0; i < spawnIndexes.Count; i++)
+
+        if (spawnCount == 0)
+        {
+            // Nothing could be drawn; never leave the game paused forever.
+            var player = FindFirstObjectByType<Player>();
+            if (player != null) player.OnUpgradeChosen();
+            return;
+        }
+
+        for (int i = 0; i < spawnCount; i++)
         {
             GameObject cardToSpawn;
 
@@ -137,7 +134,18 @@ public class CardsSpawner : MonoBehaviour
             // Place card in slot
             cardToSpawn.transform.SetParent(cardSlots[i]);
             cardToSpawn.transform.localPosition = Vector3.zero;
+            cardToSpawn.transform.localRotation = Quaternion.identity;
+            cardToSpawn.transform.DOKill();
+            cardToSpawn.transform.localScale = Vector3.zero;
             cardToSpawn.SetActive(true);
+
+            // Pop-in animation: scale 0 -> native scale with Ease.OutBack over 0.25s, staggered by 0.08s
+            // Uses SetUpdate(true) because Time.timeScale is 0 during card selection
+            float delay = i * 0.08f;
+            cardToSpawn.transform.DOScale(GetCardScale(cardToSpawn.transform), 0.25f)
+                .SetDelay(delay)
+                .SetEase(Ease.OutBack)
+                .SetUpdate(true);
         }
     }
 }

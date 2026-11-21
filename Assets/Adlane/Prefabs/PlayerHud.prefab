@@ -279,6 +279,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
+  m_UseReflectionProbes: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
@@ -299,9 +300,9 @@ MonoBehaviour:
   m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 900, y: 800}
+  m_ReferenceResolution: {x: 960, y: 600}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -346,6 +347,9 @@ MonoBehaviour:
   Hand: {fileID: 1146663070156821586}
   CardsSelection: {fileID: 6373379243875115245}
   xpBar: {fileID: 8930474894638462891}
+  spells: {fileID: 0}
+  scoreText: {fileID: 0}
+  levelText: {fileID: 0}
 --- !u!1 &1146663070156821586
 GameObject:
   m_ObjectHideFlags: 0
@@ -540,6 +544,7 @@ MonoBehaviour:
   cardCapCounter: 0
   maxCardCaps: 3
   player: {fileID: 0}
+  EnemySpawner: {fileID: 0}
 --- !u!114 &6348349753250131028
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1064,10 +1069,10 @@ RectTransform:
   - {fileID: 5871063755244525251}
   m_Father: {fileID: 8930474894638462891}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.25}
-  m_AnchorMax: {x: 1, y: 0.75}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: -4}
+  m_SizeDelta: {x: -4, y: -4}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2006945600934873459
 GameObject:
@@ -1165,6 +1170,7 @@ MonoBehaviour:
   cardCapCounter: 0
   maxCardCaps: 1
   player: {fileID: 0}
+  EnemySpawner: {fileID: 0}
 --- !u!114 &2822783689002475168
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1457,6 +1463,7 @@ MonoBehaviour:
   cardCapCounter: 0
   maxCardCaps: 5
   player: {fileID: 0}
+  EnemySpawner: {fileID: 0}
 --- !u!114 &8423466100801997322
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1759,6 +1766,7 @@ MonoBehaviour:
   cardCapCounter: 0
   maxCardCaps: 5
   player: {fileID: 0}
+  EnemySpawner: {fileID: 0}
 --- !u!114 &3478244531381348678
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1908,9 +1916,10 @@ MonoBehaviour:
   canSpawn: 1
   minLevelToUnlock: 1
   CardCap: 0
-  cardCapCounter: 4
+  cardCapCounter: 0
   maxCardCaps: 3
   player: {fileID: 0}
+  EnemySpawner: {fileID: 0}
 --- !u!114 &7158356918670168489
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2063,6 +2072,7 @@ MonoBehaviour:
   cardCapCounter: 0
   maxCardCaps: 3
   player: {fileID: 0}
+  EnemySpawner: {fileID: 0}
 --- !u!114 &3368452671659891142
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2354,8 +2364,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 8930474894638462891}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.25}
-  m_AnchorMax: {x: 1, y: 0.75}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -2500,6 +2510,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -2511,7 +2522,7 @@ MonoBehaviour:
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
-  m_ActiveFontFeatures: 6e72656b
+  m_ActiveFontFeatures: 6e72656bu
   m_enableExtraPadding: 0
   checkPaddingRequired: 0
   m_isRichText: 1
@@ -3176,6 +3187,7 @@ MonoBehaviour:
   cardCapCounter: 0
   maxCardCaps: 4
   player: {fileID: 0}
+  EnemySpawner: {fileID: 0}
 --- !u!114 &2979814098223946406
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3242,6 +3254,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1651230245937377357}
   - component: {fileID: 4030381114573901372}
+  - component: {fileID: 7512991841342080788}
   m_Layer: 5
   m_Name: Volume Slider
   m_TagString: Untagged
@@ -3334,6 +3347,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &7512991841342080788
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5309934290306782786}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa3516b017520194da0ddbd115ad4f32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VolumeController
 --- !u!1 &5567874722185148271
 GameObject:
   m_ObjectHideFlags: 0
@@ -3430,6 +3455,7 @@ MonoBehaviour:
   cardCapCounter: 0
   maxCardCaps: 3
   player: {fileID: 0}
+  EnemySpawner: {fileID: 0}
 --- !u!114 &2476042370823536802
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3582,6 +3608,7 @@ MonoBehaviour:
   cardCapCounter: 0
   maxCardCaps: 3
   player: {fileID: 0}
+  EnemySpawner: {fileID: 0}
 --- !u!114 &6588660737155172541
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3727,13 +3754,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 072a398a020a2e0468461bfd0dc9c7ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardType: 9
+  cardType: 10
   canSpawn: 0
   minLevelToUnlock: 0
   CardCap: 0
   cardCapCounter: 0
   maxCardCaps: 2147483647
   player: {fileID: 0}
+  EnemySpawner: {fileID: 0}
 --- !u!114 &6594351898843008612
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3823,10 +3851,10 @@ RectTransform:
   - {fileID: 2436634564959724410}
   m_Father: {fileID: 9117869549769796987}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -232.07002}
-  m_SizeDelta: {x: -499.9999, y: -464.14}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 0}
+  m_AnchoredPosition: {x: 0, y: 20}
+  m_SizeDelta: {x: 400, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &4614366207278544213
 MonoBehaviour:
@@ -4086,6 +4114,7 @@ MonoBehaviour:
   cardCapCounter: 0
   maxCardCaps: 3
   player: {fileID: 0}
+  EnemySpawner: {fileID: 0}
 --- !u!114 &5942273428860553690
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4174,8 +4203,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1651230245937377357}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.25}
-  m_AnchorMax: {x: 1, y: 0.75}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -4256,8 +4285,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -7.5, y: 7.5}
-  m_SizeDelta: {x: -25, y: -25}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8639470053396301668
 CanvasRenderer:
@@ -4309,6 +4338,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0cd4013e501e434d9f4d7a1f0e5e090, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  choosingCards: 0
 --- !u!1 &6473485866856391793
 GameObject:
   m_ObjectHideFlags: 0
@@ -4475,9 +4505,9 @@ RectTransform:
   - {fileID: 746149279412131475}
   m_Father: {fileID: 9117869549769796987}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.14, y: 0.9662224}
-  m_AnchorMax: {x: 0.14, y: 0.9662224}
-  m_AnchoredPosition: {x: -98.600006, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 35, y: -25}
   m_SizeDelta: {x: 200, y: 20}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &6964886256659261815
@@ -4946,6 +4976,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -4957,7 +4988,7 @@ MonoBehaviour:
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
-  m_ActiveFontFeatures: 6e72656b
+  m_ActiveFontFeatures: 6e72656bu
   m_enableExtraPadding: 0
   checkPaddingRequired: 0
   m_isRichText: 1
