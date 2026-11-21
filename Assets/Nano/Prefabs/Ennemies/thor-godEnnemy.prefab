@@ -1244,7 +1244,7 @@ MonoBehaviour:
   ennemyId: 0
   attackRange: 2.5
   attackCooldown: 2
-  attackKnockbackForce: 25
+  attackKnockbackForce: 4
   attackDamage: 10
   spawner: {fileID: 0}
   target: {fileID: 0}

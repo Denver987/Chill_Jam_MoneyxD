@@ -19,7 +19,10 @@ public class Enemy : PoolableObject
     {
         base.OnDisable();
 
-        Agent.enabled = false;
+        if (Agent != null)
+        {
+            Agent.enabled = false;
+        }
     }
 
 
@@ -29,6 +32,7 @@ public class Enemy : PoolableObject
         Movement.canattack = true;
         Movement.isDead = false;
         Movement.isKnockedBack = false;
+        Movement.isSpellSuspended = false;
 
         // Ensure the object is active so effects can play
         gameObject.SetActive(true);
@@ -54,6 +58,7 @@ public class Enemy : PoolableObject
 
         // Wait for the effect duration
         yield return new WaitForSeconds(spawnEffectDelay);
+        if (!gameObject.activeInHierarchy || Movement.isDead) yield break;
         SoundManager.PlaySound(SoundType.spawning, this.gameObject.GetComponent<AudioSource>(), 0.5f);
 
         this.transform.GetChild(1).gameObject.SetActive(false);
@@ -73,6 +78,7 @@ public class Enemy : PoolableObject
 
     public virtual void SetupAgentFromConfiguration()
     {
+        if (Config == null || Movement == null) return;
         Movement.moveSpeed = Random.Range(Config.minspeed,Config.maxspeed);
         Movement.spreadRadius = Config.spreadRadius; // how much the enemies spread out
         Movement.separationRadius = Config.separationRadius; // distance to keep from other enemies
@@ -85,7 +91,7 @@ public class Enemy : PoolableObject
 
 
         Movement.attackCooldown = Config.attackCooldown;
-        Movement.attackRange = Config.attackRange;
+        Movement.attackRange = Config.attackRange * 1.15f;
         Movement.attackKnockbackForce = Config.attackKnockbackForce;
         Movement.attackDamage = Config.attackDamage;
 

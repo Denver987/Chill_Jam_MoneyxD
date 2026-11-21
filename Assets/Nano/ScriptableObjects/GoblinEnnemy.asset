@@ -25,9 +25,9 @@ MonoBehaviour:
   rotationSpeed: 5
   maxRotationSpeed: 5
   minRotationSpeed: 2
-  attackRange: 4
+  attackRange: 1.8
   attackCooldown: 1.5
-  attackKnockbackForce: 25
+  attackKnockbackForce: 3.5
   attackDamage: 15
   AvoidancePriority: 50
   BaseOffset: 0

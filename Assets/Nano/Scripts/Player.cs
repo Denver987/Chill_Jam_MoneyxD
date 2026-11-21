@@ -17,10 +17,12 @@ public class Player : MonoBehaviour
     public float experienceToNextLevel = 100f;
     public int level = 1;
     public float xpGainMultiplier = 1.2f;
+    public int pendingLevelUps = 0;
+    private bool levelUpActive = false;
 
     [Header("Invulnerability")]
     public bool invulnerable = false;
-    public float invulnerabilityTime = 1f;
+    public float invulnerabilityTime = 0.2f;
     private float timer = 0f;
 
     public InputSystem inputSystem;
@@ -48,12 +50,13 @@ public class Player : MonoBehaviour
     {
         inputSystem = GetComponent<InputSystem>();
         knockback = GetComponent<Knockback>();
+        invulnerabilityTime = 0.2f;
     }
     void Start()
     {
 
 
-        if (postProcessing.profile.TryGet<Vignette>(out var vignette))
+        if (postProcessing != null && postProcessing.profile != null && postProcessing.profile.TryGet<Vignette>(out var vignette))
         {
             originalVignetteIntensity = vignette.intensity.value;
             originalVignetteColor = vignette.color.value;
@@ -82,30 +85,91 @@ public class Player : MonoBehaviour
 
     public void UpdateLevel()
     {
-        this.gameObject.GetComponent<Knockback>().enabled = false;
+        if (levelUpActive) return;
+
+        levelUpActive = true;
+        if (knockback != null)
+        {
+            // Drop any charge in progress; its release event would be lost
+            // while the game is frozen.
+            knockback.CancelCharge();
+            knockback.enabled = false;
+        }
+        var magneticPull = GetComponent<MagneticPull>();
+        if (magneticPull != null) magneticPull.CancelInputState();
         SoundManager.PlaySound(SoundType.levelUp, this.GetComponent<AudioSource>(), 0.5f); // Play level up sound with volume 0.5
         if (health < maxHealth)
         {
             health = maxHealth;
         }
         Time.timeScale = 0f;
-        StartCoroutine(CanvasSingleton.Instance.CardsUI());
+        if (CanvasSingleton.Instance != null)
+        {
+            CanvasSingleton.Instance.UpdatePlayerLevel();
+            StartCoroutine(CanvasSingleton.Instance.CardsUI());
+        }
+        else
+        {
+            // No HUD: never leave the game frozen.
+            levelUpActive = false;
+            Time.timeScale = 1f;
+        }
+    }
+
+    // Called by the card UI once an upgrade has been picked.
+    public void OnUpgradeChosen()
+    {
+        pendingLevelUps = Mathf.Max(0, pendingLevelUps - 1);
+
+        if (pendingLevelUps > 0)
+        {
+            // Several levels were gained at once: draw another set of cards.
+            if (CanvasSingleton.Instance != null && CanvasSingleton.Instance.CardsSelection != null)
+            {
+                CanvasSingleton.Instance.CardsSelection.SetActive(true);
+                var selection = CanvasSingleton.Instance.CardsSelection.GetComponent<CardSelectionUI>();
+                if (selection != null) selection.SpawnCards();
+            }
+            return;
+        }
+
+        levelUpActive = false;
+        if (CanvasSingleton.Instance != null && CanvasSingleton.Instance.CardsSelection != null)
+        {
+            CanvasSingleton.Instance.CardsSelection.SetActive(false);
+        }
+        Time.timeScale = 1f;
     }
 
     public void TakeDamage(int damage, Vector3 hitDirection, float knockbackForce)
     {
         if (invulnerable || health <= 0) return;
 
+        // Immediately grant invulnerability window so simultaneous enemy hits don't stack knockback
+        invulnerable = true;
+        timer = 0f;
+
         health -= damage;
         if (health < 0) health = 0;
         StartCoroutine(FlashRed());
-        StartCoroutine(TakeKnockback(hitDirection, knockbackForce, 0.5f)); // Adjust knockback duration as needed
-        SoundManager.PlaySound(SoundType.PlayerDamage, this.GetComponent<AudioSource>(), 0.5f); // Play damage sound with volume 0.5
 
-       if (health <= 0)
-       {
-        Die();
-       }
+        // Clamp knockback to prevent being launched across the island
+        float balancedKnockback = Mathf.Clamp(knockbackForce, 2.5f, 5.5f);
+        if (inputSystem != null)
+        {
+            inputSystem.TakeKnockback(hitDirection, balancedKnockback, 0.3f, 0.2f);
+        }
+        if (CameraSettings.Instance != null)
+        {
+            CameraSettings.Instance.StartShake(0.15f, 0.08f);
+        }
+        var audioSrc = GetComponent<AudioSource>();
+        if (audioSrc != null) SoundManager.PlaySound(SoundType.PlayerDamage, audioSrc, 0.5f);
+
+        if (health <= 0)
+        {
+            Die();
+        }
     }
     private IEnumerator FlashRed()
     {
@@ -212,11 +276,7 @@ public class Player : MonoBehaviour
 
     private IEnumerator TakeKnockback(Vector3 direction, float force, float duration)
     {
-        yield return new WaitForSeconds(duration / 2);
-        inputSystem.TakeKnockback(direction, force, 0.05f);
-        CameraSettings.Instance.StartShake(0.2f, 0.1f); // Adjust shake duration and intensity as needed
-        invulnerable = true;
-
+        yield break;
     }
     public void addExperience(int amount)
     {
@@ -225,11 +285,21 @@ public class Player : MonoBehaviour
     }
     private void checkLevelUp()
     {
+        bool leveledUp = false;
+
         while (experience >= experienceToNextLevel)
         {
             experience -= experienceToNextLevel;
             level++;
             experienceToNextLevel = Mathf.RoundToInt(experienceToNextLevel * xpGainMultiplier);
+            pendingLevelUps++;
+            leveledUp = true;
+        }
+
+        // Only open the card screen once, even if a single pickup granted
+        // several levels at the same time.
+        if (leveledUp && !levelUpActive)
+        {
             UpdateLevel();
         }
     }

@@ -38,9 +38,9 @@ public class EnnemyMovement : MonoBehaviour,IHitable
 
 
     [Header("Attack Settings")]
-    public float attackRange = 1.5f;
+    public float attackRange = 1.8f;
     public float attackCooldown = 1.0f;
-    public float attackKnockbackForce = 5f;
+    public float attackKnockbackForce = 4f;
     public int attackDamage = 10;
 
     private NavMeshAgent navMeshAgent;
@@ -55,8 +55,8 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     private float separationTimer = 0f;
 
     private const string isMoving = "IsMoving";
-    [SerializeField] private float fallMultiplier = 2f;
-    [SerializeField] private float riseGravityMultiplier = 1.5f;
+    [SerializeField] private float fallMultiplier = 3f;
+    [SerializeField] private float riseGravityMultiplier = 1.25f;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private float groundCheckDistance = 0.2f;
 
@@ -66,6 +66,9 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     private Enemy enemy;
     public bool isKnockedBack = false;
     private bool isAttacking = false;
+    public bool isSpellSuspended;
+    private Coroutine attackRoutine;
+    private float nextAttackTime;
     public bool canattack = true; // can attack after cooldown
     private float knockbackTimer = 0f;
     private void Awake()
@@ -76,7 +79,18 @@ public class EnnemyMovement : MonoBehaviour,IHitable
         animator = GetComponent<Animator>();
         meshRenderers = GetComponentsInChildren<SkinnedMeshRenderer>();
 
-        navMeshAgent.updatePosition = false;
+        if (navMeshAgent != null)
+        {
+            navMeshAgent.updatePosition = false;
+        }
+        if (rb != null)
+        {
+            rb.constraints |= RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        }
+        if (groundLayer.value == 0)
+        {
+            groundLayer = ~((1 << LayerMask.NameToLayer("Ignore Raycast")) | (1 << gameObject.layer));
+        }
 
         // give each enemy a random offset around the player
         personalOffset = Random.insideUnitSphere * spreadRadius;
@@ -99,6 +113,8 @@ public class EnnemyMovement : MonoBehaviour,IHitable
 
     private void FixedUpdate()
     {
+        if (isSpellSuspended || isDead) return;
+        GroundCheck();
         if (isKnockedBack)
         {
             knockbackTimer -= Time.fixedDeltaTime;
@@ -110,13 +126,18 @@ public class EnnemyMovement : MonoBehaviour,IHitable
         }
 
         FollowTarget();
-        GroundCheck();
 
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (isGolem) return; // Golems don't take damage from collisions
+        if (collision.gameObject.CompareTag("Water"))
+        {
+            Die();
+            return;
+        }
+
+        if (isGolem) return; // Golems don't take damage from regular enemy/wall collisions
         EnnemyMovement otherEnemy = collision.gameObject.GetComponent<EnnemyMovement>();
         if (otherEnemy != null)
         {
@@ -144,8 +165,20 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     }
     public  void Die()
     {
+        if (isDead) return;
+
         isDead = true;
         canattack = false;
+        isAttacking = false;
+        if (attackRoutine != null)
+        {
+            StopCoroutine(attackRoutine);
+            attackRoutine = null;
+        }
+        if (animator != null)
+        {
+            animator.ResetTrigger("Attack");
+        }
         
         this.transform.GetChild(0).gameObject.SetActive(true); // show the dust explosion
         this.transform.GetChild(2).gameObject.SetActive(false);
@@ -153,8 +186,10 @@ public class EnnemyMovement : MonoBehaviour,IHitable
         //CameraSettings.Instance.StartZoom(55f, 1f);
         SoundManager.PlaySound(SoundType.enemyDeath, GetComponent<AudioSource>(), 0.5f); // Play death sound with volume 0.5
 
-        CameraSettings.Instance.StartShake(0.2f, 0.05f);
-        CameraSettings.Instance.StartSlowMotion(0.5f, 0.25f);
+        if (CameraSettings.Instance != null)
+        {
+            CameraSettings.Instance.StartShake(0.2f, 0.05f);
+        }
        
        
         // hide the enemy model
@@ -167,26 +202,32 @@ public class EnnemyMovement : MonoBehaviour,IHitable
         yield return new WaitForSeconds(1f);
 
         this.transform.GetChild(0).gameObject.SetActive(false);
-        if(GameManager.Instance.isTutorial ==false)
+
+        // Start() may not have run yet if the enemy died during its spawn
+        // effect, so resolve the spawner lazily here as well.
+        if (spawner == null) spawner = GetComponentInParent<EnemySpawner>();
+
+        if(GameManager.Instance != null && GameManager.Instance.isTutorial ==false && spawner != null)
         {
-            int xpCount = Random.Range(0, 3);
-            spawner.SpawnXpOrbs(transform.position, 1, xpCount); // spawn XP orbs
+            int orbType = isGolem ? 3 : Random.Range(0, 4);
+            int orbCount = isGolem ? 3 : 1;
+            spawner.SpawnXpOrbs(transform.position, orbCount, orbType); // spawn XP orbs
             spawner.TrySpawnHealthPotion(transform.position + Vector3.up, HealthPotionDropChance);
             GameManager.Instance.AddScore(scoreAdder);
         }
         gameObject.SetActive(false);
-        spawner.RemoveEnemy(enemy);
-        if(GameManager.Instance.isTutorial && tutorialSpawner != null)
+        if (spawner != null) spawner.RemoveEnemy(enemy);
+        if(GameManager.Instance != null && GameManager.Instance.isTutorial && tutorialSpawner != null)
         {
             tutorialSpawner.SpawnEnnemy();
         }
     }
     private void FollowTarget()
     {
-        if (GameManager.Instance.isTutorial)
+        if (GameManager.Instance != null && GameManager.Instance.isTutorial)
             return;
         if (target == null) return;
-        if (isKnockedBack || isAttacking ||isDead)
+        if (isKnockedBack ||isDead)
         {
             animator.SetBool(isMoving, false);
             return;
@@ -197,9 +238,23 @@ public class EnnemyMovement : MonoBehaviour,IHitable
         Vector3 offsetDir = Quaternion.Euler(0, angle, 0) * Vector3.forward;
 
         Vector3 destination = target.position + offsetDir * surroundDistance;
-        navMeshAgent.SetDestination(destination);
 
-        Vector3 direction = navMeshAgent.desiredVelocity;
+        Vector3 direction = Vector3.zero;
+        if (navMeshAgent != null && navMeshAgent.isOnNavMesh)
+        {
+            navMeshAgent.SetDestination(destination);
+            if (navMeshAgent.hasPath && navMeshAgent.desiredVelocity.sqrMagnitude > 0.04f)
+            {
+                direction = navMeshAgent.desiredVelocity;
+            }
+        }
+
+        if (direction.sqrMagnitude <= 0.04f)
+        {
+            Vector3 direct = destination - rb.position;
+            direct.y = 0f;
+            if (direct.sqrMagnitude > 0.01f) direction = direct.normalized * moveSpeed;
+        }
 
         // Add separation force
         separationTimer -= Time.fixedDeltaTime;
@@ -213,44 +268,58 @@ public class EnnemyMovement : MonoBehaviour,IHitable
         float distance = Vector3.Distance(rb.position, target.position);
         if (distance <= attackRange)
         {
-            rb.linearVelocity = Vector3.zero;
+            rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+            animator.SetBool(isMoving, false);
             TryAttack();
             return;
         }
 
-        if (direction.magnitude > 0.1f)
+        if (direction.sqrMagnitude > 0.01f)
         {
             animator.SetBool(isMoving, true);
 
+            int mask = groundLayer.value == 0 ? ~0 : groundLayer.value;
+            mask &= ~(1 << gameObject.layer);
+
             // --- Slope handling ---
-            if (Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out RaycastHit hit, 2f))
+            if (Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out RaycastHit hit, 2.5f, mask, QueryTriggerInteraction.Ignore))
             {
                 Vector3 slopeNormal = hit.normal;
 
                 // Align movement to slope
                 Vector3 slopeDir = Vector3.ProjectOnPlane(direction, slopeNormal).normalized;
 
-                // Apply velocity instead of MovePosition
+                // Apply velocity including upward slope climbing
                 Vector3 move = slopeDir * moveSpeed;
-                rb.linearVelocity = new Vector3(move.x, rb.linearVelocity.y, move.z);
+                float yVel = (slopeDir.y > 0.02f) ? move.y : Mathf.Min(rb.linearVelocity.y, 0f);
+                rb.linearVelocity = new Vector3(move.x, yVel, move.z);
 
-                // Add a "stick to ground" force so they don’t hover
-                rb.AddForce(Vector3.down * 30f, ForceMode.Acceleration);
+                // Gentle ground-stick downforce only when not actively climbing uphill
+                if (slopeDir.y <= 0.05f)
+                {
+                    rb.AddForce(Vector3.down * 10f, ForceMode.Acceleration);
+                }
 
                 // Face direction of movement
-                if (slopeDir.sqrMagnitude > 0.01f)
+                Vector3 lookDir = new Vector3(slopeDir.x, 0f, slopeDir.z);
+                if (lookDir.sqrMagnitude > 0.01f)
                 {
-                    // Add some "inaccuracy" so they don’t all rotate the same
-                    Vector3 lookDir = slopeDir + new Vector3(
-                        Random.Range(-0.05f, 0.05f),
-                        0f,
-                        Random.Range(-0.05f, 0.05f)
-                    );
-
                     Quaternion targetRot = Quaternion.LookRotation(lookDir);
                     rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRot, rotationSpeed * Time.fixedDeltaTime));
                 }
+            }
+            else
+            {
+                // Airborne or ledge fallback: maintain horizontal movement towards destination
+                Vector3 dirNorm = direction.normalized;
+                rb.linearVelocity = new Vector3(dirNorm.x * moveSpeed, rb.linearVelocity.y, dirNorm.z * moveSpeed);
 
+                Vector3 lookDir = new Vector3(dirNorm.x, 0f, dirNorm.z);
+                if (lookDir.sqrMagnitude > 0.01f)
+                {
+                    Quaternion targetRot = Quaternion.LookRotation(lookDir);
+                    rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRot, rotationSpeed * Time.fixedDeltaTime));
+                }
             }
         }
         else
@@ -259,27 +328,32 @@ public class EnnemyMovement : MonoBehaviour,IHitable
             rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0); // keep gravity
         }
 
-        navMeshAgent.nextPosition = rb.position;
+        if (navMeshAgent != null && navMeshAgent.isOnNavMesh)
+        {
+            navMeshAgent.nextPosition = rb.position;
+        }
     }
 
 
 
     private void TryAttack()
     {
-        if(GameManager.Instance.isTutorial)
+        if (GameManager.Instance != null && GameManager.Instance.isTutorial)
             return;
-        if (isKnockedBack || isAttacking || !canattack) return;
+        if (isKnockedBack || isAttacking || isSpellSuspended || isDead || !canattack || Time.time < nextAttackTime) return;
 
         // Check if player is still in range before starting
         float distance = Vector3.Distance(transform.position, target.position);
         if (distance > attackRange) return;
 
         // Start attack
-        StartCoroutine(AttackRoutine());
+        attackRoutine = StartCoroutine(AttackRoutine());
     }
     private void GroundCheck()
     {
-        grounded = Physics.Raycast(transform.position + Vector3.up * 0.1f, Vector3.down, groundCheckDistance, groundLayer);
+        int mask = groundLayer.value == 0 ? ~0 : groundLayer.value;
+        mask &= ~(1 << gameObject.layer);
+        grounded = Physics.SphereCast(transform.position + Vector3.up * 0.3f, 0.25f, Vector3.down, out RaycastHit hit, groundCheckDistance + 0.3f, mask, QueryTriggerInteraction.Ignore);
 
         if (!grounded)
         {
@@ -296,62 +370,108 @@ public class EnnemyMovement : MonoBehaviour,IHitable
 
     private IEnumerator AttackRoutine()
     {
-
         isAttacking = true;
+        nextAttackTime = Time.time + attackCooldown;
         animator.SetTrigger("Attack");
 
-        // Wait half of the attack animation before applying damage (adjust to match your animation)
-        float animationDelay = 0.3f;
+        // Time damage to land near the end of the swing (~65-70% of animation delay)
+        float animationDuration = isGolem ? 0.9f : 0.6f;
+        float strikeDelay = animationDuration * 0.68f;
         float elapsed = 0f;
 
-        while (elapsed < animationDelay)
+        while (elapsed < strikeDelay)
         {
-            // If player moves out of range, cancel attack
-            if (Vector3.Distance(transform.position, target.position) > attackRange)
+            if (target == null || isKnockedBack || isSpellSuspended || isDead)
             {
                 isAttacking = false;
-                animator.ResetTrigger("Attack"); // stop attack animation
-                yield break; // cancel coroutine
+                if (animator != null) animator.ResetTrigger("Attack");
+                attackRoutine = null;
+                yield break;
             }
 
             elapsed += Time.deltaTime;
             yield return null;
         }
 
-        // Apply damage if still in range
-        if (Vector3.Distance(transform.position, target.position) <= attackRange)
+        // At the EXACT instant damage is applied, re-check distance; if player backed away/dodged, attack misses
+        if (target != null && Vector3.Distance(transform.position, target.position) <= attackRange + 0.3f)
         {
             Vector3 attackDirection = (target.position - transform.position).normalized;
             Player player = target.GetComponent<Player>();
             if (player != null)
             {
                 player.TakeDamage(attackDamage, attackDirection, attackKnockbackForce);
-                Debug.Log($"{gameObject.name} attacked player for {attackDamage} damage!");
             }
         }
 
-        // Cooldown
-        yield return new WaitForSeconds(attackCooldown / 2f);
+        // Complete remaining swing animation before returning to idle/walk
+        float remainingAnimation = Mathf.Max(0f, animationDuration - strikeDelay);
+        float elapsedRecovery = 0f;
+        while (elapsedRecovery < remainingAnimation)
+        {
+            if (isKnockedBack || isSpellSuspended || isDead)
+            {
+                isAttacking = false;
+                attackRoutine = null;
+                yield break;
+            }
+            elapsedRecovery += Time.deltaTime;
+            yield return null;
+        }
+
+        // Wait for remaining cooldown if any
+        float remainingCooldown = nextAttackTime - Time.time;
+        if (remainingCooldown > 0f)
+        {
+            yield return new WaitForSeconds(remainingCooldown);
+        }
+
         isAttacking = false;
+        attackRoutine = null;
+    }
+
+    private void ApplyHitFlinch(float flinchDuration = 0.2f)
+    {
+        // Interrupt attacks and add brief recovery grace period so attacks are responsive to player hits
+        if (attackRoutine != null)
+        {
+            StopCoroutine(attackRoutine);
+            attackRoutine = null;
+        }
+        isAttacking = false;
+        if (animator != null)
+        {
+            animator.ResetTrigger("Attack");
+        }
+
+        nextAttackTime = Mathf.Max(nextAttackTime, Time.time + flinchDuration);
+        isKnockedBack = true;
+        knockbackTimer = Mathf.Max(knockbackTimer, flinchDuration);
+    }
+
+    public void SetSpellSuspended(bool suspended)
+    {
+        if (isSpellSuspended == suspended) return;
+        isSpellSuspended = suspended;
+        if (suspended)
+        {
+            if (attackRoutine != null) StopCoroutine(attackRoutine);
+            attackRoutine = null;
+            isAttacking = false;
+            if (animator != null)
+            {
+                animator.ResetTrigger("Attack");
+                animator.SetBool(isMoving, false);
+            }
+        }
+        else if (!isDead)
+        {
+            ApplyHitFlinch(0.2f);
+        }
     }
 
 
  
-    private bool isHitPaused = false;
-    IEnumerator HitPause(float duration)
-    {
-        if (isHitPaused) yield break; 
-
-        isHitPaused = true;
-
-        float originalTimeScale = Time.timeScale;
-        Time.timeScale = 0f;
-        yield return new WaitForSecondsRealtime(duration);
-        Time.timeScale = originalTimeScale;
-
-        isHitPaused = false;
-    }
-
     public void ExecuteWithUpwardBias(Transform executionSource, float knockbackStrength, float upwardBias = 0.5F)
     {
         KnockBackEntityUpward(executionSource, knockbackStrength, upwardBias);
@@ -365,11 +485,10 @@ public class EnnemyMovement : MonoBehaviour,IHitable
         if (executionSource == null || rb == null) return;
 
         Vector3 direction = (transform.position - executionSource.position).normalized;
-        rb.AddForce(direction * knockbackStrength, ForceMode.Impulse);
+        float duration = Mathf.Lerp(0.35f, 0.65f, Mathf.InverseLerp(3f, 15f, knockbackStrength));
+        ApplyHitFlinch(duration);
 
-        // Enter knockback state
-        isKnockedBack = true;
-        knockbackTimer = knockbackRecoveryTime;
+        rb.linearVelocity = direction * knockbackStrength;
     }
     
 
@@ -378,40 +497,38 @@ public class EnnemyMovement : MonoBehaviour,IHitable
     {
         if (executionSource == null || rb == null) return;
 
-        
         Vector3 direction = (transform.position - executionSource.position).normalized;
         direction.y = 0f;
-        Vector3 knockDir = direction + Vector3.up * upwardBias;
+        Vector3 knockDir = (direction.normalized + Vector3.up * upwardBias).normalized;
 
-        // Enter knockback state
-        isKnockedBack = true;
-        knockbackTimer = knockbackRecoveryTime; // <-- keep your recovery timer
+        float duration = Mathf.Lerp(0.35f, 0.65f, Mathf.InverseLerp(3f, 15f, knockbackStrength));
+        ApplyHitFlinch(duration);
 
-        // Rigidbody impulse
-        rb.AddForce(knockDir * knockbackStrength, ForceMode.Impulse);
-
-        // DOTween knockback for smooth visual movement
-        Vector3 targetPos = transform.position + knockDir * (knockbackStrength * 0.1f);
-        transform.DOMove(targetPos, 0.2f).SetEase(Ease.OutQuad);
+        // Rigidbody velocity
+        rb.linearVelocity = knockDir * knockbackStrength;
 
         // Visual feedback
         transform.DOPunchScale(Vector3.one * 0.1f, 0.2f, 1, 0.5f);
-        foreach (var r in meshRenderers)
-            r.material.DOColor(Color.red, 0.1f).SetLoops(2, LoopType.Yoyo);
-        animator.SetTrigger("Hit");
+        if (meshRenderers != null)
+        {
+            foreach (var r in meshRenderers)
+            {
+                if (r != null && r.material != null)
+                    r.material.DOColor(Color.red, 0.1f).SetLoops(2, LoopType.Yoyo);
+            }
+        }
+        if (animator != null) animator.SetTrigger("Hit");
 
         // Camera shake
         CameraSettings.Instance?.StartShake(0.15f, 0.05f);
 
-        // Hit pause
-        StartCoroutine(HitPause(0.08f));
-        SoundManager.PlaySound(SoundType.ennemyDamage, GetComponent<AudioSource>(), 1f); // Play hit sound with volume 0.5
+        SoundManager.PlaySound(SoundType.ennemyDamage, GetComponent<AudioSource>(), 1f);
     }
 
 
     private void RecoverFromKnockback()
     {
-        rb.linearVelocity = Vector3.zero;
+        rb.linearVelocity = new Vector3(0f, Mathf.Min(rb.linearVelocity.y, 0f), 0f);
         rb.angularVelocity = Vector3.zero;
         isKnockedBack = false;
     }
@@ -422,6 +539,7 @@ public class EnnemyMovement : MonoBehaviour,IHitable
         int neighborCount = 0;
 
         // Find all enemies in the scene (you can optimize this with a manager/pooling)
+        if (spawner == null || spawner.ActiveEnemies == null) return Vector3.zero;
         List<Enemy> allEnemies = spawner.ActiveEnemies; // Assuming this is a list of all active enemies
 
         foreach (var other in allEnemies)
