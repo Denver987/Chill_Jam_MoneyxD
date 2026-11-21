@@ -27,10 +27,11 @@ public class InputSystem : MonoBehaviour
     [SerializeField] private float groundCheckDistance = 0.15f;
     [SerializeField] private float maxGroundAngle = 45f;
     private bool grounded;
+    private float externalImpulseUntil;
 
     [Header("Gravity Tweaks")]
-    [SerializeField] private float fallMultiplier = 2.5f;
-    [SerializeField] private float riseGravityMultiplier = 1.5f;
+    [SerializeField] private float fallMultiplier = 3.5f;
+    [SerializeField] private float riseGravityMultiplier = 1.25f;
 
     private Transform pitchTarget;
     private Vector2 moveInput = Vector2.zero;
@@ -38,7 +39,10 @@ public class InputSystem : MonoBehaviour
 
     private float yaw;
     private float pitch;
+    private float currentRoll;
     private bool paused = false;
+
+    public bool IsPaused => paused;
 
     // debounce lock to ignore leftover input when switching maps
     private bool pauseInputLocked = false;
@@ -46,7 +50,7 @@ public class InputSystem : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        pitchTarget = Camera.main.transform;
+        pitchTarget = Camera.main != null ? Camera.main.transform : transform;
 
         Cursor.lockState = CursorLockMode.Locked;
 
@@ -85,6 +89,11 @@ public class InputSystem : MonoBehaviour
             var cs = canvas.CardsSelection.GetComponent<CardSelectionUI>();
             if (cs != null && cs.choosingCards) return;
         }
+
+        // guard: the game may already be frozen (level-up card screen still
+        // opening, game-over screen). Pausing on top of it would fight over
+        // Time.timeScale.
+        if (!paused && Time.timeScale == 0f) return;
 
         StartCoroutine(HandlePauseToggle());
     }
@@ -205,8 +214,11 @@ public class InputSystem : MonoBehaviour
             accelRate = airAcceleration;
         }
 
-        Vector3 accelerationForce = Vector3.ClampMagnitude(velocityDiff, accelRate * Time.fixedDeltaTime);
-        rb.AddForce(accelerationForce, ForceMode.VelocityChange);
+        if (Time.time >= externalImpulseUntil)
+        {
+            Vector3 accelerationForce = Vector3.ClampMagnitude(velocityDiff, accelRate * Time.fixedDeltaTime);
+            rb.AddForce(accelerationForce, ForceMode.VelocityChange);
+        }
 
         // Apply custom gravity when airborne
         if (!grounded)
@@ -222,40 +234,32 @@ public class InputSystem : MonoBehaviour
         }
     }
 
-    public void TakeKnockback(Vector3 direction, float strength, float upwardBias = 0.5f, float recoveryTime = 0.2f)
+    public void TakeKnockback(Vector3 direction, float strength, float upwardBias = 0.3f, float recoveryTime = 0.2f)
     {
-        if (rb == null) return;
+        Vector3 horiz = new Vector3(direction.x, 0f, direction.z);
+        if (horiz.sqrMagnitude > 0.001f) horiz.Normalize();
+        else horiz = -transform.forward;
 
-        StopAllCoroutines(); 
-        StartCoroutine(KnockbackRoutine(direction, strength, upwardBias, recoveryTime));
+        Vector3 velocityChange = horiz * strength;
+        velocityChange.y = upwardBias;
+        ApplyExternalImpulse(velocityChange, recoveryTime);
     }
 
-    private IEnumerator KnockbackRoutine(Vector3 direction, float strength, float upwardBias, float recoveryTime)
+    public void ApplyExternalImpulse(Vector3 velocityChange, float recoveryTime = 0.3f)
     {
-        // Save original drag
-        float originalDrag = rb.linearDamping;
-
-        // Reduce drag for smooth flight
-        rb.linearDamping = 0f;
-
-        // Calculate knockback velocity
-        Vector3 knockDir = direction.normalized * strength;
-        knockDir.y += upwardBias * strength/5 * 0.1f; // upward punch (tweak multiplier)
-        knockDir.y = 0.5f;
-        // Apply directly as velocity override
-        rb.linearVelocity = knockDir;
-
-        // Wait before restoring drag
-        yield return new WaitForSeconds(recoveryTime);
-
-        rb.linearDamping = originalDrag;
+        if (rb == null) return;
+        externalImpulseUntil = Mathf.Max(externalImpulseUntil, Time.time + recoveryTime);
+        rb.WakeUp();
+        rb.AddForce(velocityChange, ForceMode.VelocityChange);
     }
 
 
     private void LateUpdate()
     {
         pitch = Mathf.Clamp(pitch - lookInput.y * lookSpeed * Time.deltaTime, minPitch, maxPitch);
-        pitchTarget.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+        float targetRoll = -moveInput.x * 0.4f;
+        currentRoll = Mathf.Lerp(currentRoll, targetRoll, Time.deltaTime * 10f);
+        pitchTarget.localRotation = Quaternion.Euler(pitch, 0f, currentRoll);
 
         yaw += lookInput.x * lookSpeed * Time.deltaTime;
         Quaternion targetRotation = Quaternion.Euler(0f, yaw, 0f);

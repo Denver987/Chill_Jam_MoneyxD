@@ -36,6 +36,10 @@ public class CameraSettings : MonoBehaviour
     private Coroutine shakeRoutine;
     private Coroutine zoomRoutine;
     private Coroutine slowMotionRoutine;
+    private float slowMotionBaseScale = 1f;
+    [SerializeField] private bool enableCameraShake = false;
+    [SerializeField] private float crosshairShakeScale = 2f;
+    private Vector2 crosshairRestPosition;
 
     private void Awake()
     {
@@ -58,8 +62,14 @@ public class CameraSettings : MonoBehaviour
     // 🔹 Shake
     public void StartShake(float duration, float magnitude)
     {
+        if (Time.timeScale == 0f) return;
+        if (_crosshairRect == null && crosshair != null)
+        {
+            _crosshairRect = crosshair.rectTransform;
+            crosshairRestPosition = _crosshairRect.anchoredPosition;
+        }
         if (shakeRoutine != null) StopCoroutine(shakeRoutine);
-        shakeRoutine = StartCoroutine(Shake(duration, magnitude));
+        shakeRoutine = StartCoroutine(Shake(Mathf.Min(duration, 0.15f), magnitude * 0.5f));
     }
 
     private IEnumerator Shake(float duration, float magnitude)
@@ -73,13 +83,16 @@ public class CameraSettings : MonoBehaviour
             float x = Random.Range(-1f, 1f) * strength;
             float y = Random.Range(-1f, 1f) * strength;
 
-            transform.localPosition = originalPos + new Vector3(x, y, 0f);
+            if (enableCameraShake) transform.localPosition = originalPos + new Vector3(x, y, 0f);
+            if (_crosshairRect != null)
+                _crosshairRect.anchoredPosition = crosshairRestPosition + new Vector2(x, y) * crosshairShakeScale;
 
-            elapsed += Time.deltaTime;
+            elapsed += Time.unscaledDeltaTime;
             yield return null;
         }
 
         transform.localPosition = originalPos;
+        if (_crosshairRect != null) _crosshairRect.anchoredPosition = crosshairRestPosition;
         shakeRoutine = null;
     }
 
@@ -114,19 +127,42 @@ public class CameraSettings : MonoBehaviour
     // 🔹 Slow Motion (safe, never stuck)
     public void StartSlowMotion(float targetScale, float duration)
     {
+        if (Time.timeScale <= 0f || IsModalOpen()) return;
+        if (slowMotionRoutine == null) slowMotionBaseScale = Time.timeScale;
         if (slowMotionRoutine != null) StopCoroutine(slowMotionRoutine);
         slowMotionRoutine = StartCoroutine(SlowMotionRoutine(targetScale, duration));
     }
 
     private IEnumerator SlowMotionRoutine(float targetScale, float duration)
     {
-        float originalTimeScale = 1f; // always return to normal speed
         Time.timeScale = targetScale;
 
         yield return new WaitForSecondsRealtime(duration);
 
-        Time.timeScale = originalTimeScale;
+        // Do not un-freeze a card selection or pause menu that opened while
+        // the slow motion was playing.
+        if (!IsModalOpen() && Mathf.Approximately(Time.timeScale, targetScale))
+        {
+            Time.timeScale = slowMotionBaseScale;
+        }
         slowMotionRoutine = null;
+    }
+
+    private static bool IsModalOpen()
+    {
+        var canvas = CanvasSingleton.Instance;
+        if (canvas == null) return false;
+        if (canvas.CardsSelection != null && canvas.CardsSelection.activeSelf) return true;
+        if (canvas.PausePanel != null && canvas.PausePanel.activeSelf) return true;
+        if (canvas.die != null && canvas.die.activeSelf) return true;
+
+        if (canvas.player != null)
+        {
+            var input = canvas.player.GetComponent<InputSystem>();
+            if (input != null && input.IsPaused) return true;
+        }
+
+        return false;
     }
     //get called when the player is zero hp
      public void OnPlayerDeath()
@@ -177,6 +213,7 @@ public class CameraSettings : MonoBehaviour
         if (crosshair != null)
         {
             _crosshairRect = crosshair.rectTransform;
+            crosshairRestPosition = _crosshairRect.anchoredPosition;
             _crosshairRect.localScale = crosshairNormalScale;
         }
     }
@@ -186,8 +223,11 @@ public class CameraSettings : MonoBehaviour
     /// </summary>
     public void SetCrosshairTargetable(bool isTargetable, Outline outlineTarget = null)
     {
+        if (crosshairIsTargetable == isTargetable && _currentOutline == outlineTarget) return;
+        bool targetabilityChanged = crosshairIsTargetable != isTargetable;
+        crosshairIsTargetable = isTargetable;
         // Crosshair scale (DOTween)
-        if (_crosshairRect != null)
+        if (_crosshairRect != null && targetabilityChanged)
         {
             Vector3 target = isTargetable ? crosshairTargetScale : crosshairNormalScale;
             crosshairTween?.Kill();
@@ -218,6 +258,30 @@ public class CameraSettings : MonoBehaviour
             _currentOutline.enabled = false;
             _currentOutline = null;
         }
+    }
+
+    /// <summary>
+    /// Subtle pulse on crosshair when hitting an enemy or bouncing a shell
+    /// </summary>
+    public void TriggerHitFeedback()
+    {
+        if (_crosshairRect == null && crosshair != null)
+        {
+            _crosshairRect = crosshair.rectTransform;
+            crosshairRestPosition = _crosshairRect.anchoredPosition;
+        }
+        if (_crosshairRect != null)
+        {
+            crosshairTween?.Kill();
+            _crosshairRect.localScale = crosshairNormalScale * 1.35f;
+            crosshairTween = _crosshairRect.DOScale(crosshairNormalScale, 0.12f).SetEase(Ease.OutQuad).SetUpdate(true);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        crosshairTween?.Kill();
+        if (Instance == this) Instance = null;
     }
 
 }
