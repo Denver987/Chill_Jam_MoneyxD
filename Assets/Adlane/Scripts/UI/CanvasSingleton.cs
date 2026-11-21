@@ -56,9 +56,12 @@ public class CanvasSingleton : MonoBehaviour
         }
     }
     public IEnumerator CardsUI() {
-        Instance.CardsSelection.SetActive(true);
-        yield return new WaitForSeconds(0.5f); // Wait a frame to ensure the UI is active
-        CardsSelection.GetComponent<CardSelectionUI>().SpawnCards();
+        if (CardsSelection == null) yield break;
+
+        CardsSelection.SetActive(true);
+        var selection = CardsSelection.GetComponent<CardSelectionUI>();
+        if (selection != null) selection.SpawnCards();
+        yield break;
     }
     public void UpdateScore(int score)
     {

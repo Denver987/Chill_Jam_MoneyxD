@@ -7,6 +7,13 @@ public class PausePanel : MonoBehaviour
     public GameObject mainPausePanel;
     private void Start()
     {
+        foreach (var slider in GetComponentsInChildren<UnityEngine.UI.Slider>(true))
+        {
+            if (slider.gameObject.name.Contains("Volume") && slider.GetComponent<VolumeController>() == null)
+            {
+                slider.gameObject.AddComponent<VolumeController>();
+            }
+        }
     }
 
     public void ShowOptions()
@@ -16,6 +23,9 @@ public class PausePanel : MonoBehaviour
     }
     public void MainMenu()
     {
+        Time.timeScale = 1f;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
         SceneManager.LoadScene(0);
     }
     public void ResumeGame()

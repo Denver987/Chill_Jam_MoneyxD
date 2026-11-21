@@ -22,15 +22,17 @@ public class DieTMP : MonoBehaviour
     }
     public void BackToMenu()
     {
+        // Leaving a paused/level-up/game-over state must not freeze the menu.
+        Time.timeScale = 1f;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
         SceneManager.LoadScene(0);
-        foreach (var obj in CanvasSingleton.Instance.GetComponentsInChildren<Transform>())
-        {
-            obj.gameObject.SetActive(false);
-        }
     }
     public void ShowText(int level, float experience)
     {
-        dieText.text = $"You Died at level {level}, with {experience} XP";
-        SecondDieText.text = $"Your Score : " + GameManager.Instance.score;
+        if (dieText != null)
+            dieText.text = $"You Died at level {level}, with {experience} XP";
+        if (SecondDieText != null && GameManager.Instance != null)
+            SecondDieText.text = $"Your Score : " + GameManager.Instance.score;
     }
 }

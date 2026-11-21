@@ -30,23 +30,38 @@ public class MainMenu : MonoBehaviour
     {
         LoadPlayerNames();
         
-        if (playerNames.Count > 0)
+        if (playerNames.Count > 0 && playerSelectionPanel != null && playerButtonPrefab != null && playerButtonContainer != null)
         {
             // We have existing players, show selection screen
             ShowPlayerSelection();
         }
-        else
+        else if (textField != null)
         {
             // First time use, show name entry
             textField.SetActive(true);
-            gameMenu.SetActive(false);
-            playerSelectionPanel.SetActive(false);
+            if (gameMenu != null) gameMenu.SetActive(false);
+            if (playerSelectionPanel != null) playerSelectionPanel.SetActive(false);
+        }
+        else
+        {
+            // Fallback: standard main menu
+            if (gameMenu != null) gameMenu.SetActive(true);
+            if (playerSelectionPanel != null) playerSelectionPanel.SetActive(false);
         }
         
         // Hide options menu
         if (optionsMenu != null)
         {
             optionsMenu.SetActive(false);
+        }
+
+        // Auto-hook volume slider
+        foreach (var slider in GetComponentsInChildren<UnityEngine.UI.Slider>(true))
+        {
+            if (slider.gameObject.name.Contains("Volume") && slider.GetComponent<VolumeController>() == null)
+            {
+                slider.gameObject.AddComponent<VolumeController>();
+            }
         }
     }
     
@@ -70,6 +85,12 @@ public class MainMenu : MonoBehaviour
     
     private void ShowPlayerSelection()
     {
+        if (playerButtonContainer == null || playerButtonPrefab == null || playerSelectionPanel == null)
+        {
+            if (gameMenu != null) gameMenu.SetActive(true);
+            return;
+        }
+
         // Clear existing buttons
         foreach (Transform child in playerButtonContainer)
         {
@@ -80,18 +101,23 @@ public class MainMenu : MonoBehaviour
         foreach (string name in playerNames)
         {
             GameObject buttonObj = Instantiate(playerButtonPrefab, playerButtonContainer);
-            buttonObj.GetComponentInChildren<TextMeshProUGUI>().text = name;
+            var textComp = buttonObj.GetComponentInChildren<TextMeshProUGUI>();
+            if (textComp != null) textComp.text = name;
             
             // Set up button click
-            buttonObj.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => {
-                SelectPlayer(name);
-            });
+            var btn = buttonObj.GetComponent<UnityEngine.UI.Button>();
+            if (btn != null)
+            {
+                btn.onClick.AddListener(() => {
+                    SelectPlayer(name);
+                });
+            }
         }
         
         // Show the selection panel
         playerSelectionPanel.SetActive(true);
-        textField.SetActive(false);
-        gameMenu.SetActive(false);
+        if (textField != null) textField.SetActive(false);
+        if (gameMenu != null) gameMenu.SetActive(false);
     }
     
     public void SelectPlayer(string name)
@@ -101,15 +127,15 @@ public class MainMenu : MonoBehaviour
         PlayerPrefs.Save();
         
         // Show main menu
-        playerSelectionPanel.SetActive(false);
-        gameMenu.SetActive(true);
+        if (playerSelectionPanel != null) playerSelectionPanel.SetActive(false);
+        if (gameMenu != null) gameMenu.SetActive(true);
     }
     
     public void ShowNewPlayerInput()
     {
         // Show name entry screen for new player
-        playerSelectionPanel.SetActive(false);
-        textField.SetActive(true);
+        if (playerSelectionPanel != null) playerSelectionPanel.SetActive(false);
+        if (textField != null) textField.SetActive(true);
     }
     
     public void SubmitName()
@@ -139,8 +165,8 @@ public class MainMenu : MonoBehaviour
             nameInputField.text = "";
             
             // Show main menu
-            textField.SetActive(false);
-            gameMenu.SetActive(true);
+            if (textField != null) textField.SetActive(false);
+            if (gameMenu != null) gameMenu.SetActive(true);
         }
         else
         {
@@ -163,8 +189,8 @@ public class MainMenu : MonoBehaviour
     
     public void Options()
     {
-        optionsMenu.SetActive(true);
-        gameMenu.SetActive(false);
+        if (optionsMenu != null) optionsMenu.SetActive(true);
+        if (gameMenu != null) gameMenu.SetActive(false);
     }
     
     public void exitGame()
@@ -175,7 +201,7 @@ public class MainMenu : MonoBehaviour
     // Add a button to switch players from main menu
     public void SwitchPlayer()
     {
-        ShowPlayerSelection();
+        if (playerSelectionPanel != null) ShowPlayerSelection();
     }
     
     // Other menu navigation methods remain the same
