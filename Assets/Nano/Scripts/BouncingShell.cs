@@ -36,6 +36,9 @@ public class BouncingShell : MonoBehaviour, IHitable
     private Vector3 wanderDir;
     private float wanderTimer;
     private float activeTimer = 0f;
+    private Vector3 launchDirection;
+    private float launchSpeed;
+    private PhysicsMaterial slidingMaterial;
 
     private void Awake()
     {
@@ -43,11 +46,22 @@ public class BouncingShell : MonoBehaviour, IHitable
         animator = GetComponent<Animator>();
         meshRenderers = GetComponentsInChildren<SkinnedMeshRenderer>();
 
+        // Zero friction belongs to this rolling object, not the entire world.
+        slidingMaterial = new PhysicsMaterial("Shell slide")
+        {
+            dynamicFriction = 0.02f, staticFriction = 0.02f,
+            bounciness = 0.35f,
+            frictionCombine = PhysicsMaterialCombine.Minimum,
+            bounceCombine = PhysicsMaterialCombine.Maximum
+        };
+        foreach (var collider in GetComponentsInChildren<Collider>()) collider.sharedMaterial = slidingMaterial;
+
     }
     private void ApplyFallMultiplier()
     {
         // Ground check
-        grounded = Physics.Raycast(transform.position + Vector3.up * 0.1f, Vector3.down, groundCheckDistance, groundLayer);
+        LayerMask mask = groundLayer.value == 0 ? (LayerMask)(~0) : groundLayer;
+        grounded = Physics.Raycast(transform.position + Vector3.up * 0.2f, Vector3.down, Mathf.Max(groundCheckDistance, 0.4f), mask, QueryTriggerInteraction.Ignore);
 
         if (!grounded)
         {
@@ -66,6 +80,8 @@ public class BouncingShell : MonoBehaviour, IHitable
     {
         RestartWandering();
     }
+
+    public void StartWandering() => RestartWandering();
 
     public void RestartWandering()
     {
@@ -127,6 +143,13 @@ public class BouncingShell : MonoBehaviour, IHitable
                 return;
             }
 
+            // Keep the promised launch speed rather than immediately losing it
+            // to floor contact/damping. Gravity still controls the Y axis.
+            var velocity = rb.linearVelocity;
+            var planar = Vector3.ProjectOnPlane(velocity, Vector3.up);
+            if (planar.sqrMagnitude > 0.01f) launchDirection = planar.normalized;
+            rb.linearVelocity = new Vector3(launchDirection.x * launchSpeed, velocity.y, launchDirection.z * launchSpeed);
+
             // Keep facing travel direction while active
             if (rb.linearVelocity.sqrMagnitude > 0.01f)
             {
@@ -148,18 +171,25 @@ public class BouncingShell : MonoBehaviour, IHitable
     {
         if (!isActive) return;
 
-        float speed = rb.linearVelocity.magnitude;
         Vector3 n = collision.contacts[0].normal;
-        Vector3 v = Vector3.Reflect(rb.linearVelocity, n);
+        if (n.y > 0.5f) return; // A floor contact is not a wall bounce.
+
+        Vector3 v = Vector3.Reflect(launchDirection, n);
 
         if (keepOnGround) v.y = 0f;
         v = v.sqrMagnitude > 0.0001f ? v.normalized : transform.forward;
 
-        rb.linearVelocity = v * (speed * keepSpeedOnBounce);
+        launchDirection = v;
+        launchSpeed *= keepSpeedOnBounce;
+        rb.linearVelocity = v * launchSpeed;
 
         // Damage things it hits
-        var enemy = collision.gameObject.GetComponent<EnnemyMovement>();
-        if (enemy != null) enemy.Die();
+        var enemy = collision.gameObject.GetComponent<EnnemyMovement>() ?? collision.gameObject.GetComponentInParent<EnnemyMovement>();
+        if (enemy != null)
+        {
+            CameraSettings.Instance?.TriggerHitFeedback();
+            enemy.Die();
+        }
 
         var player = collision.gameObject.GetComponent<Player>();
         if (player != null) player.TakeDamage(10, v, 5f);
@@ -167,26 +197,23 @@ public class BouncingShell : MonoBehaviour, IHitable
 
     private void Deactivate()
     {
-        gameObject.SetActive(false);
-    }
-    private bool isHitPaused = false;
-    IEnumerator HitPause(float duration)
-    {
-        if (isHitPaused) yield break;
-
-        isHitPaused = true;
-
-        float originalTimeScale = Time.timeScale;
-        Time.timeScale = 0f;
-        yield return new WaitForSecondsRealtime(duration);
-        Time.timeScale = originalTimeScale;
-
-        isHitPaused = false;
+        var bouncer = GetComponent<Bouncer>();
+        if (bouncer != null && bouncer.Parent != null)
+        {
+            gameObject.SetActive(false);
+        }
+        else
+        {
+            RestartWandering();
+        }
     }
     // ===== IHitable =====
     public void Execute(Transform executionSource, float knockbackStrength)
     {
-        if (executionSource == null || rb == null) return;
+        if (executionSource == null) return;
+        if (rb == null) rb = GetComponent<Rigidbody>();
+        if (rb == null) return;
+        enabled = true;
 
         // Direction AWAY from the attacker (hit source) → attacker -> shell
         Vector3 dir = transform.position - executionSource.position;
@@ -210,7 +237,6 @@ public class BouncingShell : MonoBehaviour, IHitable
         foreach (var r in meshRenderers)
             r.material.DOColor(Color.red, 0.1f).SetLoops(2, LoopType.Yoyo);
         CameraSettings.Instance?.StartShake(0.15f, 0.05f);
-        StartCoroutine(HitPause(0.08f));
         SoundManager.PlaySound(SoundType.ennemyDamage, GetComponent<AudioSource>(), 1f);
 
         // Apply the knockback along that hit direction
@@ -234,17 +260,23 @@ public class BouncingShell : MonoBehaviour, IHitable
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
 
         if (keepOnGround) direction.y = 0f;   // enforce ground slide if wanted
-        rb.linearVelocity = direction.normalized * strength;
-
-        // Optional: small DOTween punch for visuals (doesn’t affect physics)
-        Vector3 targetPos = transform.position + direction * (strength * 0.1f);
-        transform.DOMove(targetPos, 0.15f).SetEase(Ease.OutQuad);
+        rb.linearDamping = 0f;
+        rb.angularDamping = 0.05f;
+        rb.WakeUp();
+        launchDirection = direction.normalized;
+        launchSpeed = Mathf.Clamp(strength * speedPerStrength, minLaunchSpeed, maxLaunchSpeed);
+        rb.linearVelocity = launchDirection * launchSpeed;
     }
 
 
     public void ExecuteWithUpwardBias(Transform executionSource, float knockbackStrength, float upwardBias = 0.5f)
     {
-      
+        Execute(executionSource, knockbackStrength);
+    }
+
+    private void OnDestroy()
+    {
+        if (slidingMaterial != null) Destroy(slidingMaterial);
     }
 
    

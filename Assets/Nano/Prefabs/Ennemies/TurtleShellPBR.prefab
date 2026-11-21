@@ -159,11 +159,11 @@ MonoBehaviour:
   riseGravityMultiplier: 1.5
   groundLayer:
     serializedVersion: 2
-    m_Bits: 0
-  groundCheckDistance: 0.2
-  minLaunchSpeed: 4
-  maxLaunchSpeed: 12
-  speedPerStrength: 0.4
+    m_Bits: 4294967295
+  groundCheckDistance: 0.35
+  minLaunchSpeed: 8
+  maxLaunchSpeed: 20
+  speedPerStrength: 0.6
   keepSpeedOnBounce: 1
   keepOnGround: 1
   activeLifeTime: 15

@@ -4,10 +4,12 @@ public class LeaveTuto : MonoBehaviour
 {
     private void OnTriggerEnter(Collider other)
     {
-        if(other.CompareTag("Player"))
+        if (other.CompareTag("Player"))
         {
-            // Assuming you have a GameManager script to handle game states
-            GameManager.Instance.LoadScene(2);
+            if (GameManager.Instance != null)
+                GameManager.Instance.LoadScene(2);
+            else
+                UnityEngine.SceneManagement.SceneManager.LoadScene(2);
         }
     }
 }

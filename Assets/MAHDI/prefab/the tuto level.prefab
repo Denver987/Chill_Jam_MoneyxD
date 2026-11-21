@@ -1614,7 +1614,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 890784310856985025}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 311c85c5b212fb84c9ea8bb16fbcb050, type: 3}
   m_Name: 
@@ -1625,11 +1625,11 @@ MonoBehaviour:
   riseGravityMultiplier: 1.5
   groundLayer:
     serializedVersion: 2
-    m_Bits: 0
-  groundCheckDistance: 0.2
-  minLaunchSpeed: 4
-  maxLaunchSpeed: 12
-  speedPerStrength: 0.4
+    m_Bits: 4294967295
+  groundCheckDistance: 0.35
+  minLaunchSpeed: 8
+  maxLaunchSpeed: 20
+  speedPerStrength: 0.6
   keepSpeedOnBounce: 1
   keepOnGround: 1
   activeLifeTime: 15
@@ -1640,7 +1640,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 890784310856985025}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c2a73165f6fc68743a828a22a41b1251, type: 3}
   m_Name: 
