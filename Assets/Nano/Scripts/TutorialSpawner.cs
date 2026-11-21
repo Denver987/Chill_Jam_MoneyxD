@@ -7,28 +7,48 @@ public class TutorialSpawner : MonoBehaviour
     public int ennemy;
     private void Awake()
     {
-        enemySpawner = GetComponentInParent<EnemySpawner>();
+        enemySpawner = GetComponentInParent<EnemySpawner>() ?? FindFirstObjectByType<EnemySpawner>();
     }
-    private void Start()
+    private System.Collections.IEnumerator Start()
     {
-        SpawnEnnemy();
+        yield return null;
+        for (int retry = 0; retry < 10 && enemyPrefab == null; retry++)
+        {
+            SpawnEnnemy();
+            if (enemyPrefab == null) yield return new WaitForSecondsRealtime(0.1f);
+        }
     }
     public void SpawnEnnemy()
     {
+        if (enemyPrefab != null && enemyPrefab.gameObject.activeInHierarchy) return;
+        if (enemySpawner == null) enemySpawner = GetComponentInParent<EnemySpawner>() ?? FindFirstObjectByType<EnemySpawner>();
+        if (enemySpawner == null || enemySpawner.EnemyPrefabs.Count == 0) return;
+
         switch (ennemy)
         {
             case 0:
-               enemyPrefab =  enemySpawner.SpawnEnemyAt(enemySpawner.EnemyPrefabs[0], transform);
-                enemyPrefab.gameObject.GetComponent<EnnemyMovement>().tutorialSpawner = this;
+                if (enemySpawner.EnemyPrefabs.Count > 0)
+                {
+                    enemyPrefab = enemySpawner.SpawnEnemyAt(enemySpawner.EnemyPrefabs[0], transform);
+                    if (enemyPrefab != null)
+                    {
+                        var movement = enemyPrefab.gameObject.GetComponent<EnnemyMovement>();
+                        if (movement != null) movement.tutorialSpawner = this;
+                    }
+                }
                 break;
 
             case 1:
-                enemyPrefab = enemySpawner.SpawnEnemyAt(enemySpawner.EnemyPrefabs[2], transform);
-                enemyPrefab.gameObject.GetComponent<EnnemyMovement>().tutorialSpawner = this;
+                int golemIndex = enemySpawner.EnemyPrefabs.Count > 2 ? 2 : 0;
+                enemyPrefab = enemySpawner.SpawnEnemyAt(enemySpawner.EnemyPrefabs[golemIndex], transform);
+                if (enemyPrefab != null)
+                {
+                    var movement = enemyPrefab.gameObject.GetComponent<EnnemyMovement>();
+                    if (movement != null) movement.tutorialSpawner = this;
+                }
                 break;
             default:
                 break;
         }
-           
-        }
     }
+}

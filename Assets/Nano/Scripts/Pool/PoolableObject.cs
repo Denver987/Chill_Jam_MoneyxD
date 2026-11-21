@@ -6,7 +6,9 @@ public class PoolableObject : MonoBehaviour
 
     public virtual void OnDisable()
     {
-        Debug.Log($"Returning {this.name} to pool ");
+        // Objects that live in the scene (not spawned by a pool) have no parent.
+        if (Parent == null) return;
+
         Parent.ReturnObjectToPool(this);
     }
 }

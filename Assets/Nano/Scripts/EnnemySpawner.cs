@@ -12,7 +12,16 @@ public class EnemySpawner : MonoBehaviour
 
     public Dictionary<int, ObjectPool> EnemyObjectPools = new Dictionary<int, ObjectPool>();
     public List<Enemy> ActiveEnemies = new List<Enemy>();
-    public int activeEnemiesCount => ActiveEnemies.Count;
+    [Header("Spawn Limits")]
+    public int maxAliveEnemies = 25;
+    public int activeEnemiesCount
+    {
+        get
+        {
+            ActiveEnemies.RemoveAll(e => e == null || !e.gameObject.activeInHierarchy || (e.Movement != null && e.Movement.isDead));
+            return ActiveEnemies.Count;
+        }
+    }
 
 
 
@@ -46,10 +55,9 @@ public class EnemySpawner : MonoBehaviour
 
     private void Awake()
     {
-        // create object pools for each enemy prefab
-        for (int i = 0; i < EnemyPrefabs.Count -1; i++)
+        for (int i = 0; i < EnemyPrefabs.Count; i++)
         {
-            EnemyObjectPools.Add(i, ObjectPool.CreateInstance(EnemyPrefabs[i],initialPoolSize, this.transform));
+            if (EnemyPrefabs[i] != null) EnsureEnemyPool(i);
         }
      
 
@@ -69,6 +77,23 @@ public class EnemySpawner : MonoBehaviour
                 this.transform
             );
         }
+
+        // XP orbs: one pool per orb prefab. The pool index is used as the orb
+        // type index, so keep the same order as xpOrbPrefabs.
+        xpOrbPools.Clear();
+        for (int i = 0; i < xpOrbPrefabs.Count; i++)
+        {
+            var orbPrefab = xpOrbPrefabs[i];
+            var poolable = orbPrefab != null ? orbPrefab.GetComponent<PoolableObject>() : null;
+            if (poolable == null)
+            {
+                Debug.LogError($"XP orb prefab at index {i} is missing a PoolableObject component.");
+                xpOrbPools.Add(null);
+                continue;
+            }
+
+            xpOrbPools.Add(ObjectPool.CreateInstance(poolable, xpOrbPoolSizePerType, this.transform));
+        }
         
      
 
@@ -77,11 +102,25 @@ public class EnemySpawner : MonoBehaviour
     
     private bool once = false;
 
+    private bool EnsureEnemyPool(int index)
+    {
+        if (EnemyObjectPools.ContainsKey(index)) return true;
+        if (index < 0 || index >= EnemyPrefabs.Count || EnemyPrefabs[index] == null) return false;
+        EnemyObjectPools[index] = ObjectPool.CreateInstance(EnemyPrefabs[index], initialPoolSize, transform);
+        return true;
+    }
+
     private void Update()
     { 
-        if (target.gameObject.GetComponent<MagneticPull>().enabled && !once && GameManager.Instance.isTutorial == false)
+        if (once || target == null) return;
+
+        var player = target.GetComponent<Player>();
+        int playerLevel = player != null ? player.level : 1;
+        if (playerLevel >= 7 && !once
+            && GameManager.Instance != null && !GameManager.Instance.isTutorial
+            && EnemyPrefabs.Count > 2 && !EnemyObjectPools.ContainsKey(2))
         {
-            EnemyObjectPools.Add(2, ObjectPool.CreateInstance(EnemyPrefabs[2], initialPoolSize, this.transform));
+            EnsureEnemyPool(2);
             once = true; // ensure this runs only once
         }
     }
@@ -113,14 +152,16 @@ public class EnemySpawner : MonoBehaviour
     private void Start()
     {
 
-        if (GameManager.Instance.isTutorial)
+        if (GameManager.Instance != null && GameManager.Instance.isTutorial)
         {
-            EnemyObjectPools.Add(2, ObjectPool.CreateInstance(EnemyPrefabs[2], initialPoolSize, this.transform));
+            EnsureEnemyPool(2);
             once = true; // ensure this runs only once
         }
             // Start automatic shell spawning
             StartCoroutine(ShellSpawnRoutine());
 
+        // These are arena spawn points, not the tutorial's local training points.
+        if (GameManager.Instance != null && GameManager.Instance.isTutorial) return;
         foreach (var zone in spawnzones)
         {
             if (!NavMesh.SamplePosition(zone.position, out _, 5f, NavMesh.AllAreas))
@@ -173,20 +214,33 @@ public class EnemySpawner : MonoBehaviour
     /// <summary>Spawn an enemy prefab directly (used by WaveManager)</summary>
     public void SpawnSpecificEnemy(Enemy prefab)
     {
+        if (prefab == null) return;
         int index = EnemyPrefabs.IndexOf(prefab);
-        if (index >= 0)
+        if (index < 0)
         {
-            DoSpawnEnemy(index);
+            EnemyPrefabs.Add(prefab);
+            index = EnemyPrefabs.Count - 1;
+            EnsureEnemyPool(index);
         }
-        else
-        {
-            Debug.LogWarning($"Prefab {prefab.name} not found in EnemyPrefabs list!");
-        }
+        DoSpawnEnemy(index);
     }
 
     private void DoSpawnEnemy(int spawnIndex)
     {
-        if (!EnemyObjectPools.ContainsKey(spawnIndex)) return;
+        if (!isActiveAndEnabled || spawnzones.Count == 0) return;
+        if (activeEnemiesCount >= maxAliveEnemies) return;
+
+        Enemy prefab = EnemyPrefabs[spawnIndex];
+        int playerLevel = target != null && target.TryGetComponent<Player>(out var p) ? p.level : 1;
+        bool isTutorial = GameManager.Instance != null && GameManager.Instance.isTutorial;
+        if (!isTutorial)
+        {
+            var tier = WaveManager.GetEnemyTier(prefab);
+            if (tier == WaveManager.EnemyTier.Intermediate && playerLevel < 5) return;
+            if (tier == WaveManager.EnemyTier.Heavy && playerLevel < 7) return;
+        }
+
+        if (!EnsureEnemyPool(spawnIndex)) return;
 
         PoolableObject poolableObject = EnemyObjectPools[spawnIndex].GetObject();
         if (poolableObject == null)
@@ -243,7 +297,9 @@ public class EnemySpawner : MonoBehaviour
             return null;
         }
 
-        if (!EnemyObjectPools.ContainsKey(index)) return null;
+        // TutorialSpawner.Start can run before this component's Start.
+        if (!EnsureEnemyPool(index)) return null;
+        if (!isActiveAndEnabled) return null;
 
         PoolableObject poolableObject = EnemyObjectPools[index].GetObject();
         if (poolableObject == null)

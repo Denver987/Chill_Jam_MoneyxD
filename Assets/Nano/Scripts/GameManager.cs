@@ -14,15 +14,20 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-
+        // A previous scene may have been paused for a card pick, the pause menu
+        // or the death screen. Always start a freshly loaded scene unpaused.
+        Time.timeScale = 1f;
 
         EnemySpawner = GetComponentInChildren<EnemySpawner>();
         WaveManager = GetComponentInChildren<WaveManager>();
-        Instance = this; // Set the singleton instance
-        if(Instance != this)
+
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject); // Ensure only one instance exists
+            return;
         }
+
+        Instance = this; // Set the singleton instance
     }
 
     private void Start()

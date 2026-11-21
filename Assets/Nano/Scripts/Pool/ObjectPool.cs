@@ -59,8 +59,6 @@ public class ObjectPool
     }
     public void ReturnObjectToPool(PoolableObject Object)
     {
-        Debug.Log($"Returning {Object.name} to pool {this.Prefab.name}");
         AvailableObjectsPool.Add(Object);
-        Debug.Log($"Available objects in pool: {AvailableObjectsPool.Count}");
     }
 }

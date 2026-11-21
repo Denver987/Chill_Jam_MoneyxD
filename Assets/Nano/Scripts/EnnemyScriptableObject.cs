@@ -24,9 +24,9 @@ public class EnemyScriptableObject : ScriptableObject
     public float maxRotationSpeed = 10f; // maximum rotation speed to prevent too fast rotations
     public float minRotationSpeed = 1f; // minimum rotation speed to prevent too slow rotations
 
-    public float attackRange = 1.5f;
+    public float attackRange = 1.8f;
     public float attackCooldown = 1.0f;
-    public float attackKnockbackForce = 5f;
+    public float attackKnockbackForce = 4f;
     public int attackDamage = 10;
 
     public int AvoidancePriority = 50;

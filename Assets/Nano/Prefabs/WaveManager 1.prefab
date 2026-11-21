@@ -45,8 +45,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawner: {fileID: 0}
-  baseSpawnInterval: 7
-  baseSpawnCount: 1
+  baseSpawnInterval: 5
+  baseSpawnCount: 2
+  openingSpawnRateMultiplier: 1.4
+  openingBoostSeconds: 60
   spawnCountCurve:
     serializedVersion: 2
     m_Curve:
@@ -138,6 +140,8 @@ MonoBehaviour:
       weight: 0.8
     - enemyPrefab: {fileID: 6288624328274971068, guid: 27b74e3764458ae4f811cf3d396486e2, type: 3}
       weight: 0.3
+    - enemyPrefab: {fileID: 940849130707843443, guid: 9730f890e163f0541a416eed61356f6e, type: 3}
+      weight: 0.5
     startMinute: 6
   - name: 12 minutes
     enemyTypes:
@@ -145,4 +149,6 @@ MonoBehaviour:
       weight: 0.6
     - enemyPrefab: {fileID: 6288624328274971068, guid: 27b74e3764458ae4f811cf3d396486e2, type: 3}
       weight: 0.4
+    - enemyPrefab: {fileID: 940849130707843443, guid: 9730f890e163f0541a416eed61356f6e, type: 3}
+      weight: 0.5
     startMinute: 9
