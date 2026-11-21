@@ -41,6 +41,10 @@ public class MagneticPull : MonoBehaviour
     private float telekinesisStartY = 0f; 
     private Rigidbody telekinesisTarget;
     private float cdTimer;
+    private bool telekinesisOriginalGravity;
+    private bool telekinesisOriginalKinematic;
+    private EnnemyMovement telekinesisEnemy;
+    private EnnemyMovement heldEnemy;
 
     void Start()
     {
@@ -77,14 +81,15 @@ public class MagneticPull : MonoBehaviour
         }
 
         if (cam == null) cam = Camera.main;
+        if (cam == null) return;
 
-        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+        Ray ray = GetAimRay();
         bool inRange = false;
         Outline outlineTarget = null;
 
         if (Physics.Raycast(ray, out RaycastHit hit, pullRange, ~0, QueryTriggerInteraction.Ignore))
         {
-            if (hit.rigidbody != null && hit.collider.CompareTag("Pullable"))
+            if (CanPull(hit.rigidbody) || CanTelekinesis(hit.rigidbody))
             {
                 inRange = true;
                 outlineTarget =
@@ -106,27 +111,20 @@ public class MagneticPull : MonoBehaviour
 
     public void Telekinesis(InputAction.CallbackContext context)
     {
+        if (Time.timeScale == 0f) return; // game frozen (cards, pause, game over)
         if (gameObject.GetComponent<SpellSelector>().currentSpell != SpellSelector.SpellType.MagneticPull) return;
+        if (cam == null) cam = Camera.main;
+        if (cam == null || !isActiveAndEnabled) return;
         if (telekinesisTarget != null) return;
+        if (isHolding && heldItem != null) return; // LMB throws the held object, not a second lift.
         if (telekinesisTimer > 0f) return; 
         if (cdTimer > 0f) return; 
         if (context.performed)
         {
-            Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit, pullRange))
+            Ray ray = GetAimRay();
+            if (Physics.Raycast(ray, out RaycastHit hit, pullRange, ~0, QueryTriggerInteraction.Ignore))
             {
-                if (hit.rigidbody == null) return;
-                if (!hit.collider.CompareTag("Pullable")) return;
-
-                _suppressAimUI = true;   // 🔹 stop Update() from re-highlighting
-                ResetAimUI();            // 🔹 ensure outline/crosshair are OFF before TK starts
-
-                telekinesisTarget = hit.rigidbody;
-                telekinesisStartY = telekinesisTarget.position.y;
-                telekinesisTarget.useGravity = false;
-                telekinesisTimer = telekinesisDuration;
-                cdTimer = telekinesisCD;
-                animator.SetTrigger("Telekinesis");
+                TryStartTelekinesis(hit.rigidbody);
             }
         }
         
@@ -134,6 +132,17 @@ public class MagneticPull : MonoBehaviour
 
     public void Pull(InputAction.CallbackContext context)
     {
+        if (context.canceled)
+        {
+            isHolding = false;
+            _suppressAimUI = false;
+            ReleaseHeldEnemy();
+            heldItem = null;
+            if (animator != null) animator.SetBool("Magnetic", false);
+            return;
+        }
+        if (!isActiveAndEnabled) return;
+        if (Time.timeScale == 0f) return; // game frozen (cards, pause, game over)
         if (gameObject.GetComponent<SpellSelector>().currentSpell != SpellSelector.SpellType.MagneticPull) return;
         if (pullCooldownTimer > 0f) return;
         if (context.performed)
@@ -143,15 +152,11 @@ public class MagneticPull : MonoBehaviour
             isHolding = true;
             animator.SetBool("Magnetic", true);
         }
-        if (isHolding && context.canceled)
-        {
-            isHolding = false;
-            _suppressAimUI = false;  // allow aim-ui again
-        }
     }
 
     public void Throw(InputAction.CallbackContext context)
     {
+        if (!isActiveAndEnabled || Time.timeScale == 0f) return;
         if (gameObject.GetComponent<SpellSelector>().currentSpell != SpellSelector.SpellType.MagneticPull) return;
         if (heldItem == null) return;
         if (!isHolding) return;
@@ -165,6 +170,7 @@ public class MagneticPull : MonoBehaviour
     }
     private void FixedUpdate()
     {
+        if (cam == null) cam = Camera.main;
         if (cdTimer > 0f) cdTimer -= Time.fixedDeltaTime;
         if (pullCooldownTimer > 0f) pullCooldownTimer -= Time.fixedDeltaTime;
 
@@ -203,9 +209,7 @@ public class MagneticPull : MonoBehaviour
 
             if (telekinesisTimer <= 0f)
             {
-                telekinesisTarget.useGravity = true;
-                telekinesisTarget = null;
-                _suppressAimUI = false;   // ✅ allow Update() highlight again
+                EndTelekinesis();
             }
 
         }
@@ -213,10 +217,9 @@ public class MagneticPull : MonoBehaviour
         if (isHolding && cam != null && !isThrowing)
         {
             if (pullCooldownTimer > 0f) return;
-            Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit, pullRange))
+            if (heldItem == null && Physics.Raycast(GetAimRay(), out RaycastHit hit, pullRange, ~0, QueryTriggerInteraction.Ignore))
             {
-                if (hit.rigidbody != null && hit.collider.CompareTag("Pullable"))
+                if (CanPull(hit.rigidbody) && hit.rigidbody != telekinesisTarget)
                 {
                     heldItem = hit.rigidbody;
 
@@ -225,6 +228,11 @@ public class MagneticPull : MonoBehaviour
                     if (dup) dup.OnSpellPrepare();
 
                     if (heldItem.isKinematic) heldItem.isKinematic = false;
+                }
+            }
+            // Keep the acquired object, even after it moves away from the aim ray.
+            if (heldItem != null)
+            {
                     Vector3 targetPosition = cam.transform.position + cam.transform.forward * floatingPosition;
                     Vector3 direction = targetPosition - heldItem.position;
                     float distance = direction.magnitude;
@@ -245,9 +253,8 @@ public class MagneticPull : MonoBehaviour
                         heldItem.linearVelocity *= 0.75f;
 
                         Quaternion deltaRotation = Quaternion.AngleAxis(rotationSpeed * Time.fixedDeltaTime, rotationAxis);
-                        hit.rigidbody.MoveRotation(hit.rigidbody.rotation * deltaRotation);
+                        heldItem.MoveRotation(heldItem.rotation * deltaRotation);
                     }
-                }
             }
         }
         if (!isHolding && !isThrowing) animator.SetBool("Magnetic", false);
@@ -262,6 +269,7 @@ public class MagneticPull : MonoBehaviour
             heldItem.AddForce(cam.transform.forward * throwStrength, ForceMode.Impulse);
             pullCooldownTimer = pullCooldown;
             heldItem.useGravity = true;
+            ReleaseHeldEnemy();
 
             // Reset crosshair + outline so it doesn’t stick to the old target
             CameraSettings.Instance?.SetCrosshairTargetable(false, null);
@@ -275,5 +283,94 @@ public class MagneticPull : MonoBehaviour
         }
     }
 
-   
+    /// <summary>
+    /// Drop the current input state without throwing. A level-up freezes the
+    /// game while the player may have been holding the spell button, so the
+    /// release event is never delivered.
+    /// </summary>
+    public void CancelInputState()
+    {
+        isHolding = false;
+        isThrowing = false;
+        ReleaseHeldEnemy();
+        heldItem = null;
+        EndTelekinesis();
+        _suppressAimUI = false;
+        if (animator != null) animator.SetBool("Magnetic", false);
+        ResetAimUI();
+    }
+
+    public static bool CanPull(Rigidbody body)
+    {
+        if (body == null || !body.gameObject.activeInHierarchy) return false;
+        // Enemies cannot be pulled or held into hands; only pullable stones/objects can be pulled
+        var enemy = body.GetComponent<EnnemyMovement>() ?? body.GetComponentInParent<EnnemyMovement>();
+        if (enemy != null) return false;
+        return body.CompareTag("Pullable");
+    }
+
+    public static bool CanTelekinesis(Rigidbody body)
+    {
+        if (body == null || !body.gameObject.activeInHierarchy) return false;
+        var enemy = body.GetComponent<EnnemyMovement>() ?? body.GetComponentInParent<EnnemyMovement>();
+        return enemy != null ? !enemy.isDead : body.CompareTag("Pullable");
+    }
+
+    public bool TryStartTelekinesis(Rigidbody body)
+    {
+        if (!CanTelekinesis(body) || telekinesisTarget != null || cdTimer > 0f || heldItem != null) return false;
+        telekinesisTarget = body;
+        telekinesisOriginalGravity = body.useGravity;
+        telekinesisOriginalKinematic = body.isKinematic;
+        telekinesisEnemy = body.GetComponent<EnnemyMovement>() ?? body.GetComponentInParent<EnnemyMovement>();
+        if (telekinesisEnemy != null) telekinesisEnemy.SetSpellSuspended(true);
+        body.isKinematic = false;
+        body.useGravity = false;
+        body.linearVelocity = Vector3.zero;
+        telekinesisStartY = body.position.y;
+        telekinesisTimer = telekinesisDuration;
+        cdTimer = telekinesisCD;
+        _suppressAimUI = true;
+        ResetAimUI();
+        if (animator != null) animator.SetTrigger("Telekinesis");
+        return true;
+    }
+
+    private void EndTelekinesis()
+    {
+        if (telekinesisTarget != null)
+        {
+            telekinesisTarget.useGravity = telekinesisOriginalGravity;
+            telekinesisTarget.isKinematic = telekinesisOriginalKinematic;
+        }
+        if (telekinesisEnemy != null) telekinesisEnemy.SetSpellSuspended(false);
+        telekinesisTarget = null;
+        telekinesisEnemy = null;
+        telekinesisTimer = 0f;
+        _suppressAimUI = false;
+    }
+
+    private void ReleaseHeldEnemy()
+    {
+        if (heldEnemy != null)
+        {
+            heldEnemy.SetSpellSuspended(false);
+            if (heldItem != null)
+            {
+                heldItem.useGravity = true;
+                heldItem.isKinematic = false;
+            }
+        }
+        heldEnemy = null;
+    }
+
+    private void OnDisable()
+    {
+        CancelInputState();
+    }
+
+    private Ray GetAimRay()
+    {
+        return cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+    }
 }

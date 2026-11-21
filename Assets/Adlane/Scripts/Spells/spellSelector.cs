@@ -19,11 +19,19 @@ public class SpellSelector : MonoBehaviour
     public GameObject magneticPullHighlited;
     private void Start()
     {
-        if (GameManager.Instance.isTutorial) // Only enable knockback if not in tutorial
+        if (GameManager.Instance != null && GameManager.Instance.isTutorial)
         {
             magneticPullEnabled = true;
 
         }
+
+        // Prefabs can serialize a disabled spell component independently of
+        // currentSpell. UnityEvents still call disabled behaviours, which hid
+        // the desync until casting was correctly guarded against disabled input.
+        if (currentSpell == SpellType.MagneticPull && !magneticPullEnabled)
+            currentSpell = SpellType.Shockwave;
+        knockback.enabled = currentSpell == SpellType.Shockwave;
+        magneticPull.enabled = currentSpell == SpellType.MagneticPull;
     }
     private void Awake()
     {
@@ -35,6 +43,7 @@ public class SpellSelector : MonoBehaviour
         if (context.performed && !gameObject.GetComponent<Knockback>().isCharging && !gameObject.GetComponent<MagneticPull>().isHolding)
         {
             knockback.enabled = true;
+            magneticPull.enabled = false;
             knockbackHighlited.SetActive(true);
             magneticPullHighlited.SetActive(false);
             magneticPullIcon.SetActive(true);
