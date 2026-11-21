@@ -1,0 +1,247 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!319 &31900000
+AvatarMask:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: UpperBodyCombat_Imp
+  m_Mask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000u
+  m_Elements:
+  - m_Path: FX_Explosion_Smoke
+    m_Weight: 1
+  - m_Path: Magic circle 2
+    m_Weight: 1
+  - m_Path: Magic circle 2/DarkSparks
+    m_Weight: 1
+  - m_Path: Magic circle 2/Sparks
+    m_Weight: 1
+  - m_Path: Magic circle 2/Sides
+    m_Weight: 1
+  - m_Path: Magic circle 2/Light
+    m_Weight: 1
+  - m_Path: Loukher
+    m_Weight: 1
+  - m_Path: Loukher/Big.tooth.LP.008
+    m_Weight: 1
+  - m_Path: Loukher/Big.tooth.LP.009
+    m_Weight: 1
+  - m_Path: Loukher/Claw.LP.029
+    m_Weight: 1
+  - m_Path: Loukher/Claw.LP.030
+    m_Weight: 1
+  - m_Path: Loukher/Claw.LP.031
+    m_Weight: 1
+  - m_Path: Loukher/Claw.LP.032
+    m_Weight: 1
+  - m_Path: Loukher/Claw.LP.033
+    m_Weight: 1
+  - m_Path: Loukher/Claw.LP.034
+    m_Weight: 1
+  - m_Path: Loukher/Claw.LP.035
+    m_Weight: 1
+  - m_Path: Loukher/Claw.LP.036
+    m_Weight: 1
+  - m_Path: Loukher/eyes.LP.008
+    m_Weight: 1
+  - m_Path: Loukher/eyes.LP.011
+    m_Weight: 1
+  - m_Path: Loukher/Horn.LP.008
+    m_Weight: 1
+  - m_Path: Loukher/Horn.LP.009
+    m_Weight: 1
+  - m_Path: Loukher/Imp.LP.005
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/hand.L.MOVE
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/hand.L.MOVE/hand.L.MOVE_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/hand.R.MOVE
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/hand.R.MOVE/hand.R.MOVE_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/pelvis.L
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/pelvis.L/pelvis.L_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/pelvis.R
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/pelvis.R/pelvis.R_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/breast.L
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/breast.L/breast.L.001
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/breast.L/breast.L.001/breast.L.002
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/breast.L/breast.L.001/breast.L.002/breast.L.002_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/breast.L/breast.L.001/breast.L.004
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/breast.L/breast.L.001/breast.L.004/breast.L.004_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/breast.L/breast.L.001/breast.L.006
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/breast.L/breast.L.001/breast.L.006/breast.L.006_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/breast.R
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/breast.R/breast.R.001
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/breast.R/breast.R.001/breast.R.002
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/breast.R/breast.R.001/breast.R.002/breast.R.002_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/breast.R/breast.R.001/breast.R.004
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/breast.R/breast.R.001/breast.R.004/breast.R.004_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/breast.R/breast.R.001/breast.R.006
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/breast.R/breast.R.001/breast.R.006/breast.R.006_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/shoulder.L
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/shoulder.L/upper_arm.L
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/shoulder.L/upper_arm.L/forearm.L
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/shoulder.L/upper_arm.L/forearm.L/hand.L
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/shoulder.L/upper_arm.L/forearm.L/hand.L/hand.L.001
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/shoulder.L/upper_arm.L/forearm.L/hand.L/hand.L.001/hand.L.001_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/shoulder.L/upper_arm.L/forearm.L/hand.L/hand.L.003
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/shoulder.L/upper_arm.L/forearm.L/hand.L/hand.L.003/hand.L.003_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/shoulder.L/upper_arm.L/forearm.L/hand.L/hand.L.004
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/shoulder.L/upper_arm.L/forearm.L/hand.L/hand.L.004/hand.L.004_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/shoulder.L/upper_arm.L/forearm.L/hand.L/hand.L.005
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/shoulder.L/upper_arm.L/forearm.L/hand.L/hand.L.005/hand.L.005_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/shoulder.R
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/shoulder.R/upper_arm.R
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/shoulder.R/upper_arm.R/forearm.R
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/shoulder.R/upper_arm.R/forearm.R/hand.R
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/shoulder.R/upper_arm.R/forearm.R/hand.R/hand.R.001
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/shoulder.R/upper_arm.R/forearm.R/hand.R/hand.R.001/hand.R.001_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/shoulder.R/upper_arm.R/forearm.R/hand.R/hand.R.003
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/shoulder.R/upper_arm.R/forearm.R/hand.R/hand.R.003/hand.R.003_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/shoulder.R/upper_arm.R/forearm.R/hand.R/hand.R.004
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/shoulder.R/upper_arm.R/forearm.R/hand.R/hand.R.004/hand.R.004_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/shoulder.R/upper_arm.R/forearm.R/hand.R/hand.R.005
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/shoulder.R/upper_arm.R/forearm.R/hand.R/hand.R.005/hand.R.005_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.006
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.006/spine.006_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.009
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.009/spine.011
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.009/spine.011/spine.011_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.009/spine.013
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.009/spine.013/spine.013_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.009/spine.018
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.009/spine.018/spine.018_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.009/spine.019
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.009/spine.019/spine.019_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.009/spine.020
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.009/spine.020/spine.020_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.009/spine.021
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.009/spine.021/spine.021_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.009/spine.022
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.009/spine.022/spine.022_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.009/spine.023
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.009/spine.023/spine.023_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.009/spine.024
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.009/spine.024/spine.024_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.009/spine.025
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.009/spine.025/spine.025_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.010
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.010/spine.010_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.012
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.001/spine.002/spine.003/spine.004/spine.005/spine.012/spine.012_end
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.007
+    m_Weight: 1
+  - m_Path: Loukher/metarig.004/spine/spine.007/spine.007_end
+    m_Weight: 1
+  - m_Path: Loukher/Tooth.LP.043
+    m_Weight: 1
+  - m_Path: Loukher/Tooth.LP.044
+    m_Weight: 1
+  - m_Path: Loukher/Tooth.LP.045
+    m_Weight: 1
+  - m_Path: Loukher/Tooth.LP.046
+    m_Weight: 1
+  - m_Path: Loukher/Tooth.LP.047
+    m_Weight: 1
+  - m_Path: Loukher/Tooth.LP.048
+    m_Weight: 1
+  - m_Path: Loukher/Tooth.LP.049
+    m_Weight: 1
+  - m_Path: Loukher/Tooth.LP.050
+    m_Weight: 1
+  - m_Path: Loukher/Tooth.LP.051
+    m_Weight: 1
+  - m_Path: Loukher/Tooth.LP.052
+    m_Weight: 1
+  - m_Path: Loukher/Tooth.LP.053
+    m_Weight: 1
+  - m_Path: Loukher/Tooth.LP.054
+    m_Weight: 1
